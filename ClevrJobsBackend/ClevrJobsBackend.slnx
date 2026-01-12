@@ -1,3 +1,4 @@
 <Solution>
+  <Project Path="Data/Data.csproj" Id="bb39ed59-5c0d-42c0-aebb-60137e4864cd" />
   <Project Path="ScrapeWorker/ScrapeWorker.csproj" />
 </Solution>
