@@ -1,0 +1,32 @@
+﻿using Data.Models;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Data.Repositories
+{
+    public class JobRepository : IJobRepository
+    {
+        private readonly AppDbContext _dbc;
+
+        public JobRepository(AppDbContext dbc)
+        {
+            _dbc = dbc;
+        }
+
+        public async Task<bool> AddRawJob(RawJob rawJob)
+        {
+            await _dbc.RawJobs.AddAsync(rawJob);
+
+            return await _dbc.SaveChangesAsync() > 0;
+        }
+
+        public async Task<ScrapeRun?> GetLastScrapeRun()
+        {
+            var lastRun = await _dbc.ScrapeRuns.OrderBy(i => i.StartedAt).LastOrDefaultAsync();
+
+            return lastRun;
+        }
+    }
+}
