@@ -13,7 +13,7 @@ namespace Data.Models
 
         public DateTime StartedAt { get; set; } = DateTime.Now;
 
-        public DateTime FinishedAt { get; set; }
+        public DateTime? FinishedAt { get; set; }
 
         [Required]
         public required StatusType Status { get; set; } = StatusType.InProgress;
