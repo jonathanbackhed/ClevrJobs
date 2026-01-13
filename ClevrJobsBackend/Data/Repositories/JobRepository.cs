@@ -22,6 +22,12 @@ namespace Data.Repositories
             return await _dbc.SaveChangesAsync() > 0;
         }
 
+        public async Task AddScrapeRun(ScrapeRun scrapeRun)
+        {
+            await _dbc.ScrapeRuns.AddAsync(scrapeRun);
+            await _dbc.SaveChangesAsync();
+        }
+
         public async Task<ScrapeRun?> GetLastScrapeRun()
         {
             var lastRun = await _dbc.ScrapeRuns.OrderBy(i => i.StartedAt).LastOrDefaultAsync();
