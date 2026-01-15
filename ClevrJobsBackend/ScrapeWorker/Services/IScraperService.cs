@@ -7,6 +7,7 @@ namespace ScrapeWorker.Services
 {
     public interface IScraperService
     {
-        Task ScrapePlatsbankenAsync(IJobRepository jobRepository, CancellationToken cancellationToken);
+        // bool = success, int = scraperunid
+        Task<(bool, int)> ScrapePlatsbankenAsync(IJobRepository jobRepository, CancellationToken cancellationToken);
     }
 }

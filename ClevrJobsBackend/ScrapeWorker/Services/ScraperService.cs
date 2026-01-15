@@ -18,7 +18,7 @@ namespace ScrapeWorker.Services
             _logger = logger;
         }
 
-        public async Task ScrapePlatsbankenAsync(IJobRepository jobRepository, CancellationToken cancellationToken)
+        public async Task<(bool, int)> ScrapePlatsbankenAsync(IJobRepository jobRepository, CancellationToken cancellationToken)
         {
             var baseUrl = "https://arbetsformedlingen.se";
             var requestUrl = "https://arbetsformedlingen.se/platsbanken/annonser?q=c%23";
@@ -141,6 +141,8 @@ namespace ScrapeWorker.Services
             scrapeRun.Status = StatusType.Completed;
             scrapeRun.FinishedAt = DateTime.Now;
             await jobRepository.UpdateScrapeRun(scrapeRun);
+
+            return (true, scrapeRun.Id);
         }
 
         private async Task<ScrapeRun> CreateScrapeRunAsync(IJobRepository jobRepository)

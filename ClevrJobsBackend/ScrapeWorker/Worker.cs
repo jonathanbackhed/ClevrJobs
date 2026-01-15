@@ -1,5 +1,7 @@
 using Data.Repositories;
 using Microsoft.Playwright;
+using Queue.Messages;
+using Queue.Services;
 using ScrapeWorker.Services;
 
 namespace ScrapeWorker
@@ -9,12 +11,14 @@ namespace ScrapeWorker
         private readonly ILogger<Worker> _logger;
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly IScraperService _scraperService;
+        private readonly IMessageService _messageService;
 
-        public Worker(ILogger<Worker> logger, IServiceScopeFactory scopeFactory, IScraperService scraperService)
+        public Worker(ILogger<Worker> logger, IServiceScopeFactory scopeFactory, IScraperService scraperService, IMessageService messageService)
         {
             _logger = logger;
             _scopeFactory = scopeFactory;
             _scraperService = scraperService;
+            _messageService = messageService;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -42,7 +46,16 @@ namespace ScrapeWorker
 
                     _logger.LogInformation($"Scrape started at {DateTime.Now}");
 
-                    await _scraperService.ScrapePlatsbankenAsync(jobRepository, stoppingToken);
+                    var (success, scrapeRunId) = await _scraperService.ScrapePlatsbankenAsync(jobRepository, stoppingToken);
+
+                    if (success)
+                    {
+                        await _messageService.PublishAsync(new ScrapeCompletedEvent
+                        {
+                            ScrapeRunId = scrapeRunId,
+                            TimeStamp = DateTime.Now
+                        });
+                    }
 
                 }
                 catch (Exception e)
