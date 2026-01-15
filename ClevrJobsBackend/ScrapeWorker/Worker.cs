@@ -34,12 +34,11 @@ namespace ScrapeWorker
 
                     if (lastRun != null && lastRun.StartedAt.Date == DateTime.Now.Date)
                     {
-                        _logger.LogInformation("Scrape already performed today. Waiting until tomorrow.");
-
                         var now = DateTime.Now;
                         var targetTime = now.Date.AddDays(1).AddHours(2);
                         var delayUntilTarget = targetTime - now;
 
+                        _logger.LogInformation($"Scrape already performed today. Sleeping for {delayUntilTarget.Hours} hours and {delayUntilTarget.Minutes} minutes.");
                         await Task.Delay(delayUntilTarget, stoppingToken);
                         continue;
                     }

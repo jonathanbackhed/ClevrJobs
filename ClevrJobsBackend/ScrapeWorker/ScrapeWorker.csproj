@@ -20,5 +20,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Data\Data.csproj" />
+    <ProjectReference Include="..\Queue\Queue.csproj" />
   </ItemGroup>
 </Project>
