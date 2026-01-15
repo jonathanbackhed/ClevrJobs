@@ -30,7 +30,7 @@ namespace ScrapeWorker.Services
             await using var browser = await playwright.Chromium.LaunchAsync(
                 new BrowserTypeLaunchOptions
                 {
-                    Headless = false,
+                    Headless = true,
                     SlowMo = 200
                 });
 
@@ -131,11 +131,15 @@ namespace ScrapeWorker.Services
                 }
                 catch (Exception e)
                 {
-                    _logger.LogError($"Error scraping job listing: {e.Message}");
+                    _logger.LogError($"Error scraping job listing: {e.Message}\n{e.StackTrace}");
                 }
             }
 
             await browser.CloseAsync();
+
+            scrapeRun.Status = StatusType.Completed;
+            scrapeRun.FinishedAt = DateTime.Now;
+            await jobRepository.UpdateScrapeRun(scrapeRun);
         }
 
         private async Task<ScrapeRun> CreateScrapeRunAsync(IJobRepository jobRepository)

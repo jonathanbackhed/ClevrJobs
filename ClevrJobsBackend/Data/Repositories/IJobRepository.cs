@@ -10,5 +10,6 @@ namespace Data.Repositories
         Task<ScrapeRun?> GetLastScrapeRun();
         Task<bool> AddRawJob(RawJob rawJob);
         Task AddScrapeRun(ScrapeRun scrapeRun);
+        Task UpdateScrapeRun(ScrapeRun scrapeRun);
     }
 }

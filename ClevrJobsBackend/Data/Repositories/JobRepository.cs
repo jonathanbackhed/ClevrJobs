@@ -34,5 +34,11 @@ namespace Data.Repositories
 
             return lastRun;
         }
+
+        public async Task UpdateScrapeRun(ScrapeRun scrapeRun)
+        {
+            _dbc.ScrapeRuns.Update(scrapeRun);
+            await _dbc.SaveChangesAsync();
+        }
     }
 }
