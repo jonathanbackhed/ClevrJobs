@@ -57,6 +57,10 @@ namespace Data.Models
         public required string ListingId { get; set; }
 
         [Required]
+        [MaxLength(100)]
+        public required string ListingUrl { get; set; }
+
+        [Required]
         public required SourceType Source { get; set; }
 
         [Required]

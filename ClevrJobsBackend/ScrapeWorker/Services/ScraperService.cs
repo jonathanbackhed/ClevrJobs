@@ -116,6 +116,7 @@ namespace ScrapeWorker.Services
                         SalaryType = salaryType.Split(":").ElementAtOrDefault(1)?.Trim() ?? salaryType,
                         Published = published.Split(":").ElementAtOrDefault(1)?.Trim() ?? published,
                         ListingId = listingId.Split(":").ElementAtOrDefault(1)?.Trim() ?? listingId,
+                        ListingUrl = baseUrl + href,
                         Source = SourceType.Platsbanken,
                         ProcessedStatus = StatusType.New,
                         ScrapeRun = scrapeRun
