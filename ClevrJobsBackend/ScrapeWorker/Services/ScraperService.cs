@@ -73,14 +73,21 @@ namespace ScrapeWorker.Services
 
                     var extent = await newPage
                         .Locator("div.ng-star-inserted:has(h3[translate='section-jobb-main-content.extent']) > span")
-                        .InnerTextAsync() ?? "N/A";
+                        .InnerTextAsync();
 
                     var duration = await newPage
                         .Locator("div.ng-star-inserted:has(h3[translate='section-jobb-main-content.duration']) > span")
-                        .InnerTextAsync() ?? "N/A";
+                        .InnerTextAsync();
+
+                    if (string.IsNullOrEmpty(extent) && string.IsNullOrEmpty(duration))
+                    {
+                        extent = await newPage
+                        .Locator("div.ng-star-inserted:has(h3[translate='section-jobb-main-content.employment-type']) > span")
+                        .InnerTextAsync();
+                    }
 
                     var dateLocator = await newPage.Locator("div.last-date > strong").AllInnerTextsAsync();
-                    var applicationDeadline = dateLocator.FirstOrDefault() ?? "N/A";
+                    var applicationDeadline = dateLocator.FirstOrDefault();
 
                     var tryApplicationUrl = newPage.Locator("a.apply-by-link-external");
                     var tryApplicationEmail = newPage.Locator("a.apply-by-email");
