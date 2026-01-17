@@ -15,6 +15,7 @@ namespace Data
         public DbSet<ProcessRun> ProcessRuns { get; set; }
         public DbSet<ProcessedJob> ProcessedJobs { get; set; }
         public DbSet<Prompt> Prompts { get; set; }
+        public DbSet<FailedScrape> FailedScrapes { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

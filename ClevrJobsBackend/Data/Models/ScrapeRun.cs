@@ -19,5 +19,7 @@ namespace Data.Models
         public required StatusType Status { get; set; } = StatusType.InProgress;
 
         public ICollection<RawJob>? RawJobs { get; set; }
+
+        public ICollection<FailedScrape>? FailedScrapes { get; set; }
     }
 }
