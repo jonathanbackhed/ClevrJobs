@@ -3,6 +3,7 @@ using Data.Enums;
 using Data.Models;
 using Data.Repositories;
 using Microsoft.Playwright;
+using ScrapeWorker.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -58,54 +59,49 @@ namespace ScrapeWorker.Services
 
             foreach (var item in links)
             {
+                var href = await item.GetAttributeAsync("href");
+                var context = await browser.NewContextAsync();
+                var newPage = await context.NewPageAsync();
+                await newPage.GotoAsync(baseUrl + href);
+
                 try
                 {
-                    var href = await item.GetAttributeAsync("href");
-                    var context = await browser.NewContextAsync();
-                    var newPage = await context.NewPageAsync();
-                    await newPage.GotoAsync(baseUrl + href);
-
                     await newPage.WaitForSelectorAsync("div.job-description", new() { State = WaitForSelectorState.Visible });
-                    var title = await newPage.Locator("h1.break-title").InnerTextAsync();
-                    var company = await newPage.Locator("h2#pb-company-name").InnerTextAsync();
-                    var role = await newPage.Locator("h3#pb-job-role").InnerTextAsync();
-                    var location = await newPage.Locator("h3#pb-job-location").InnerTextAsync();
+
+                    var title = await newPage.GetRequiredTextAsync("h1.break-title");
+                    var company = await newPage.GetRequiredTextAsync("h2#pb-company-name");
+                    var role = await newPage.GetRequiredTextAsync("h3#pb-job-role");
+                    var location = await newPage.GetRequiredTextAsync("h3#pb-job-location");
 
                     var extent = await newPage
-                        .Locator("div.ng-star-inserted:has(h3[translate='section-jobb-main-content.extent']) > span")
-                        .InnerTextAsync();
+                        .GetOptionalTextAsync("div.ng-star-inserted:has(h3[translate='section-jobb-main-content.extent']) > span", "");
 
                     var duration = await newPage
-                        .Locator("div.ng-star-inserted:has(h3[translate='section-jobb-main-content.duration']) > span")
-                        .InnerTextAsync();
+                        .GetOptionalTextAsync("div.ng-star-inserted:has(h3[translate='section-jobb-main-content.duration']) > span", "");
 
                     if (string.IsNullOrEmpty(extent) && string.IsNullOrEmpty(duration))
                     {
                         extent = await newPage
-                        .Locator("div.ng-star-inserted:has(h3[translate='section-jobb-main-content.employment-type']) > span")
-                        .InnerTextAsync();
+                            .GetOptionalTextAsync("div.ng-star-inserted:has(h3[translate='section-jobb-main-content.employment-type']) > span");
                     }
 
-                    var dateLocator = await newPage.Locator("div.last-date > strong").AllInnerTextsAsync();
-                    var applicationDeadline = dateLocator.FirstOrDefault();
+                    var applicationDeadline = await newPage.GetRequiredTextAsync("div.last-date > strong");
 
-                    var tryApplicationUrl = newPage.Locator("a.apply-by-link-external");
-                    var tryApplicationEmail = newPage.Locator("a.apply-by-email");
-                    var applicationUrl = await tryApplicationUrl.CountAsync() > 0 ?
-                        await tryApplicationUrl.First.GetAttributeAsync("href") :
-                        await tryApplicationEmail.First.InnerTextAsync();
+                    var applicationUrlLocator = newPage.Locator("a.apply-by-link-external");
+                    var applicationEmailLocator = newPage.Locator("a.apply-by-email");
+                    var applicationUrl = await applicationUrlLocator.CountAsync() > 0 
+                        ? await applicationUrlLocator.First.GetAttributeAsync("href") 
+                        : await applicationEmailLocator.First.InnerTextAsync();
 
-                    var desc = await newPage.Locator("div.job-description").InnerTextAsync();
+                    var desc = await newPage.GetRequiredTextAsync("div.job-description");
 
-                    var salaryType = await newPage.Locator("div.salary-type").InnerTextAsync();
+                    var salaryType = await newPage.GetOptionalTextAsync("div.salary-type");
 
                     var published = await newPage
-                        .Locator("div h2 > span[translate='section-jobb-about.published']")
-                        .InnerTextAsync();
+                        .GetOptionalTextAsync("div h2 > span[translate='section-jobb-about.published']");
 
                     var listingId = await newPage
-                        .Locator("div h2 > span[translate='section-jobb-about.annons-id']")
-                        .InnerTextAsync();
+                        .GetRequiredTextAsync("div h2 > span[translate='section-jobb-about.annons-id']");
 
                     await newPage.CloseAsync();
 
@@ -133,13 +129,20 @@ namespace ScrapeWorker.Services
                     if (!result)
                     {
                         _logger.LogError($"Failed to save RawJob to database. Listing id: {listingId}");
+                        throw new InvalidOperationException("Error saving to database");
                     }
 
-                    await Task.Delay(1000);
+                    await Task.Delay(500);
+                }
+                catch (InvalidOperationException e)
+                {
+                    await newPage.CloseAsync();
+                    _logger.LogError(e, $"Missing required field for listing: {href}");
                 }
                 catch (Exception e)
                 {
-                    _logger.LogError($"Error scraping job listing: {e.Message}\n{e.StackTrace}");
+                    await newPage.CloseAsync();
+                    _logger.LogError(e, $"Unexpected error scraping listing: {href}");
                 }
             }
 
