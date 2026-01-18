@@ -28,6 +28,11 @@ namespace Data.Repositories
             await _dbc.SaveChangesAsync();
         }
 
+        public async Task<RawJob?> GetLastPublishedRawJob()
+        {
+            return await _dbc.RawJobs.OrderByDescending(o => o.ListingId).FirstOrDefaultAsync();
+        }
+
         public async Task<ScrapeRun?> GetLastScrapeRun()
         {
             var lastRun = await _dbc.ScrapeRuns.OrderBy(i => i.StartedAt).LastOrDefaultAsync();

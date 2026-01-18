@@ -19,7 +19,7 @@ namespace ScrapeWorker.Services
             _logger = logger;
         }
 
-        public async Task<(bool, int)> ScrapePlatsbankenAsync(IJobRepository jobRepository, CancellationToken cancellationToken)
+        public async Task<(bool, int)> ScrapePlatsbankenAsync(IJobRepository jobRepository, int lastJobListingId, CancellationToken cancellationToken)
         {
             var baseUrl = "https://arbetsformedlingen.se";
             var requestUrl = "https://arbetsformedlingen.se/platsbanken/annonser?q=c%23";
@@ -60,6 +60,15 @@ namespace ScrapeWorker.Services
             foreach (var item in links)
             {
                 var href = await item.GetAttributeAsync("href");
+
+                string currentListingIdStr = href?.Split("/").Last() ?? "-1";
+                var parseSuccess = int.TryParse(currentListingIdStr, out var currentListingId);
+                if (parseSuccess && currentListingId == lastJobListingId)
+                {
+                    _logger.LogInformation($"Job already scraped, exiting run.");
+                    break;
+                }
+
                 var context = await browser.NewContextAsync();
                 var newPage = await context.NewPageAsync();
                 await newPage.GotoAsync(baseUrl + href);

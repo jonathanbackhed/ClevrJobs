@@ -43,9 +43,15 @@ namespace ScrapeWorker
                         continue;
                     }
 
+                    var lastJob = await jobRepository.GetLastPublishedRawJob();
+
+                    var tryParseListingId = int.TryParse(lastJob?.ListingId, out var lastJobListingId);
+                    if (!tryParseListingId)
+                        lastJobListingId = -1;
+
                     _logger.LogInformation($"Scrape started at {DateTime.Now}");
 
-                    var (success, scrapeRunId) = await _scraperService.ScrapePlatsbankenAsync(jobRepository, stoppingToken);
+                    var (success, scrapeRunId) = await _scraperService.ScrapePlatsbankenAsync(jobRepository, lastJobListingId, stoppingToken);
 
                     if (success)
                     {
