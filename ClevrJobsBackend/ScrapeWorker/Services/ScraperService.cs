@@ -204,6 +204,21 @@ namespace ScrapeWorker.Services
 
                     jobList.Add(rawJob);
                 }
+                catch (TimeoutException e)
+                {
+                    _logger.LogError(e, $"Timeout happened for listing id: {listId}");
+
+                    var failedJob = new FailedScrape
+                    {
+                        ListingUrl = listUrl,
+                        ListingId = listId.ToString(),
+                        ScrapeRun = scrapeRun,
+                        ErrorMessage = e.Message,
+                        ErrorType = "TimeoutException",
+                        Status = FailedScrapeStatusType.ReadyForRetry
+                    };
+                    failedJobList.Add(failedJob);
+                }
                 catch (InvalidOperationException e)
                 {
                     _logger.LogError(e, $"Missing required field for listing id: {listId}");
