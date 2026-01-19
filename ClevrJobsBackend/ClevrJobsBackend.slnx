@@ -1,5 +1,5 @@
 <Solution>
   <Project Path="Data/Data.csproj" Id="bb39ed59-5c0d-42c0-aebb-60137e4864cd" />
   <Project Path="Queue/Queue.csproj" Id="5f539766-0f99-46bb-b20a-2d197ec329cf" />
-  <Project Path="ScrapeWorker/ScrapeWorker.csproj" />
+  <Project Path="ScrapeWorker/Workers.csproj" />
 </Solution>

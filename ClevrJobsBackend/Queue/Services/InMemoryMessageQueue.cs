@@ -6,7 +6,7 @@ using System.Threading.Channels;
 
 namespace Queue.Services
 {
-    public class InMemoryMessageQueue : IMessageService
+    public class InMemoryMessageQueue : IMessageQueue
     {
         private readonly ConcurrentDictionary<Type, object> _channels = new();
 

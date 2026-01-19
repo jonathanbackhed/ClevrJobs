@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace ScrapeWorker.Services
+namespace Workers.Services
 {
     public interface IScraperService
     {

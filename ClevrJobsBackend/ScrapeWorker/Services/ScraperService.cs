@@ -2,13 +2,13 @@
 using Data.Models;
 using Data.Repositories;
 using Microsoft.Playwright;
-using ScrapeWorker.Extensions;
-using ScrapeWorker.Models.Dto;
+using Workers.Extensions;
+using Workers.Models.Dto;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace ScrapeWorker.Services
+namespace Workers.Services
 {
     public class ScraperService : IScraperService
     {

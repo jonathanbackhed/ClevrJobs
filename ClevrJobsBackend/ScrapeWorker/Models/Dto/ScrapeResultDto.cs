@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace ScrapeWorker.Models.Dto
+namespace Workers.Models.Dto
 {
     public record ScrapeResultDto
     {

@@ -2,18 +2,18 @@ using Data.Repositories;
 using Microsoft.Playwright;
 using Queue.Messages;
 using Queue.Services;
-using ScrapeWorker.Services;
+using Workers.Services;
 
-namespace ScrapeWorker
+namespace Workers
 {
-    public class Worker : BackgroundService
+    public class ScrapeWorker : BackgroundService
     {
-        private readonly ILogger<Worker> _logger;
+        private readonly ILogger<ScrapeWorker> _logger;
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly IScraperService _scraperService;
-        private readonly IMessageService _messageService;
+        private readonly IMessageQueue _messageService;
 
-        public Worker(ILogger<Worker> logger, IServiceScopeFactory scopeFactory, IScraperService scraperService, IMessageService messageService)
+        public ScrapeWorker(ILogger<ScrapeWorker> logger, IServiceScopeFactory scopeFactory, IScraperService scraperService, IMessageQueue messageService)
         {
             _logger = logger;
             _scopeFactory = scopeFactory;
