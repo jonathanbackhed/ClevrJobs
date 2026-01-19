@@ -15,6 +15,13 @@ namespace Data.Repositories
             _dbc = dbc;
         }
 
+        public async Task<bool> AddMultipleRawJobs(IEnumerable<RawJob> rawJobs)
+        {
+            await _dbc.RawJobs.AddRangeAsync(rawJobs);
+
+            return await _dbc.SaveChangesAsync() > 0;
+        }
+
         public async Task<bool> AddRawJob(RawJob rawJob)
         {
             await _dbc.RawJobs.AddAsync(rawJob);
@@ -22,10 +29,11 @@ namespace Data.Repositories
             return await _dbc.SaveChangesAsync() > 0;
         }
 
-        public async Task AddScrapeRun(ScrapeRun scrapeRun)
+        public async Task<bool> AddScrapeRun(ScrapeRun scrapeRun)
         {
             await _dbc.ScrapeRuns.AddAsync(scrapeRun);
-            await _dbc.SaveChangesAsync();
+
+            return await _dbc.SaveChangesAsync() > 0;
         }
 
         public async Task<RawJob?> GetLastPublishedRawJob()
@@ -40,10 +48,11 @@ namespace Data.Repositories
             return lastRun;
         }
 
-        public async Task UpdateScrapeRun(ScrapeRun scrapeRun)
+        public async Task<bool> UpdateScrapeRun(ScrapeRun scrapeRun)
         {
             _dbc.ScrapeRuns.Update(scrapeRun);
-            await _dbc.SaveChangesAsync();
+
+            return await _dbc.SaveChangesAsync() > 0;
         }
     }
 }

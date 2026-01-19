@@ -1,9 +1,9 @@
-﻿using Data;
-using Data.Enums;
+﻿using Data.Enums;
 using Data.Models;
 using Data.Repositories;
 using Microsoft.Playwright;
 using ScrapeWorker.Extensions;
+using ScrapeWorker.Models.Dto;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -14,6 +14,9 @@ namespace ScrapeWorker.Services
     {
         private readonly ILogger<ScraperService> _logger;
 
+        private string _platsbankenBaseUrl = "https://arbetsformedlingen.se";
+        private string _platsbankenRequestUrl = "https://arbetsformedlingen.se/platsbanken/annonser?q=c%23";
+
         public ScraperService(ILogger<ScraperService> logger)
         {
             _logger = logger;
@@ -21,10 +24,12 @@ namespace ScrapeWorker.Services
 
         public async Task<(bool, int)> ScrapePlatsbankenAsync(IJobRepository jobRepository, int lastJobListingId, CancellationToken cancellationToken)
         {
-            var baseUrl = "https://arbetsformedlingen.se";
-            var requestUrl = "https://arbetsformedlingen.se/platsbanken/annonser?q=c%23";
-
             var scrapeRun = await CreateScrapeRunAsync(jobRepository);
+            if (scrapeRun is null)
+            {
+                _logger.LogError("Error creating ScrapeRun");
+                return (false, -1);
+            }
 
             using var playwright = await Playwright.CreateAsync();
 
@@ -32,12 +37,12 @@ namespace ScrapeWorker.Services
                 new BrowserTypeLaunchOptions
                 {
                     Headless = true,
-                    SlowMo = 200
+                    SlowMo = 1500
                 });
 
             var page = await browser.NewPageAsync();
 
-            await page.GotoAsync(requestUrl,
+            await page.GotoAsync(_platsbankenRequestUrl,
                 new PageGotoOptions
                 {
                     WaitUntil = WaitUntilState.NetworkIdle
@@ -55,29 +60,81 @@ namespace ScrapeWorker.Services
 
             await page.WaitForSelectorAsync("div.header-container h3 a");
 
-            var links = await page.Locator("div.header-container h3 a").AllAsync();
+            bool runIsSuccess = true;
 
-            int scrapedJobs = 0;
-            int failedJobs = 0;
-
-            foreach (var item in links)
+            while (true)
             {
-                var href = await item.GetAttributeAsync("href");
+                var links = await page.Locator("div.header-container h3 a").AllAsync();
 
-                string currentListingIdStr = href?.Split("/").Last() ?? "-1";
-                var parseSuccess = int.TryParse(currentListingIdStr, out var currentListingId);
-                if (parseSuccess && currentListingId == lastJobListingId)
+                var scrapeResult = await ScrapeListingsAsync(links, browser, scrapeRun, lastJobListingId);
+
+                var addResult = await jobRepository.AddMultipleRawJobs(scrapeResult.Jobs);
+                if (!addResult)
                 {
-                    _logger.LogInformation($"Job already scraped, exiting run.");
+                    _logger.LogError($"Failed to save rawjobs to database. Scrape id: {scrapeRun.Id}");
+                    runIsSuccess = false;
                     break;
                 }
 
-                var context = await browser.NewContextAsync();
-                var newPage = await context.NewPageAsync();
-                await newPage.GotoAsync(baseUrl + href);
+                scrapeRun.ScrapedJobs += scrapeResult.ScrapedJobs;
+                scrapeRun.FailedJobs += scrapeResult.FailedJobs;
 
+                if (!scrapeResult.ShouldContinue)
+                {
+                    runIsSuccess = true;
+                    break;
+                }
+
+                var nextPageStatus = await GoToNextpageAsync(page);
+                if (!nextPageStatus)
+                {
+                    break;
+                }
+            }
+
+            await browser.CloseAsync();
+
+            var endScrapeResult = await EndScrapeRunAsync(jobRepository, scrapeRun, runIsSuccess);
+            if (!endScrapeResult)
+            {
+                _logger.LogError($"Failed to end ScrapeRun. Scrape id: {scrapeRun.Id}");
+                return (false, -1);
+            }
+
+            return (true, scrapeRun.Id);
+        }
+
+        private async Task<ScrapeResultDto> ScrapeListingsAsync(IReadOnlyList<ILocator> links, IBrowser browser, ScrapeRun scrapeRun, int lastJobListingId)
+        {
+            bool shouldContinue = true;
+            int failedJobs = 0;
+            List<RawJob> jobList = new();
+
+            var random = new Random();
+
+            foreach (var item in links)
+            {
+                IPage? newPage = null;
+                int listId = 0;
                 try
                 {
+                    var href = await item.GetAttributeAsync("href");
+
+                    string currentListingIdStr = href?.Split("/").Last() ?? "-1";
+                    var parseSuccess = int.TryParse(currentListingIdStr, out var currentListingId);
+                    if (parseSuccess && currentListingId == lastJobListingId)
+                    {
+                        _logger.LogInformation($"Job already scraped, exiting run.");
+                        shouldContinue = false;
+                        break;
+                    }
+
+                    listId = currentListingId;
+
+                    var context = await browser.NewContextAsync();
+                    newPage = await context.NewPageAsync();
+                    await newPage.GotoAsync(_platsbankenBaseUrl + href);
+
                     await newPage.WaitForSelectorAsync("div.job-description", new() { State = WaitForSelectorState.Visible });
 
                     var title = await newPage.GetRequiredTextAsync("h1.break-title");
@@ -101,8 +158,8 @@ namespace ScrapeWorker.Services
 
                     var applicationUrlLocator = newPage.Locator("a.apply-by-link-external");
                     var applicationEmailLocator = newPage.Locator("a.apply-by-email");
-                    var applicationUrl = await applicationUrlLocator.CountAsync() > 0 
-                        ? await applicationUrlLocator.First.GetAttributeAsync("href") 
+                    var applicationUrl = await applicationUrlLocator.CountAsync() > 0
+                        ? await applicationUrlLocator.First.GetAttributeAsync("href")
                         : await applicationEmailLocator.First.InnerTextAsync();
 
                     var desc = await newPage.GetRequiredTextAsync("div.job-description");
@@ -114,8 +171,6 @@ namespace ScrapeWorker.Services
 
                     var listingId = await newPage
                         .GetRequiredTextAsync("div h2 > span[translate='section-jobb-about.annons-id']");
-
-                    await newPage.CloseAsync();
 
                     var rawJob = new RawJob
                     {
@@ -131,49 +186,70 @@ namespace ScrapeWorker.Services
                         SalaryType = salaryType.Split(":").ElementAtOrDefault(1)?.Trim() ?? salaryType,
                         Published = published.Split(":").ElementAtOrDefault(1)?.Trim() ?? published,
                         ListingId = listingId.Split(":").ElementAtOrDefault(1)?.Trim() ?? listingId,
-                        ListingUrl = baseUrl + href,
+                        ListingUrl = _platsbankenBaseUrl + href,
                         Source = SourceType.Platsbanken,
                         ProcessedStatus = StatusType.New,
                         ScrapeRun = scrapeRun
                     };
 
-                    var result = await jobRepository.AddRawJob(rawJob);
-                    if (!result)
-                    {
-                        _logger.LogError($"Failed to save RawJob to database. Listing id: {listingId}");
-                        throw new InvalidOperationException("Error saving to database");
-                    }
-
-                    scrapedJobs++;
-
-                    await Task.Delay(500);
+                    jobList.Add(rawJob);
                 }
                 catch (InvalidOperationException e)
                 {
-                    await newPage.CloseAsync();
-                    _logger.LogError(e, $"Missing required field for listing: {href}");
+                    _logger.LogError(e, $"Missing required field for listing id: {listId}");
                     failedJobs++;
                 }
                 catch (Exception e)
                 {
-                    await newPage.CloseAsync();
-                    _logger.LogError(e, $"Unexpected error scraping listing: {href}");
+                    _logger.LogError(e, $"Unexpected error scraping listing id: {listId}");
                     failedJobs++;
+                }
+                finally
+                {
+                    if (newPage != null)
+                    {
+                        await newPage.CloseAsync();
+                        int delay = random.Next(4000, 15001);
+                        await Task.Delay(delay);
+                    }
                 }
             }
 
-            await browser.CloseAsync();
-
-            scrapeRun.Status = StatusType.Completed;
-            scrapeRun.FinishedAt = DateTime.Now;
-            scrapeRun.ScrapedJobs = scrapedJobs;
-            scrapeRun.FailedJobs = failedJobs;
-            await jobRepository.UpdateScrapeRun(scrapeRun);
-
-            return (true, scrapeRun.Id);
+            return new ScrapeResultDto
+            {
+                Jobs = jobList,
+                ScrapedJobs = jobList.Count,
+                FailedJobs = failedJobs,
+                ShouldContinue = shouldContinue
+            };
         }
 
-        private async Task<ScrapeRun> CreateScrapeRunAsync(IJobRepository jobRepository)
+        private async Task<bool> GoToNextpageAsync(IPage page)
+        {
+            var nextBtn = page.Locator("button.digi-button.digi-button--variation-secondary:has-text('Nästa')");
+
+            var count = await nextBtn.CountAsync();
+            if (count == 0)
+            {
+                _logger.LogInformation("Next button not found");
+                return false;
+            }
+
+            var isDisabled = await nextBtn.IsDisabledAsync();
+            if (isDisabled)
+            {
+                _logger.LogInformation("Next button is disabled");
+                return false;
+            }
+
+            await nextBtn.ClickAsync();
+            await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
+
+            _logger.LogInformation("Successfully navigated to next page");
+            return true;
+        }
+
+        private async Task<ScrapeRun?> CreateScrapeRunAsync(IJobRepository jobRepository)
         {
             var scrapeRun = new ScrapeRun
             {
@@ -181,9 +257,29 @@ namespace ScrapeWorker.Services
                 Status = StatusType.InProgress
             };
 
-            await jobRepository.AddScrapeRun(scrapeRun);
+            var success = await jobRepository.AddScrapeRun(scrapeRun);
+            if (!success)
+            {
+                return null;
+            }
 
             return scrapeRun;
+        }
+
+        private async Task<bool> EndScrapeRunAsync(IJobRepository jobRepository, ScrapeRun scrapeRun, bool runIsSuccess)
+        {
+            scrapeRun.Status = runIsSuccess ? StatusType.Completed : StatusType.Failed;
+            scrapeRun.FinishedAt = DateTime.Now;
+            scrapeRun.ScrapedJobs = scrapeRun.ScrapedJobs;
+            scrapeRun.FailedJobs = scrapeRun.FailedJobs;
+
+            var success = await jobRepository.UpdateScrapeRun(scrapeRun);
+            if (!success)
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }
