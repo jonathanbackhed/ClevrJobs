@@ -18,6 +18,10 @@ namespace Data.Models
         [Required]
         public required StatusType Status { get; set; } = StatusType.InProgress;
 
+        public int ScrapedJobs { get; set; } = 0;
+
+        public int FailedJobs { get; set; } = 0;
+
         public ICollection<RawJob>? RawJobs { get; set; }
 
         public ICollection<FailedScrape>? FailedScrapes { get; set; }

@@ -57,6 +57,9 @@ namespace ScrapeWorker.Services
 
             var links = await page.Locator("div.header-container h3 a").AllAsync();
 
+            int scrapedJobs = 0;
+            int failedJobs = 0;
+
             foreach (var item in links)
             {
                 var href = await item.GetAttributeAsync("href");
@@ -141,17 +144,21 @@ namespace ScrapeWorker.Services
                         throw new InvalidOperationException("Error saving to database");
                     }
 
+                    scrapedJobs++;
+
                     await Task.Delay(500);
                 }
                 catch (InvalidOperationException e)
                 {
                     await newPage.CloseAsync();
                     _logger.LogError(e, $"Missing required field for listing: {href}");
+                    failedJobs++;
                 }
                 catch (Exception e)
                 {
                     await newPage.CloseAsync();
                     _logger.LogError(e, $"Unexpected error scraping listing: {href}");
+                    failedJobs++;
                 }
             }
 
@@ -159,6 +166,8 @@ namespace ScrapeWorker.Services
 
             scrapeRun.Status = StatusType.Completed;
             scrapeRun.FinishedAt = DateTime.Now;
+            scrapeRun.ScrapedJobs = scrapedJobs;
+            scrapeRun.FailedJobs = failedJobs;
             await jobRepository.UpdateScrapeRun(scrapeRun);
 
             return (true, scrapeRun.Id);
