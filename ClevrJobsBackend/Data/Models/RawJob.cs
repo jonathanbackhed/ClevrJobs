@@ -27,13 +27,11 @@ namespace Data.Models
         [MaxLength(100)]
         public required string Location { get; set; }
 
-        [Required]
         [MaxLength(100)]
-        public required string Extent { get; set; }
+        public string? Extent { get; set; }
 
-        [Required]
         [MaxLength(100)]
-        public required string Duration { get; set; }
+        public string? Duration { get; set; }
 
         [Required]
         [MaxLength(20)]
@@ -45,9 +43,8 @@ namespace Data.Models
         [Required]
         public required string Description { get; set; }
 
-        [Required]
         [MaxLength(100)]
-        public required string SalaryType { get; set; }
+        public string? SalaryType { get; set; }
 
         [Required]
         public required string Published { get; set; }
