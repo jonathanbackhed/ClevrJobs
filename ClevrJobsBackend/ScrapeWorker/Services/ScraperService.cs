@@ -76,8 +76,16 @@ namespace ScrapeWorker.Services
                     break;
                 }
 
-                scrapeRun.ScrapedJobs += scrapeResult.ScrapedJobs;
-                scrapeRun.FailedJobs += scrapeResult.FailedJobs;
+                var addFailedResult = await jobRepository.AddMultipleFailedScrapes(scrapeResult.FailedJobs);
+                if (!addFailedResult)
+                {
+                    _logger.LogError($"Failed to save failedscrapes to database. Scrape id: {scrapeRun.Id}");
+                    runIsSuccess = false;
+                    break;
+                }
+
+                scrapeRun.ScrapedJobs += scrapeResult.Jobs.Count;
+                scrapeRun.FailedJobs += scrapeResult.FailedJobs.Count;
 
                 if (!scrapeResult.ShouldContinue)
                 {
@@ -107,8 +115,8 @@ namespace ScrapeWorker.Services
         private async Task<ScrapeResultDto> ScrapeListingsAsync(IReadOnlyList<ILocator> links, IBrowser browser, ScrapeRun scrapeRun, int lastJobListingId)
         {
             bool shouldContinue = true;
-            int failedJobs = 0;
             List<RawJob> jobList = new();
+            List<FailedScrape> failedJobList = new();
 
             var random = new Random();
 
@@ -116,6 +124,7 @@ namespace ScrapeWorker.Services
             {
                 IPage? newPage = null;
                 int listId = 0;
+                string listUrl = "";
                 try
                 {
                     var href = await item.GetAttributeAsync("href");
@@ -129,6 +138,7 @@ namespace ScrapeWorker.Services
                         break;
                     }
 
+                    listUrl = _platsbankenBaseUrl + href;
                     listId = currentListingId;
 
                     var context = await browser.NewContextAsync();
@@ -197,20 +207,40 @@ namespace ScrapeWorker.Services
                 catch (InvalidOperationException e)
                 {
                     _logger.LogError(e, $"Missing required field for listing id: {listId}");
-                    failedJobs++;
+
+                    var failedJob = new FailedScrape
+                    {
+                        ListingUrl = listUrl,
+                        ListingId = listId.ToString(),
+                        ScrapeRun = scrapeRun,
+                        ErrorMessage = e.Message,
+                        ErrorType = "InvalidOperationException",
+                        Status = FailedScrapeStatusType.Failed
+                    };
+                    failedJobList.Add(failedJob);
                 }
                 catch (Exception e)
                 {
                     _logger.LogError(e, $"Unexpected error scraping listing id: {listId}");
-                    failedJobs++;
+
+                    var failedJob = new FailedScrape
+                    {
+                        ListingUrl = listUrl,
+                        ListingId = listId.ToString(),
+                        ScrapeRun = scrapeRun,
+                        ErrorMessage = e.Message,
+                        ErrorType = "Exception",
+                        Status = FailedScrapeStatusType.Failed
+                    };
+                    failedJobList.Add(failedJob);
                 }
                 finally
                 {
                     if (newPage != null)
                     {
                         await newPage.CloseAsync();
-                        int delay = random.Next(4000, 15001);
-                        await Task.Delay(delay);
+                        int delay = random.Next(4, 16);
+                        await Task.Delay(TimeSpan.FromSeconds(delay));
                     }
                 }
             }
@@ -218,8 +248,7 @@ namespace ScrapeWorker.Services
             return new ScrapeResultDto
             {
                 Jobs = jobList,
-                ScrapedJobs = jobList.Count,
-                FailedJobs = failedJobs,
+                FailedJobs = failedJobList,
                 ShouldContinue = shouldContinue
             };
         }

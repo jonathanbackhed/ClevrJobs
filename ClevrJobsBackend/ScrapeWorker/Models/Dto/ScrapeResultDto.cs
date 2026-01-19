@@ -9,9 +9,7 @@ namespace ScrapeWorker.Models.Dto
     {
         public required List<RawJob> Jobs { get; init; }
 
-        public required int ScrapedJobs { get; init; }
-
-        public required int FailedJobs { get; init; }
+        public required List<FailedScrape> FailedJobs { get; init; }
 
         public required bool ShouldContinue { get; init; } 
     }

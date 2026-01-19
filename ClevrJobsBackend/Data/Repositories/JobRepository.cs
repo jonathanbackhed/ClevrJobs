@@ -15,6 +15,13 @@ namespace Data.Repositories
             _dbc = dbc;
         }
 
+        public async Task<bool> AddMultipleFailedScrapes(IEnumerable<FailedScrape> failedScrapes)
+        {
+            await _dbc.FailedScrapes.AddRangeAsync(failedScrapes);
+
+            return await _dbc.SaveChangesAsync() > 0;
+        }
+
         public async Task<bool> AddMultipleRawJobs(IEnumerable<RawJob> rawJobs)
         {
             await _dbc.RawJobs.AddRangeAsync(rawJobs);
