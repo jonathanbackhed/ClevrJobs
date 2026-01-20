@@ -68,24 +68,30 @@ namespace Workers.Services
 
                 var scrapeResult = await ScrapeListingsAsync(links, browser, scrapeRun, lastJobListingId);
 
-                var addResult = await jobRepository.AddMultipleRawJobs(scrapeResult.Jobs);
-                if (!addResult)
-                {
-                    _logger.LogError($"Failed to save rawjobs to database. Scrape id: {scrapeRun.Id}");
-                    runIsSuccess = false;
-                    break;
-                }
-
-                var addFailedResult = await jobRepository.AddMultipleFailedScrapes(scrapeResult.FailedJobs);
-                if (!addFailedResult)
-                {
-                    _logger.LogError($"Failed to save failedscrapes to database. Scrape id: {scrapeRun.Id}");
-                    runIsSuccess = false;
-                    break;
-                }
-
                 scrapeRun.ScrapedJobs += scrapeResult.Jobs.Count;
                 scrapeRun.FailedJobs += scrapeResult.FailedJobs.Count;
+
+                if (scrapeResult.Jobs.Any())
+                {
+                    var addResult = await jobRepository.AddMultipleRawJobs(scrapeResult.Jobs);
+                    if (!addResult)
+                    {
+                        _logger.LogError($"Failed to save rawjobs to database. Scrape id: {scrapeRun.Id}");
+                        runIsSuccess = false;
+                        break;
+                    }
+                }
+
+                if (scrapeResult.FailedJobs.Any())
+                {
+                    var addFailedResult = await jobRepository.AddMultipleFailedScrapes(scrapeResult.FailedJobs);
+                    if (!addFailedResult)
+                    {
+                        _logger.LogError($"Failed to save failedscrapes to database. Scrape id: {scrapeRun.Id}");
+                        runIsSuccess = false;
+                        break;
+                    }
+                }
 
                 if (!scrapeResult.ShouldContinue)
                 {
