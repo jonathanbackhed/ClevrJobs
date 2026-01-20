@@ -20,6 +20,6 @@ namespace Data.Models
         public int PromptId { get; set; }
         public required Prompt Prompt { get; set; }
 
-        public required ICollection<ProcessedJob> ProcessedJobs { get; set; }
+        public ICollection<ProcessedJob>? ProcessedJobs { get; set; }
     }
 }

@@ -9,6 +9,7 @@ builder.Services.AddHostedService<ScrapeWorker>();
 builder.Services.AddHostedService<ProcessingWorker>();
 
 builder.Services.AddSingleton<IScraperService, ScraperService>();
+builder.Services.AddSingleton<IProcessService, ProcessService>();
 builder.Services.AddSingleton<IMessageQueue, InMemoryMessageQueue>();
 
 builder.Services.AddData(options =>

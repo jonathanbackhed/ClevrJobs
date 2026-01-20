@@ -4,6 +4,7 @@ using Queue.Services;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Workers.Services;
 
 namespace Workers
 {
@@ -11,12 +12,14 @@ namespace Workers
     {
         private readonly ILogger<ProcessingWorker> _logger;
         private readonly IServiceScopeFactory _scopeFactory;
+        private readonly IProcessService _processService;
         private readonly IMessageQueue _messageQueue;
 
-        public ProcessingWorker(ILogger<ProcessingWorker> logger, IServiceScopeFactory scopeFactory, IMessageQueue messageQueue)
+        public ProcessingWorker(ILogger<ProcessingWorker> logger, IServiceScopeFactory scopeFactory, IProcessService processService, IMessageQueue messageQueue)
         {
             _logger = logger;
             _scopeFactory = scopeFactory;
+            _processService = processService;
             _messageQueue = messageQueue;
         }
 
@@ -27,11 +30,21 @@ namespace Workers
                 _logger.LogInformation("Waiting for ScrapeCompletedEvent event...");
                 await _messageQueue.SubscribeAsync<ScrapeCompletedEvent>(async evt =>
                 {
-                    _logger.LogInformation("ScrapeCompletedEvent event recieved");
+                    _logger.LogInformation("ScrapeCompletedEvent recieved");
                     try
                     {
                         using var scope = _scopeFactory.CreateScope();
                         var jobRepository = scope.ServiceProvider.GetRequiredService<IJobRepository>();
+
+                        var jobs = await jobRepository.GetUnprocessedRawJobsfromScrapeRunId(evt.ScrapeRunId);
+                        if (jobs is null)
+                        {
+                            return;
+                        }
+
+                        var processRepository = scope.ServiceProvider.GetRequiredService<IProcessRepository>();
+
+                        var result = await _processService.ProcessRawJobs(jobs, processRepository);
 
                     }
                     catch (Exception e)

@@ -10,6 +10,7 @@ namespace Data.Enums
         Junior,
         MidLevel,
         Senior,
-        Lead
+        Lead,
+        Unknown
     }
 }

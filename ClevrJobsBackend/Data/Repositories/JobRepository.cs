@@ -1,4 +1,5 @@
-﻿using Data.Models;
+﻿using Data.Enums;
+using Data.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -53,6 +54,22 @@ namespace Data.Repositories
             var lastRun = await _dbc.ScrapeRuns.OrderBy(i => i.StartedAt).LastOrDefaultAsync();
 
             return lastRun;
+        }
+
+        public async Task<ICollection<RawJob>> GetUnprocessedRawJobsfromScrapeRunId(int id)
+        {
+            var jobs = await _dbc.RawJobs
+                .Where(j => j.ScrapeRunId == id && j.ProcessedStatus == StatusType.New)
+                .ToListAsync();
+
+            return jobs;
+        }
+
+        public async Task<bool> UpdateRawJobs(ICollection<RawJob> rawJobs)
+        {
+            _dbc.RawJobs.UpdateRange(rawJobs);
+
+            return await _dbc.SaveChangesAsync() > 0;
         }
 
         public async Task<bool> UpdateScrapeRun(ScrapeRun scrapeRun)

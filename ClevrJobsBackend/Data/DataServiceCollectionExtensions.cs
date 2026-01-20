@@ -14,6 +14,7 @@ namespace Data
             services.AddDbContext<AppDbContext>(options);
 
             services.AddScoped<IJobRepository, JobRepository>();
+            services.AddScoped<IProcessRepository, ProcessRepository>();
 
             return services;
         }

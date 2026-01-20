@@ -14,5 +14,7 @@ namespace Data.Repositories
         Task<bool> AddMultipleFailedScrapes(IEnumerable<FailedScrape> failedScrapes);
         Task<bool> AddScrapeRun(ScrapeRun scrapeRun);
         Task<bool> UpdateScrapeRun(ScrapeRun scrapeRun);
+        Task<ICollection<RawJob>> GetUnprocessedRawJobsfromScrapeRunId(int id);
+        Task<bool> UpdateRawJobs(ICollection<RawJob> rawJobs);
     }
 }
