@@ -38,20 +38,15 @@ namespace Workers
                         var targetTime = now.Date.AddDays(1).AddHours(2);
                         var delayUntilTarget = targetTime - now;
 
-                        _logger.LogInformation($"Scrape already performed today. Sleeping for {delayUntilTarget.Hours} hours and {delayUntilTarget.Minutes} minutes.");
+                        _logger.LogInformation($"Scrape already performed today. Sleeping for {delayUntilTarget.Hours} hour(s) and {delayUntilTarget.Minutes} minute(s).");
                         await Task.Delay(delayUntilTarget, stoppingToken);
-                        continue;
                     }
-
-                    var lastJob = await jobRepository.GetLastPublishedRawJob();
-
-                    var tryParseListingId = int.TryParse(lastJob?.ListingId, out var lastJobListingId);
-                    if (!tryParseListingId)
-                        lastJobListingId = -1;
 
                     _logger.LogInformation($"Scrape started at {DateTime.Now}");
 
-                    var (success, scrapeRunId) = await _scraperService.ScrapePlatsbankenAsync(jobRepository, lastJobListingId, stoppingToken);
+                    var (success, scrapeRunId) = await _scraperService.ScrapePlatsbankenAsync(jobRepository, stoppingToken);
+
+                    _logger.LogInformation($"Scrape ended at {DateTime.Now} with success status: {success}");
 
                     if (success)
                     {
@@ -68,7 +63,7 @@ namespace Workers
                     _logger.LogError(e, "Error occurred during scraping");
                     await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
                 }
-                
+
             }
         }
     }

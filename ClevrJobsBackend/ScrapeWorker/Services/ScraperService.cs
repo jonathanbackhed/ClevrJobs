@@ -22,14 +22,19 @@ namespace Workers.Services
             _logger = logger;
         }
 
-        public async Task<(bool, int)> ScrapePlatsbankenAsync(IJobRepository jobRepository, int lastJobListingId, CancellationToken cancellationToken)
+        public async Task<(bool, int)> ScrapePlatsbankenAsync(IJobRepository jobRepository, CancellationToken cancellationToken)
         {
             var scrapeRun = await CreateScrapeRunAsync(jobRepository);
             if (scrapeRun is null)
             {
-                _logger.LogError("Error creating ScrapeRun");
+                _logger.LogError("Error creating ScrapeRun, exiting");
                 return (false, -1);
             }
+
+            var lastJob = await jobRepository.GetLastPublishedRawJob();
+            var tryParseListingId = int.TryParse(lastJob?.ListingId, out var lastJobListingId);
+            if (!tryParseListingId)
+                lastJobListingId = -1;
 
             using var playwright = await Playwright.CreateAsync();
 
@@ -60,7 +65,8 @@ namespace Workers.Services
 
             await page.WaitForSelectorAsync("div.header-container h3 a");
 
-            bool runIsSuccess = true;
+            List<RawJob> allJobs = new();
+            List<FailedScrape> allFailedJobs = new();
 
             while (true)
             {
@@ -73,29 +79,18 @@ namespace Workers.Services
 
                 if (scrapeResult.Jobs.Any())
                 {
-                    var addResult = await jobRepository.AddMultipleRawJobs(scrapeResult.Jobs);
-                    if (!addResult)
-                    {
-                        _logger.LogError($"Failed to save rawjobs to database. Scrape id: {scrapeRun.Id}");
-                        runIsSuccess = false;
-                        break;
-                    }
+                    _logger.LogInformation($"Scraped {scrapeResult.Jobs.Count} rawjob(s).");
+                    allJobs.AddRange(scrapeResult.Jobs);
                 }
 
                 if (scrapeResult.FailedJobs.Any())
                 {
-                    var addFailedResult = await jobRepository.AddMultipleFailedScrapes(scrapeResult.FailedJobs);
-                    if (!addFailedResult)
-                    {
-                        _logger.LogError($"Failed to save failedscrapes to database. Scrape id: {scrapeRun.Id}");
-                        runIsSuccess = false;
-                        break;
-                    }
+                    _logger.LogInformation($"Scraped {scrapeResult.FailedJobs.Count} failed rawjob(s).");
+                    allFailedJobs.AddRange(scrapeResult.FailedJobs);
                 }
 
                 if (!scrapeResult.ShouldContinue)
                 {
-                    runIsSuccess = true;
                     break;
                 }
 
@@ -108,7 +103,31 @@ namespace Workers.Services
 
             await browser.CloseAsync();
 
-            var endScrapeResult = await EndScrapeRunAsync(jobRepository, scrapeRun, runIsSuccess);
+            bool errorOccured = false;
+
+            if (allJobs.Any())
+            {
+                _logger.LogInformation($"Trying to save {allJobs.Count} rawjob(s) to database");
+                var addResult = await jobRepository.AddMultipleRawJobs(allJobs);
+                if (!addResult)
+                {
+                    _logger.LogError($"Failed to save rawjob(s) to database. Scrape id: {scrapeRun.Id}");
+                    errorOccured = true;
+                }
+            }
+
+            if (allFailedJobs.Any())
+            {
+                _logger.LogInformation($"Trying to save {allFailedJobs.Count} failed rawjob(s) to database");
+                var addFailedResult = await jobRepository.AddMultipleFailedScrapes(allFailedJobs);
+                if (!addFailedResult)
+                {
+                    _logger.LogError($"Failed to save failed rawjob(s) to database. Scrape id: {scrapeRun.Id}");
+                    errorOccured = true;
+                }
+            }
+
+            var endScrapeResult = await EndScrapeRunAsync(jobRepository, scrapeRun, errorOccured);
             if (!endScrapeResult)
             {
                 _logger.LogError($"Failed to end ScrapeRun. Scrape id: {scrapeRun.Id}");
@@ -316,9 +335,9 @@ namespace Workers.Services
             return scrapeRun;
         }
 
-        private async Task<bool> EndScrapeRunAsync(IJobRepository jobRepository, ScrapeRun scrapeRun, bool runIsSuccess)
+        private async Task<bool> EndScrapeRunAsync(IJobRepository jobRepository, ScrapeRun scrapeRun, bool errorOccured)
         {
-            scrapeRun.Status = runIsSuccess ? StatusType.Completed : StatusType.Failed;
+            scrapeRun.Status = errorOccured ? StatusType.Failed : StatusType.Completed;
             scrapeRun.FinishedAt = DateTime.Now;
             scrapeRun.ScrapedJobs = scrapeRun.ScrapedJobs;
             scrapeRun.FailedJobs = scrapeRun.FailedJobs;
