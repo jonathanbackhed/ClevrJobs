@@ -14,6 +14,9 @@ namespace Data.Models
         public int RawJobId { get; set; }
         public required RawJob RawJob { get; set; }
 
+        public int ProcessRunId { get; set; }
+        public required ProcessRun ProcessRun { get; set; }
+
         [Required]
         public required string ErrorMessage { get; set; }
 

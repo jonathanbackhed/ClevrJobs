@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Text.Json;
 using Workers.Models.Dto;
+using Workers.Models.Dto.Responses;
 
 namespace Workers.Services
 {
@@ -21,23 +22,32 @@ namespace Workers.Services
             _configuration = configuration;
         }
 
-        public async Task<bool> ProcessRawJobs(ICollection<RawJob> rawJobs, IProcessRepository processRepository)
+        public async Task<ServiceResponse> ProcessRawJobs(ICollection<RawJob> rawJobs, IProcessRepository processRepository)
         {
             var prompt = await processRepository.GetLatestActivePromptAsync();
             if (prompt is null)
             {
                 _logger.LogError("Error getting prompt");
-                return false;
+                return new ServiceResponse
+                {
+                    Success = false,
+                    MinorError = false
+                };
             }
 
             var processRun = await CreateProcessRunAsync(processRepository, "gemini-3-flash-preview", prompt);
             if (processRun is null)
             {
                 _logger.LogError("Error creating ProcessRun");
-                return false;
+                return new ServiceResponse
+                {
+                    Success = false,
+                    MinorError = false
+                };
             }
 
             List<ProcessedJob> processedJobs = new();
+            List<FailedProcess> failedProcesses = new();
 
             foreach (var job in rawJobs)
             {
@@ -46,39 +56,68 @@ namespace Workers.Services
                     var result = await ProcessSingleJob(job, processRun, prompt);
                     if (result is null)
                     {
-                        // Processing failed, mark job as failed and continue
-                        continue;
+                        throw new Exception("ProcessedJob is null");
                     }
 
                     processedJobs.Add(result);
                 }
                 catch (Exception e)
                 {
-                    _logger.LogError(e, $"Error processing job {job.Id}");
+                    _logger.LogError(e, $"Error processing job {job.Id}. Continuing with next rawjob");
+
+                    var failed = new FailedProcess
+                    {
+                        RawJob = job,
+                        ProcessRun = processRun,
+                        ErrorMessage = e.Message
+                    };
+                    failedProcesses.Add(failed);
+
                     continue;
                 }
             }
 
-            if (!processedJobs.Any())
+            bool errorOccured = false;
+
+            if (processedJobs.Any())
             {
-                return true;
+                _logger.LogInformation($"Trying to save {processedJobs.Count} processedjob(s) to database");
+                var addResult = await processRepository.AddMultipleProcessedJobs(processedJobs);
+                if (!addResult)
+                {
+                    _logger.LogError($"Failed to save processedjob(s) to database. Process id: {processRun.Id}");
+                    errorOccured = true;
+                }
             }
 
-            var addResult = await processRepository.AddMultipleProcessedJobs(processedJobs);
-            if (!addResult)
+            if (failedProcesses.Any())
             {
-                _logger.LogError("Error saving processed jobs");
-                return false;
+                _logger.LogInformation($"Trying to save {failedProcesses.Count} failed processedjob(s) to database");
+                var addFailedResult = await processRepository.AddMultipleFailedProcesses(failedProcesses);
+                if (!addFailedResult)
+                {
+                    _logger.LogError($"Failed to save failed processedjob(s) to database. Process id: {processRun.Id}");
+                    errorOccured = true;
+                }
             }
 
             var endProcessRunResult = await EndProcessRunAsync(processRepository, processRun);
-            if (processRun is null)
+            if (!endProcessRunResult)
             {
                 _logger.LogError("Error ending ProcessRun");
-                return false;
+                return new ServiceResponse
+                {
+                    Success = true,
+                    MinorError = true,
+                    ErrorMessage = "Error ending ProcessRun"
+                };
             }
 
-            return true;
+            return new ServiceResponse
+            {
+                Success = true,
+                MinorError = false
+            };
         }
 
         private async Task<ProcessedJob?> ProcessSingleJob(RawJob rawJob, ProcessRun processRun, Prompt prompt)
@@ -96,7 +135,7 @@ namespace Workers.Services
                 var data = JsonSerializer.Deserialize<AiResponse>(response.Candidates[0].Content.Parts[0].Text);
                 if (data is null)
                 {
-                    return null;
+                    throw new JsonException("Deserialized AI response is null");
                 }
 
                 var processedJob = new ProcessedJob
@@ -111,10 +150,20 @@ namespace Workers.Services
 
                 return processedJob;
             }
+            catch (JsonException e)
+            {
+                _logger.LogError(e, "Failed to deserialize AI response for job {rawJobId}", rawJob.Id);
+                throw;
+            }
+            catch (HttpRequestException e)
+            {
+                _logger.LogError(e, "API call failed for job {rawJobId}", rawJob.Id);
+                throw;
+            }
             catch (Exception e)
             {
-                _logger.LogError(e, $"Something went wrong processing rawjob {rawJob.Id}");
-                return null;
+                _logger.LogError(e, "Something went wrong processing rawjob {rawJobId}", rawJob.Id);
+                throw;
             }
         }
 

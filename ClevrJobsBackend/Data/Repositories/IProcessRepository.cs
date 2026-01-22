@@ -12,5 +12,6 @@ namespace Data.Repositories
         Task<bool> AddProcessRun(ProcessRun processRun);
         Task<bool> UpdateProcessRun(ProcessRun processRun);
         Task<bool> AddMultipleProcessedJobs(IEnumerable<ProcessedJob> processedJobs);
+        Task<bool> AddMultipleFailedProcesses(IEnumerable<FailedProcess> failedProcesses);
     }
 }

@@ -39,6 +39,7 @@ namespace Workers
                         var jobs = await jobRepository.GetUnprocessedRawJobsfromScrapeRunId(evt.ScrapeRunId);
                         if (jobs is null)
                         {
+                            _logger.LogInformation($"No unprocessed jobs found for ScrapeRunId: {evt.ScrapeRunId}");
                             return;
                         }
 

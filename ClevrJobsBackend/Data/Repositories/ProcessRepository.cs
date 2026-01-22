@@ -15,6 +15,13 @@ namespace Data.Repositories
             _dbc = dbc;
         }
 
+        public async Task<bool> AddMultipleFailedProcesses(IEnumerable<FailedProcess> failedProcesses)
+        {
+            await _dbc.FailedProcesses.AddRangeAsync(failedProcesses);
+
+            return await _dbc.SaveChangesAsync() > 0;
+        }
+
         public async Task<bool> AddMultipleProcessedJobs(IEnumerable<ProcessedJob> processedJobs)
         {
             await _dbc.ProcessedJobs.AddRangeAsync(processedJobs);
