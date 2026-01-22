@@ -240,7 +240,7 @@ namespace Workers.Services
                         ScrapeRun = scrapeRun,
                         ErrorMessage = e.Message,
                         ErrorType = "TimeoutException",
-                        Status = FailedScrapeStatusType.ReadyForRetry
+                        Status = FailedStatus.ReadyForRetry
                     };
                     failedJobList.Add(failedJob);
                 }
@@ -255,7 +255,7 @@ namespace Workers.Services
                         ScrapeRun = scrapeRun,
                         ErrorMessage = e.Message,
                         ErrorType = "InvalidOperationException",
-                        Status = FailedScrapeStatusType.Failed
+                        Status = FailedStatus.Failed
                     };
                     failedJobList.Add(failedJob);
                 }
@@ -270,7 +270,7 @@ namespace Workers.Services
                         ScrapeRun = scrapeRun,
                         ErrorMessage = e.Message,
                         ErrorType = "Exception",
-                        Status = FailedScrapeStatusType.Failed
+                        Status = FailedStatus.Failed
                     };
                     failedJobList.Add(failedJob);
                 }

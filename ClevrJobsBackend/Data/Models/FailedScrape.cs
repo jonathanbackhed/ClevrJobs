@@ -29,7 +29,7 @@ namespace Data.Models
 
         public string? ErrorType { get; set; }
 
-        public FailedScrapeStatusType Status { get; set; } = FailedScrapeStatusType.Failed;
+        public FailedStatus Status { get; set; } = FailedStatus.Failed;
 
         public DateTime? RetriedAt { get; set; }
 
