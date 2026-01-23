@@ -61,7 +61,7 @@ namespace Data.Models
         public required Source Source { get; set; }
 
         [Required]
-        public required Status ProcessedStatus { get; set; } = Status.New;
+        public required bool ProcessedStatus { get; set; } = false;
 
         public int ScrapeRunId { get; set; }
         public required ScrapeRun ScrapeRun { get; set; }

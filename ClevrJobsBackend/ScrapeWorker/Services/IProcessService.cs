@@ -9,6 +9,6 @@ namespace Workers.Services
 {
     public interface IProcessService
     {
-        Task<ServiceResponse> ProcessRawJobs(ICollection<RawJob> rawJobs, IProcessRepository processRepository);
+        Task<ServiceResponse> ProcessRawJobs(ICollection<RawJob> rawJobs, IProcessRepository processRepository, IJobRepository jobRepository);
     }
 }

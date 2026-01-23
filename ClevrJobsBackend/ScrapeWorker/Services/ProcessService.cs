@@ -22,7 +22,7 @@ namespace Workers.Services
             _configuration = configuration;
         }
 
-        public async Task<ServiceResponse> ProcessRawJobs(ICollection<RawJob> rawJobs, IProcessRepository processRepository)
+        public async Task<ServiceResponse> ProcessRawJobs(ICollection<RawJob> rawJobs, IProcessRepository processRepository, IJobRepository jobRepository)
         {
             var prompt = await processRepository.GetLatestActivePromptAsync();
             if (prompt is null)
@@ -58,6 +58,8 @@ namespace Workers.Services
                     {
                         throw new Exception("ProcessedJob is null");
                     }
+
+                    await jobRepository.MarkRawJobAsProcessed(job);
 
                     processedJobs.Add(result);
                 }

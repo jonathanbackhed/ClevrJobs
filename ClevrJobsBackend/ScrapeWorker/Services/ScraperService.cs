@@ -225,7 +225,7 @@ namespace Workers.Services
                         ListingId = listingId.Split(":").ElementAtOrDefault(1)?.Trim() ?? listingId,
                         ListingUrl = _platsbankenBaseUrl + href,
                         Source = Source.Platsbanken,
-                        ProcessedStatus = Status.New,
+                        ProcessedStatus = false,
                         ScrapeRun = scrapeRun
                     };
 

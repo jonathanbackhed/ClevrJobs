@@ -16,5 +16,6 @@ namespace Data.Repositories
         Task<bool> UpdateScrapeRun(ScrapeRun scrapeRun);
         Task<ICollection<RawJob>> GetUnprocessedRawJobsfromScrapeRunId(int id);
         Task<bool> UpdateRawJobs(ICollection<RawJob> rawJobs);
+        Task<bool> MarkRawJobAsProcessed(RawJob rawJob);
     }
 }
