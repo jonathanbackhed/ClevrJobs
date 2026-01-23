@@ -63,7 +63,7 @@ namespace Workers.Services
                 }
                 catch (Exception e)
                 {
-                    _logger.LogError(e, $"Error processing job {job.Id}. Continuing with next rawjob");
+                    _logger.LogError(e, "Error processing job {jobId}. Continuing with next rawjob", job.Id);
 
                     var failed = new FailedProcess
                     {
@@ -85,7 +85,7 @@ namespace Workers.Services
                 var addResult = await processRepository.AddMultipleProcessedJobs(processedJobs);
                 if (!addResult)
                 {
-                    _logger.LogError($"Failed to save processedjob(s) to database. Process id: {processRun.Id}");
+                    _logger.LogError("Failed to save processedjob(s) to database. Process id: {processRunId}", processRun.Id);
                     errorOccured = true;
                 }
             }
@@ -96,7 +96,7 @@ namespace Workers.Services
                 var addFailedResult = await processRepository.AddMultipleFailedProcesses(failedProcesses);
                 if (!addFailedResult)
                 {
-                    _logger.LogError($"Failed to save failed processedjob(s) to database. Process id: {processRun.Id}");
+                    _logger.LogError("Failed to save failed processedjob(s) to database. Process id: {processRunId}", processRun.Id);
                     errorOccured = true;
                 }
             }

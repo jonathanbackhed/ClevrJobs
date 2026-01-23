@@ -45,6 +45,8 @@ namespace Workers.Services
                     SlowMo = 1500
                 });
 
+            _logger.LogInformation("Opening browser and navigating to Platsbanken");
+
             var page = await browser.NewPageAsync();
 
             await page.GotoAsync(_platsbankenRequestUrl,
@@ -111,7 +113,7 @@ namespace Workers.Services
                 var addResult = await jobRepository.AddMultipleRawJobs(allJobs);
                 if (!addResult)
                 {
-                    _logger.LogError($"Failed to save rawjob(s) to database. Scrape id: {scrapeRun.Id}");
+                    _logger.LogError("Failed to save rawjob(s) to database. Scrape id: {scrapeRunId}", scrapeRun.Id);
                     errorOccured = true;
                 }
             }
@@ -122,7 +124,7 @@ namespace Workers.Services
                 var addFailedResult = await jobRepository.AddMultipleFailedScrapes(allFailedJobs);
                 if (!addFailedResult)
                 {
-                    _logger.LogError($"Failed to save failed rawjob(s) to database. Scrape id: {scrapeRun.Id}");
+                    _logger.LogError("Failed to save failed rawjob(s) to database. Scrape id: {scrapeRunId}", scrapeRun.Id);
                     errorOccured = true;
                 }
             }
@@ -130,7 +132,7 @@ namespace Workers.Services
             var endScrapeResult = await EndScrapeRunAsync(jobRepository, scrapeRun, errorOccured);
             if (!endScrapeResult)
             {
-                _logger.LogError($"Failed to end ScrapeRun. Scrape id: {scrapeRun.Id}");
+                _logger.LogError("Failed to end ScrapeRun. Scrape id: {scrapeRunId}", scrapeRun.Id);
                 return (false, -1);
             }
 
@@ -231,7 +233,7 @@ namespace Workers.Services
                 }
                 catch (TimeoutException e)
                 {
-                    _logger.LogError(e, $"Timeout happened for listing id: {listId}");
+                    _logger.LogError(e, "Timeout happened for listing id: {listId}", listId);
 
                     var failedJob = new FailedScrape
                     {
@@ -246,7 +248,7 @@ namespace Workers.Services
                 }
                 catch (InvalidOperationException e)
                 {
-                    _logger.LogError(e, $"Missing required field for listing id: {listId}");
+                    _logger.LogError(e, "Missing required field for listing id: {listId}", listId);
 
                     var failedJob = new FailedScrape
                     {
@@ -261,7 +263,7 @@ namespace Workers.Services
                 }
                 catch (Exception e)
                 {
-                    _logger.LogError(e, $"Unexpected error scraping listing id: {listId}");
+                    _logger.LogError(e, "Unexpected error scraping listing id: {listId}", listId);
 
                     var failedJob = new FailedScrape
                     {

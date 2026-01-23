@@ -39,7 +39,7 @@ namespace Workers
                         var jobs = await jobRepository.GetUnprocessedRawJobsfromScrapeRunId(evt.ScrapeRunId);
                         if (jobs is null)
                         {
-                            _logger.LogInformation($"No unprocessed jobs found for ScrapeRunId: {evt.ScrapeRunId}");
+                            _logger.LogInformation("No unprocessed jobs found for ScrapeRunId: {scrapeRunId}", evt.ScrapeRunId);
                             return;
                         }
 
@@ -47,6 +47,7 @@ namespace Workers
 
                         var result = await _processService.ProcessRawJobs(jobs, processRepository);
 
+                        _logger.LogError("Processing finished with success status: {success} and minor error status: {minorError}", result.Success, result.MinorError);
                     }
                     catch (Exception e)
                     {

@@ -46,7 +46,7 @@ namespace Workers
 
                     var (success, scrapeRunId) = await _scraperService.ScrapePlatsbankenAsync(jobRepository, stoppingToken);
 
-                    _logger.LogInformation($"Scrape ended at {DateTime.Now} with success status: {success}");
+                    _logger.LogInformation("Scrape ended at {DateTime.Now} with success status: {success}", success);
 
                     if (success)
                     {
