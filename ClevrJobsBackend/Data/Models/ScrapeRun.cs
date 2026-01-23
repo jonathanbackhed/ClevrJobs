@@ -16,7 +16,7 @@ namespace Data.Models
         public DateTime? FinishedAt { get; set; }
 
         [Required]
-        public required StatusType Status { get; set; } = StatusType.InProgress;
+        public required Status Status { get; set; } = Status.InProgress;
 
         public int ScrapedJobs { get; set; } = 0;
 

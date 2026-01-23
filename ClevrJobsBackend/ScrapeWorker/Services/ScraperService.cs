@@ -224,8 +224,8 @@ namespace Workers.Services
                         Published = published.Split(":").ElementAtOrDefault(1)?.Trim() ?? published,
                         ListingId = listingId.Split(":").ElementAtOrDefault(1)?.Trim() ?? listingId,
                         ListingUrl = _platsbankenBaseUrl + href,
-                        Source = SourceType.Platsbanken,
-                        ProcessedStatus = StatusType.New,
+                        Source = Source.Platsbanken,
+                        ProcessedStatus = Status.New,
                         ScrapeRun = scrapeRun
                     };
 
@@ -325,7 +325,7 @@ namespace Workers.Services
             var scrapeRun = new ScrapeRun
             {
                 StartedAt = DateTime.Now,
-                Status = StatusType.InProgress
+                Status = Status.InProgress
             };
 
             var success = await jobRepository.AddScrapeRun(scrapeRun);
@@ -339,7 +339,7 @@ namespace Workers.Services
 
         private async Task<bool> EndScrapeRunAsync(IJobRepository jobRepository, ScrapeRun scrapeRun, bool errorOccured)
         {
-            scrapeRun.Status = errorOccured ? StatusType.Failed : StatusType.Completed;
+            scrapeRun.Status = errorOccured ? Status.Failed : Status.Completed;
             scrapeRun.FinishedAt = DateTime.Now;
             scrapeRun.ScrapedJobs = scrapeRun.ScrapedJobs;
             scrapeRun.FailedJobs = scrapeRun.FailedJobs;

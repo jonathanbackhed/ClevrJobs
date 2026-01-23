@@ -59,7 +59,7 @@ namespace Data.Repositories
         public async Task<ICollection<RawJob>> GetUnprocessedRawJobsfromScrapeRunId(int id)
         {
             var jobs = await _dbc.RawJobs
-                .Where(j => j.ScrapeRunId == id && j.ProcessedStatus == StatusType.New)
+                .Where(j => j.ScrapeRunId == id && j.ProcessedStatus == Status.New)
                 .ToListAsync();
 
             return jobs;

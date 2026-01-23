@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Data.Enums
 {
-    public enum SourceType
+    public enum Source
     {
         Platsbanken,
     }

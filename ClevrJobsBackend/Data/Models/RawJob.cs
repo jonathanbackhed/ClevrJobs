@@ -58,10 +58,10 @@ namespace Data.Models
         public required string ListingUrl { get; set; }
 
         [Required]
-        public required SourceType Source { get; set; }
+        public required Source Source { get; set; }
 
         [Required]
-        public required StatusType ProcessedStatus { get; set; } = StatusType.New;
+        public required Status ProcessedStatus { get; set; } = Status.New;
 
         public int ScrapeRunId { get; set; }
         public required ScrapeRun ScrapeRun { get; set; }

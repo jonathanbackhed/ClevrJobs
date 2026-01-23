@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Data.Enums
 {
-    public enum StatusType
+    public enum Status
     {
         New,
         InProgress,
