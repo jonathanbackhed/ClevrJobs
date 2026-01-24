@@ -62,6 +62,9 @@ namespace Workers.Services
                     await jobRepository.MarkRawJobAsProcessed(job);
 
                     processedJobs.Add(result);
+
+                    // To avoid rate limiting
+                    await Task.Delay(TimeSpan.FromSeconds(13));
                 }
                 catch (Exception e)
                 {
