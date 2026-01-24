@@ -143,12 +143,21 @@ namespace Workers.Services
                     throw new JsonException("Deserialized AI response is null");
                 }
 
+                if (!Enum.TryParse<CompetenceRank>(data.CompetenceRank, ignoreCase: true, out var compRank))
+                {
+                    compRank = CompetenceRank.Unknown;
+                }
+
                 var processedJob = new ProcessedJob
                 {
                     Description = data.Description,
-                    CompetenceRank = CompetenceRankType.Unknown,
-                    Rating = 0.0f,
-                    Keywords = data.Keywords,
+                    RequiredTechnologies = data.RequiredTechnologies,
+                    NiceTohaveTechnologies = data.NiceTohaveTechnologies,
+                    CompetenceRank = compRank,
+                    KeywordsCV = data.KeywordsCV,
+                    KeywordsCL = data.KeywordsCL,
+                    CustomCoverLetterFocus = data.CustomCoverLetterFocus,
+                    Motivation = data.Motivation,
                     RawJob = rawJob,
                     ProcessRun = processRun
                 };

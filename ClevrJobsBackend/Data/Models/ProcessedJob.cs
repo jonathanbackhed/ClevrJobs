@@ -15,13 +15,25 @@ namespace Data.Models
         public required string Description { get; set; }
 
         [Required]
-        public CompetenceRankType CompetenceRank { get; set; }
+        public required string RequiredTechnologies { get; set; }
 
         [Required]
-        public float Rating { get; set; }
+        public required string NiceTohaveTechnologies { get; set; }
 
         [Required]
-        public required string Keywords { get; set; }
+        public required CompetenceRank CompetenceRank { get; set; }
+
+        [Required]
+        public required string KeywordsCV { get; set; }
+
+        [Required]
+        public required string KeywordsCL { get; set; }
+
+        [Required]
+        public required string CustomCoverLetterFocus { get; set; }
+
+        [Required]
+        public required string Motivation { get; set; }
 
         public int RawJobId { get; set; }
         public required RawJob RawJob { get; set; }

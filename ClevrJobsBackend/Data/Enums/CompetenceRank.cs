@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Data.Enums
 {
-    public enum CompetenceRankType
+    public enum CompetenceRank
     {
         NewGrad,
         Junior,
