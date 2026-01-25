@@ -1,4 +1,5 @@
 <Solution>
+  <Project Path="Api/Api.csproj" Id="e68bbc35-9aa5-47d8-9ae6-670e64064011" />
   <Project Path="Data/Data.csproj" Id="bb39ed59-5c0d-42c0-aebb-60137e4864cd" />
   <Project Path="Queue/Queue.csproj" Id="5f539766-0f99-46bb-b20a-2d197ec329cf" />
   <Project Path="ScrapeWorker/Workers.csproj" />
