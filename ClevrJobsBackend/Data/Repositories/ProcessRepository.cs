@@ -36,6 +36,14 @@ namespace Data.Repositories
             return await _dbc.SaveChangesAsync() > 0;
         }
 
+        public async Task<ProcessedJob?> GetFullProcessedJobByIdAsync(int id)
+        {
+            return await _dbc.ProcessedJobs
+                .AsNoTracking()
+                .Include(i => i.RawJob)
+                .FirstOrDefaultAsync(p => p.Id == id);
+        }
+
         public async Task<Prompt?> GetLatestActivePromptAsync()
         {
             var prompt = await _dbc.Prompts.Where(p => p.IsActive)
@@ -43,6 +51,24 @@ namespace Data.Repositories
                                      .FirstOrDefaultAsync();
 
             return prompt;
+        }
+
+        public async Task<(List<ProcessedJob> items, int totalCount)> GetFullProcessedJobsByLatestAsync(int page, int pageSize)
+        {
+            var query = _dbc.ProcessedJobs
+                .AsNoTracking()
+                .Include(i => i.RawJob)
+                .OrderByDescending(o => o.RawJob.ScrapeRunId)
+                .ThenByDescending(o => o.RawJob.ListingId);
+
+            var totalCount = await query.CountAsync();
+
+            var items = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (items, totalCount);
         }
 
         public async Task<Prompt?> GetPromptByIdAsync(int id)
