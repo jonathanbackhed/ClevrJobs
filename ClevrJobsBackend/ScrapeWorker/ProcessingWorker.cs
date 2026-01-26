@@ -47,7 +47,7 @@ namespace Workers
 
                         var result = await _processService.ProcessRawJobs(jobs, processRepository, jobRepository);
 
-                        _logger.LogError("Processing finished with success status: {success} and minor error status: {minorError}", result.Success, result.MinorError);
+                        _logger.LogInformation("Processing finished with success status: {success} and minor error status: {minorError}", result.Success, result.MinorError);
                     }
                     catch (Exception e)
                     {
