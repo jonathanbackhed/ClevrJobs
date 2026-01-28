@@ -65,7 +65,7 @@ namespace Workers.Services
                 }
                 catch (Exception e)
                 {
-                    _logger.LogError(e, "Error processing job {jobId}. Continuing with next rawjob", job.Id);
+                    //_logger.LogError(e, "Error processing job {jobId}. Continuing with next rawjob", job.Id);
 
                     var failed = new FailedProcess
                     {
@@ -129,6 +129,7 @@ namespace Workers.Services
 
         private async Task<ProcessedJob?> ProcessSingleJob(RawJob rawJob, ProcessRun processRun, Prompt prompt)
         {
+            string? aiRes = string.Empty;
             try
             {
                 var message = $"{prompt.Content}\n{rawJob.Description}";
@@ -137,9 +138,11 @@ namespace Workers.Services
                     model: "gemini-3-flash-preview",
                     contents: message
                 );
-                //Console.WriteLine(response.Candidates[0].Content.Parts[0].Text);
 
-                var data = JsonSerializer.Deserialize<AiResponse>(response.Candidates[0].Content.Parts[0].Text);
+                var aiResponse = response.Candidates[0].Content.Parts[0].Text;
+                aiRes = aiResponse;
+
+                var data = JsonSerializer.Deserialize<AiResponse>(aiResponse);
                 if (data is null)
                 {
                     throw new JsonException("Deserialized AI response is null");
@@ -168,7 +171,7 @@ namespace Workers.Services
             }
             catch (JsonException e)
             {
-                _logger.LogError(e, "Failed to deserialize AI response for job {rawJobId}", rawJob.Id);
+                _logger.LogError(e, "Failed to deserialize AI response for job {rawJobId}\nAiResponse: {aiResponse}", rawJob.Id, aiRes);
                 throw;
             }
             catch (HttpRequestException e)
