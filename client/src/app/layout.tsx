@@ -1,21 +1,21 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { DM_Serif_Display, Source_Sans_3 } from "next/font/google";
 import "./globals.css";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Providers from "./providers";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const dmSerif = DM_Serif_Display({
+  variable: "--font-dm-serif",
   subsets: ["latin"],
+  weight: "400",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const sourceSans = Source_Sans_3({
+  variable: "--font-source-sans",
   subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
-  title: "ClevrJobs",
+  title: "ClevrJobs - AI-summerade jobb",
   description: "Hitta relevanta tjänster enklare med hjälp av smarta AI summeringar",
 };
 
@@ -26,7 +26,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="sv">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body className={`${dmSerif.variable} ${sourceSans.variable} antialiased`}>
         <Providers>{children}</Providers>
       </body>
     </html>
