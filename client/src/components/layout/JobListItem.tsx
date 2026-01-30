@@ -1,9 +1,9 @@
-import { JobListingMiniDto } from "@/types/Job";
+import { JobListingMiniDto } from "@/types/job";
 import { Clock, MapPin } from "lucide-react";
 import CompetenceTag from "../ui/CompetenceTag";
 import RequirementTag from "../ui/RequirementTag";
 import CustomButton from "../ui/CustomButton";
-import { formatDateTime, isMoreThan24hAgo } from "@/lib/utils/helpers";
+import { isMoreThan24hAgo } from "@/lib/utils/helpers";
 import Badge from "../ui/Badge";
 
 interface Props {

@@ -1,4 +1,4 @@
-import { JobListingDto, JobListingMiniDto, PagedResult } from "@/types/Job";
+import { JobListingDto, JobListingMiniDto, PagedResult } from "@/types/job";
 
 const apiUrl = process.env.NEXT_PUBLIC_BASE_API_URL;
 
@@ -12,6 +12,6 @@ const apiFetch = async (path: string) => {
 };
 
 export const api = {
-  getAllJobs: async (): Promise<PagedResult<JobListingMiniDto>> => await apiFetch("/job/all"),
+  getAllJobs: async (page: number): Promise<PagedResult<JobListingMiniDto>> => await apiFetch(`/job/all?page=${page}`),
   getSingleJob: async (id: number): Promise<JobListingDto> => await apiFetch(`/job/${id}`),
 };
