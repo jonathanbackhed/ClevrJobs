@@ -18,6 +18,7 @@ export interface JobListingDto {
   listingId: string;
   listingUrl: string;
   source: Source;
+  processedAt: string;
 
   // processed fields
   id: number;
@@ -34,18 +35,17 @@ export interface JobListingDto {
 export interface JobListingMiniDto {
   title: string;
   companyName: string;
-  roleName: string;
   location: string;
   extent?: string;
   duration?: string;
   applicationDeadline: string;
   source: Source;
+  processedAt: string;
 
   // processed fields
   id: number;
   description: string;
   requiredTechnologies: string;
-  niceTohaveTechnologies: string;
   competenceRank: CompetenceRank;
 }
 

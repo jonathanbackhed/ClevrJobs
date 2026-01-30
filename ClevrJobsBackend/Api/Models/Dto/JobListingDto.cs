@@ -15,6 +15,7 @@ namespace Api.Models.Dto
         public required string ListingId { get; init; }
         public required string ListingUrl { get; init; }
         public required Source Source { get; init; }
+        public required DateTime ProcessedAt { get; set; }
 
         // Processed fields
         public required int Id { get; init; }

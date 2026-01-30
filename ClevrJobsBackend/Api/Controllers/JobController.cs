@@ -21,7 +21,7 @@ namespace Api.Controllers
         [Route("all")]
         public async Task<ActionResult<PagedResult<JobListingMiniDto>>> GetJobsByLatest([FromQuery] int page = 1)
         {
-            var pageSize = 25;
+            var pageSize = 15;
 
             var (items, totalCount) = await _processRepository.GetFullProcessedJobsByLatestAsync(page, pageSize);
 
@@ -29,16 +29,15 @@ namespace Api.Controllers
             {
                 Title = i.RawJob.Title,
                 CompanyName = i.RawJob.CompanyName,
-                RoleName = i.RawJob.RoleName,
                 Location = i.RawJob.Location,
                 Extent = i.RawJob.Extent,
                 Duration = i.RawJob.Duration,
                 ApplicationDeadline = i.RawJob.ApplicationDeadline,
                 Source = i.RawJob.Source,
+                ProcessedAt = (DateTime)i.ProcessRun.FinishedAt!,
                 Id = i.Id,
                 Description = i.Description,
                 RequiredTechnologies = i.RequiredTechnologies,
-                NiceTohaveTechnologies = i.NiceTohaveTechnologies,
                 CompetenceRank = i.CompetenceRank
             }).ToList();
 
@@ -76,6 +75,7 @@ namespace Api.Controllers
                 ListingId = job.RawJob.ListingId,
                 ListingUrl = job.RawJob.ListingUrl,
                 Source = job.RawJob.Source,
+                ProcessedAt = (DateTime)job.ProcessRun.FinishedAt!,
                 Id = job.Id,
                 Description = job.Description,
                 RequiredTechnologies = job.RequiredTechnologies,

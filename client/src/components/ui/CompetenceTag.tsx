@@ -1,4 +1,4 @@
-import { GetCompetenceRankOrDefault } from "@/lib/utils/helpers";
+import { getCompetenceRankOrDefault } from "@/lib/utils/helpers";
 import { CompetenceRank } from "@/types/Job";
 
 interface Props {
@@ -6,7 +6,7 @@ interface Props {
 }
 
 export default function CompetenceTag({ rank }: Props) {
-  const competenceRankText = GetCompetenceRankOrDefault(rank);
+  const competenceRankText = getCompetenceRankOrDefault(rank);
 
   const styles = {
     0: "from-cyan-50 to-cyan-100 text-cyan-700", // Newgrad

@@ -38,17 +38,21 @@ namespace Data.Repositories
 
         public async Task<ProcessedJob?> GetFullProcessedJobByIdAsync(int id)
         {
-            return await _dbc.ProcessedJobs
+            var job = await _dbc.ProcessedJobs
                 .AsNoTracking()
                 .Include(i => i.RawJob)
+                .Include(i => i.ProcessRun)
                 .FirstOrDefaultAsync(p => p.Id == id);
+
+            return job;
         }
 
         public async Task<Prompt?> GetLatestActivePromptAsync()
         {
-            var prompt = await _dbc.Prompts.Where(p => p.IsActive)
-                                     .OrderByDescending(p => p.CreatedAt)
-                                     .FirstOrDefaultAsync();
+            var prompt = await _dbc.Prompts
+                .Where(p => p.IsActive)
+                .OrderByDescending(p => p.CreatedAt)
+                .FirstOrDefaultAsync();
 
             return prompt;
         }
@@ -58,6 +62,7 @@ namespace Data.Repositories
             var query = _dbc.ProcessedJobs
                 .AsNoTracking()
                 .Include(i => i.RawJob)
+                .Include(i => i.ProcessRun)
                 .OrderByDescending(o => o.RawJob.ScrapeRunId)
                 .ThenByDescending(o => o.RawJob.ListingId);
 
