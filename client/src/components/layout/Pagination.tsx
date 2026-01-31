@@ -12,27 +12,68 @@ export default function Pagination({ totalPages, totalCount, pageSize, currentPa
   const startItem = (currentPage - 1) * pageSize + 1;
   const endItem = Math.min(currentPage * pageSize, totalCount);
 
+  const getPageNumbers = () => {
+    const pages: number[] = [];
+    const showMax = 7;
+
+    if (totalPages <= showMax) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+
+    pages.push(1);
+
+    const middlePages = showMax - 2;
+    const halfMiddle = Math.floor(middlePages / 2);
+
+    let startPage = Math.max(2, currentPage - halfMiddle);
+    let endPage = Math.min(totalPages - 1, currentPage + halfMiddle);
+
+    if (currentPage <= halfMiddle + 1) {
+      endPage = Math.min(showMax - 1, totalPages - 1);
+    }
+
+    if (currentPage >= totalPages - halfMiddle) {
+      startPage = Math.max(2, totalPages - showMax + 2);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(i);
+    }
+
+    pages.push(totalPages);
+
+    return pages;
+  };
+
+  const pages = getPageNumbers();
+
   return (
-    <div className="mt-4 flex flex-col items-center justify-center">
-      <div className="flex gap-2">
-        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+    <div className="mt-4 flex flex-col items-center justify-between">
+      <div className="flex flex-wrap justify-center gap-1.5">
+        <button
+          onClick={() => onPageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          className="active:bg-accent border-accent/40 bg-cream-light hover:bg-accent order-8 flex-1 cursor-pointer rounded-xl border px-4 py-2 text-stone-500 hover:text-white active:text-white disabled:cursor-default sm:order-first sm:w-auto"
+        >
+          Föregående
+        </button>
+        {pages.map((page) => (
           <button
             key={page}
             onClick={() => onPageChange(page)}
             disabled={currentPage === page}
-            className={`border-accent/40 hover:bg-accent rounded-xl border px-4 py-2 hover:text-white ${currentPage === page ? "bg-accent-light cursor-default text-white" : "bg-cream-light cursor-pointer text-stone-500"}`}
+            className={`border-accent/40 hover:bg-accent flex-1 rounded-xl border px-3 py-1 hover:text-white sm:px-4 ${currentPage === page ? "bg-accent-light cursor-default text-white" : "bg-cream-light cursor-pointer text-stone-500"}`}
           >
             {page}
           </button>
         ))}
-        {totalPages > 1 && currentPage < totalPages && (
-          <button
-            onClick={() => onPageChange(currentPage + 1)}
-            className="border-accent/40 bg-cream-light hover:bg-accent cursor-pointer rounded-xl border px-4 py-2 text-stone-500 hover:text-white"
-          >
-            Nästa
-          </button>
-        )}
+        <button
+          onClick={() => onPageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          className="active:bg-accent border-accent/40 bg-cream-light hover:bg-accent order-last flex-1 cursor-pointer rounded-xl border px-4 py-2 text-stone-500 hover:text-white active:text-white disabled:cursor-default sm:w-auto"
+        >
+          Nästa
+        </button>
       </div>
       <span className="mt-2 text-sm font-semibold">
         Visar {startItem}-{endItem} av {totalCount} annonser
