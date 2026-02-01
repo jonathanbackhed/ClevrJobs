@@ -25,16 +25,13 @@ import RequirementTag from "../ui/RequirementTag";
 import Badge from "../ui/Badge";
 import CardContainer from "../ui/CardContainer";
 import SectionHeading from "../ui/SectionHeading";
-import { useState } from "react";
+import toast, { Toaster } from "react-hot-toast";
 
 interface Props {
   initData: JobListingDto;
 }
 
 export default function JobDetails({ initData }: Props) {
-  const [copied, setCopied] = useState(false);
-  const [reported, setReported] = useState(false);
-
   const { data: job, isLoading, error } = useJob(initData);
 
   const requirementsList = job.requiredTechnologies.split(",");
@@ -47,8 +44,9 @@ export default function JobDetails({ initData }: Props) {
   const copyToClipboard = async () => {
     try {
       await navigator.clipboard.writeText(job.listingUrl);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 4000);
+      toast.success("Länk kopierad", {
+        id: "clipboard",
+      });
     } catch (err) {
       console.log("Failed to copy url", err);
     }
@@ -56,9 +54,6 @@ export default function JobDetails({ initData }: Props) {
 
   const sendReport = async () => {
     console.log("Not implemented yet!");
-
-    // setReported(true);
-    // setTimeout(() => setReported(false), 4000);
   };
 
   if (isLoading) return <div>Loading...</div>;
@@ -66,6 +61,8 @@ export default function JobDetails({ initData }: Props) {
 
   return (
     <div className="flex flex-col gap-4">
+      <Toaster />
+
       <Link
         href="/"
         className="group hover:text-accent flex items-center gap-1 text-sm font-medium text-stone-500 transition-all duration-200 hover:-translate-x-0.5"
