@@ -1,11 +1,12 @@
-import { getCompetenceRankOrDefault } from "@/lib/utils/helpers";
+import { cn, getCompetenceRankOrDefault } from "@/lib/utils/helpers";
 import { CompetenceRank } from "@/types/job";
 
 interface Props {
   rank: CompetenceRank;
+  customText?: string;
 }
 
-export default function CompetenceTag({ rank }: Props) {
+export default function CompetenceTag({ rank, customText }: Props) {
   const competenceRankText = getCompetenceRankOrDefault(rank);
 
   const styles = {
@@ -19,9 +20,12 @@ export default function CompetenceTag({ rank }: Props) {
 
   return (
     <span
-      className={`w-fit rounded-md bg-linear-to-br px-2.5 py-1 text-[0.7rem] font-semibold tracking-wide uppercase ${styles[rank]}`}
+      className={cn(
+        "w-fit rounded-md bg-linear-to-br px-2.5 py-1 text-[0.7rem] font-semibold tracking-wide uppercase",
+        styles[rank],
+      )}
     >
-      {competenceRankText}
+      {customText ? customText : competenceRankText}
     </span>
   );
 }

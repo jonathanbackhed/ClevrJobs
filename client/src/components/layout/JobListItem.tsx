@@ -18,7 +18,7 @@ export default function JobListItem({ job, index }: Props) {
 
   return (
     <article
-      className="group animate-fade-in-up bg-cream-light border-accent/15 hover:border-accent-light/40 relative cursor-pointer rounded-2xl border p-6 shadow-sm/5 shadow-stone-800 transition-all duration-250 ease-out hover:-translate-y-0.5 hover:shadow-md/10"
+      className="group animate-fade-in-up bg-cream-light border-accent/15 hover:border-accent-light/40 relative cursor-default rounded-2xl border p-6 shadow-sm/5 shadow-stone-800 transition-all duration-250 ease-out hover:-translate-y-0.5 hover:shadow-md/10"
       style={{ animationDelay: `${index * 50 + 100}ms` }}
     >
       {!isOld && <Badge text="Ny" />}
@@ -51,7 +51,7 @@ export default function JobListItem({ job, index }: Props) {
           <Clock size={14} opacity={0.6} />
           Sista ansökningsdag: <strong className="font-semibold text-stone-700">{job.applicationDeadline}</strong>
         </span>
-        <CustomButton text="Visa mer" />
+        <CustomButton href={`/job/${job.id}`} text="Visa mer" />
       </div>
     </article>
   );

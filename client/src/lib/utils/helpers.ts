@@ -1,6 +1,8 @@
-import { CompetenceRank } from "@/types/job";
-import { formatDistanceToNow, formatDistanceToNowStrict } from "date-fns";
+import { CompetenceRank, Source } from "@/types/job";
+import clsx, { ClassValue } from "clsx";
+import { formatDistanceToNowStrict } from "date-fns";
 import { sv } from "date-fns/locale";
+import { twMerge } from "tailwind-merge";
 
 export function getCompetenceRankOrDefault(value: number): string {
   const displayMap: Record<number, string> = {
@@ -19,6 +21,18 @@ export function getCompetenceRankOrDefault(value: number): string {
   return CompetenceRank[CompetenceRank.Unknown];
 }
 
+export function getSourceName(value: number): string {
+  const displayMap: Record<number, string> = {
+    [Source.Platsbanken]: "Platsbanken",
+  };
+
+  if (value in Source) {
+    return displayMap[value];
+  }
+
+  return "N/A";
+}
+
 export function formatDateTime(dateTime: string): string {
   const formattedDateTime = formatDistanceToNowStrict(new Date(dateTime), {
     addSuffix: true,
@@ -35,4 +49,8 @@ export function isMoreThan24hAgo(dateTime: string): boolean {
   const hoursDifference = (now.getTime() - date.getTime()) / (1000 * 60 * 60);
 
   return hoursDifference > 24;
+}
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
 }
