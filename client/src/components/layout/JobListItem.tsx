@@ -51,7 +51,7 @@ export default function JobListItem({ job, index }: Props) {
           <Clock size={14} opacity={0.6} />
           Sista ansökningsdag: <strong className="font-semibold text-stone-700">{job.applicationDeadline}</strong>
         </span>
-        <CustomButton href={`/job/${job.id}`} text="Visa mer" />
+        <CustomButton type="link" action={`/job/${job.id}`} children="Visa mer" variant="borderHoverFill" size="sm" />
       </div>
     </article>
   );

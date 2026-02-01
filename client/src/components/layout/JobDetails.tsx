@@ -26,6 +26,7 @@ import Badge from "../ui/Badge";
 import CardContainer from "../ui/CardContainer";
 import SectionHeading from "../ui/SectionHeading";
 import toast, { Toaster } from "react-hot-toast";
+import CustomButton from "../ui/CustomButton";
 
 interface Props {
   initData: JobListingDto;
@@ -198,20 +199,26 @@ export default function JobDetails({ initData }: Props) {
             Intresserad? Ansök direkt hos {job.companyName} via platsbanken.
           </p>
           <div className="flex justify-center gap-3">
-            <a
-              href={job.listingUrl}
+            <CustomButton
+              type="a"
+              action={job.listingUrl}
+              variant="filled"
+              size="md"
+              customStyles="flex items-center gap-2 hover:-translate-y-px"
               target="_blank"
-              className="bg-accent shadow-accent flex items-center gap-2 rounded-full px-6 py-3 text-[0.925rem] font-semibold text-white transition-all duration-200 hover:-translate-y-px hover:shadow-md/50"
             >
               <ExternalLink size={16} className="-translate-y-0.5" /> Öppna på {getSourceName(job.source)}
-            </a>
-            <button
-              onClick={copyToClipboard}
-              className="hover:border-accent hover:text-accent flex items-center gap-2 rounded-full border border-stone-500/30 bg-transparent px-6 py-3 text-[0.925rem] font-semibold text-stone-500 transition-all duration-200"
+            </CustomButton>
+            <CustomButton
+              type="button"
+              action={copyToClipboard}
+              variant="border"
+              size="md"
+              customStyles="gap-2 flex items-center"
             >
               <LinkIcon size={16} className="-translate-y-0.5" />
               Kopiera länk
-            </button>
+            </CustomButton>
           </div>
         </div>
       </CardContainer>
@@ -219,9 +226,9 @@ export default function JobDetails({ initData }: Props) {
       <div className="flex justify-center">
         <span className="mt-2 text-sm font-semibold">
           Något som inte stämmer?{" "}
-          <button onClick={sendReport} className="cursor-pointer">
+          <CustomButton type="button" action={sendReport} variant="none" size="none">
             <strong className="text-accent hover:text-accent/80">Rapportera annons</strong>
-          </button>
+          </CustomButton>
         </span>
       </div>
     </div>
