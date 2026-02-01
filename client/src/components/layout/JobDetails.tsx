@@ -29,12 +29,10 @@ import toast, { Toaster } from "react-hot-toast";
 import CustomButton from "../ui/CustomButton";
 
 interface Props {
-  initData: JobListingDto;
+  job: JobListingDto;
 }
 
-export default function JobDetails({ initData }: Props) {
-  const { data: job, isLoading, error } = useJob(initData);
-
+export default function JobDetails({ job }: Props) {
   const requirementsList = job.requiredTechnologies.split(",");
   const niceToHavesList = job.niceTohaveTechnologies.split(",");
   const keywordsCvList = job.keywordsCV.split(",");
@@ -56,9 +54,6 @@ export default function JobDetails({ initData }: Props) {
   const sendReport = async () => {
     console.log("Not implemented yet!");
   };
-
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error.message}</div>;
 
   return (
     <div className="flex flex-col gap-4">

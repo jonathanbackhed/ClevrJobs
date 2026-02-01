@@ -12,13 +12,12 @@ export function useJobs(page: number) {
   });
 }
 
-export function useJob(initData: JobListingDto) {
+export function useJob(id: number) {
   return useQuery({
-    queryKey: ["jobs", "single", initData.id],
-    queryFn: async (): Promise<JobListingDto> => await api.getSingleJob(initData.id),
-    initialData: initData,
-    staleTime: times.ten,
+    queryKey: ["jobs", "single", id],
+    queryFn: async (): Promise<JobListingDto> => await api.getSingleJob(id),
+    staleTime: times.thirty,
     gcTime: times.thirty,
-    enabled: !!initData.id,
+    enabled: !!id,
   });
 }
