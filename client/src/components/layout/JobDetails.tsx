@@ -27,6 +27,7 @@ import CardContainer from "../ui/CardContainer";
 import SectionHeading from "../ui/SectionHeading";
 import toast, { Toaster } from "react-hot-toast";
 import CustomButton from "../ui/CustomButton";
+import Toast from "../ui/Toast";
 
 interface Props {
   job: JobListingDto;
@@ -57,7 +58,7 @@ export default function JobDetails({ job }: Props) {
 
   return (
     <div className="flex flex-col gap-4">
-      <Toaster />
+      <Toast />
 
       <Link
         href="/"
@@ -76,7 +77,9 @@ export default function JobDetails({ job }: Props) {
               <CompetenceTag rank={job.competenceRank} />
               <CompetenceTag rank={CompetenceRank.Unknown} customText={job.extent} />
             </div>
-            <h2 className="font-serif text-3xl leading-tight font-bold tracking-tight text-stone-800">{job.title}</h2>
+            <h2 className="font-serif text-3xl leading-tight font-bold tracking-tight text-stone-800 dark:text-stone-300">
+              {job.title}
+            </h2>
             <p className="flex items-center gap-1 text-stone-500">
               <MapPin size={14} opacity={0.6} />
               {job.companyName} – {job.location}
@@ -92,13 +95,13 @@ export default function JobDetails({ job }: Props) {
           <div className="flex flex-row items-center justify-around gap-4">
             <div>
               <p className="mb-1 text-xs font-semibold tracking-wide text-stone-500 uppercase">Anställning</p>
-              <p className="text-[0.925rem] font-semibold text-stone-800">
+              <p className="text-[0.925rem] font-semibold text-stone-800 dark:text-stone-300">
                 {!job.duration ? job.extent : job.extent + " - " + job.duration}
               </p>
             </div>
             <div>
               <p className="mb-1 text-xs font-semibold tracking-wide text-stone-500 uppercase">Plats</p>
-              <p className="text-[0.925rem] font-semibold text-stone-800">{job.location}</p>
+              <p className="text-[0.925rem] font-semibold text-stone-800 dark:text-stone-300">{job.location}</p>
             </div>
             <div>
               <p className="mb-1 text-xs font-semibold tracking-wide text-stone-500 uppercase">Sista ansökningsdag</p>
@@ -110,7 +113,7 @@ export default function JobDetails({ job }: Props) {
 
       <CardContainer>
         <SectionHeading icon={<ScrollText size={18} />} title="Om tjänsten" />
-        <p className="text-[0.925rem] leading-[1.75] text-stone-600">{job.description}</p>
+        <p className="text-[0.925rem] leading-[1.75] text-stone-600 dark:text-stone-400">{job.description}</p>
       </CardContainer>
 
       <CardContainer>
@@ -138,7 +141,9 @@ export default function JobDetails({ job }: Props) {
           ))}
         </div>
         <p className="mb-2 text-xs font-semibold tracking-wide text-stone-500 uppercase">Fokus personligt brev</p>
-        <p className="mb-2 text-[0.925rem] leading-[1.75] text-stone-600">{job.customCoverLetterFocus}</p>
+        <p className="mb-2 text-[0.925rem] leading-[1.75] text-stone-600 dark:text-stone-400">
+          {job.customCoverLetterFocus}
+        </p>
         <div className="flex flex-wrap gap-1.5">
           {keywordsClList.map((req) => (
             <RequirementTag key={req} requirement={req} />
@@ -151,32 +156,35 @@ export default function JobDetails({ job }: Props) {
         <div className="flex flex-col gap-2">
           <div className="flex items-start gap-3">
             <Calendar size={20} className="text-accent-light" />
-            <span className="text-[0.925rem] text-stone-600">
-              <strong className="font-semibold text-stone-800">Publicerad:</strong> {job.published.split(",")[0]}
+            <span className="text-[0.925rem] text-stone-600 dark:text-stone-400">
+              <strong className="font-semibold text-stone-800 dark:text-stone-300">Publicerad:</strong>{" "}
+              {job.published.split(",")[0]}
             </span>
           </div>
           <div className="flex items-start gap-3">
             <MapPin size={20} className="text-accent-light" />
-            <span className="text-[0.925rem] text-stone-600">
-              <strong className="font-semibold text-stone-800">Arbetsplats:</strong> {job.location}
+            <span className="text-[0.925rem] text-stone-600 dark:text-stone-400">
+              <strong className="font-semibold text-stone-800 dark:text-stone-300">Arbetsplats:</strong> {job.location}
             </span>
           </div>
           <div className="flex items-start gap-3">
             <Briefcase size={20} className="text-accent-light" />
-            <span className="text-[0.925rem] text-stone-600">
-              <strong className="font-semibold text-stone-800">Arbetsgivare:</strong> {job.companyName}
+            <span className="text-[0.925rem] text-stone-600 dark:text-stone-400">
+              <strong className="font-semibold text-stone-800 dark:text-stone-300">Arbetsgivare:</strong>{" "}
+              {job.companyName}
             </span>
           </div>
           <div className="flex items-start gap-3">
             <Clock size={20} className="text-accent-light" />
-            <span className="text-[0.925rem] text-stone-600">
-              <strong className="font-semibold text-stone-800">Sista ansökningsdag:</strong> {job.applicationDeadline}
+            <span className="text-[0.925rem] text-stone-600 dark:text-stone-400">
+              <strong className="font-semibold text-stone-800 dark:text-stone-300">Sista ansökningsdag:</strong>{" "}
+              {job.applicationDeadline}
             </span>
           </div>
           <div className="flex items-start gap-3">
             <Cpu size={20} className="text-accent-light" />
-            <span className="text-[0.925rem] text-stone-600">
-              <strong className="font-semibold text-stone-800">Annonsen bearbetad:</strong>{" "}
+            <span className="text-[0.925rem] text-stone-600 dark:text-stone-400">
+              <strong className="font-semibold text-stone-800 dark:text-stone-300">Annonsen bearbetad:</strong>{" "}
               {formatDateTime(job.processedAt)}
             </span>
           </div>
@@ -185,12 +193,12 @@ export default function JobDetails({ job }: Props) {
 
       <CardContainer>
         <SectionHeading icon={<Bot size={18} />} title="AI motivering" />
-        <p className="text-[0.925rem] leading-[1.75] text-stone-600">{job.motivation}</p>
+        <p className="text-[0.925rem] leading-[1.75] text-stone-600 dark:text-stone-400">{job.motivation}</p>
       </CardContainer>
 
       <CardContainer>
         <div className="flex flex-col items-center justify-center gap-3">
-          <p className="text-[0.925rem] leading-[1.75] text-stone-600">
+          <p className="text-[0.925rem] leading-[1.75] text-stone-600 dark:text-stone-400">
             Intresserad? Ansök direkt hos {job.companyName} via platsbanken.
           </p>
           <div className="flex justify-center gap-3">
