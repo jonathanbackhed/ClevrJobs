@@ -28,12 +28,15 @@ import SectionHeading from "../ui/SectionHeading";
 import toast, { Toaster } from "react-hot-toast";
 import CustomButton from "../ui/CustomButton";
 import Toast from "../ui/Toast";
+import { useRouter } from "next/navigation";
 
 interface Props {
   job: JobListingDto;
 }
 
 export default function JobDetails({ job }: Props) {
+  const router = useRouter();
+
   const requirementsList = job.requiredTechnologies.split(",");
   const niceToHavesList = job.niceTohaveTechnologies.split(",");
   const keywordsCvList = job.keywordsCV.split(",");
@@ -60,12 +63,12 @@ export default function JobDetails({ job }: Props) {
     <div className="flex flex-col gap-4">
       <Toast />
 
-      <Link
-        href="/"
-        className="group hover:text-accent flex items-center gap-1 text-sm font-medium text-stone-500 transition-all duration-200 hover:-translate-x-0.5"
+      <button
+        onClick={() => router.back()}
+        className="group hover:text-accent flex w-fit cursor-pointer items-center gap-1 text-sm font-medium text-stone-500 transition-all duration-200 hover:-translate-x-0.5"
       >
         <ChevronLeft className="transition-transform duration-200 group-hover:-translate-x-1" /> Gå tillbaka
-      </Link>
+      </button>
 
       <div className="relative mt-4">
         {!isOld && <Badge text="Ny" />}

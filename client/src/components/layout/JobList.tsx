@@ -5,9 +5,13 @@ import { JobListingMiniDto } from "@/types/job";
 import JobListItem from "./JobListItem";
 import { useState } from "react";
 import Pagination from "./Pagination";
+import { useSearchParams } from "next/navigation";
 
 export default function JobList() {
-  const [currentPage, setCurrentPage] = useState(1);
+  const params = useSearchParams();
+  const page = Number(params.get("page")) || 1;
+
+  const [currentPage, setCurrentPage] = useState(page);
 
   const { data, isLoading, error } = useJobs(currentPage);
 

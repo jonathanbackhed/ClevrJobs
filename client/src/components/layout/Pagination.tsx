@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import { useRouter } from "next/navigation";
 
 interface Props {
   totalPages: number;
@@ -9,8 +11,19 @@ interface Props {
 }
 
 export default function Pagination({ totalPages, totalCount, pageSize, currentPage, onPageChange }: Props) {
+  const router = useRouter();
+
   const startItem = (currentPage - 1) * pageSize + 1;
   const endItem = Math.min(currentPage * pageSize, totalCount);
+
+  const handlePageChange = (pageChange: number) => {
+    const params = new URLSearchParams();
+    params.set("page", pageChange.toString());
+    router.push(`?${params.toString()}`, { scroll: false });
+
+    window.scrollTo({ top: 0, behavior: "instant" });
+    onPageChange(pageChange);
+  };
 
   const getPageNumbers = () => {
     const pages: number[] = [];
@@ -51,7 +64,7 @@ export default function Pagination({ totalPages, totalCount, pageSize, currentPa
     <div className="mt-4 flex flex-col items-center justify-between">
       <div className="flex flex-wrap justify-center gap-1.5">
         <button
-          onClick={() => onPageChange(currentPage - 1)}
+          onClick={() => handlePageChange(currentPage - 1)}
           disabled={currentPage === 1}
           className="active:bg-accent border-accent/40 bg-cream-light hover:bg-accent order-8 flex-1 cursor-pointer rounded-xl border px-4 py-2 text-stone-500 hover:text-white active:text-white disabled:cursor-default sm:order-first sm:w-auto"
         >
@@ -60,7 +73,7 @@ export default function Pagination({ totalPages, totalCount, pageSize, currentPa
         {pages.map((page) => (
           <button
             key={page}
-            onClick={() => onPageChange(page)}
+            onClick={() => handlePageChange(page)}
             disabled={currentPage === page}
             className={`border-accent/40 hover:bg-accent flex-1 rounded-xl border px-3 py-1 hover:text-white sm:px-4 ${currentPage === page ? "bg-accent-light cursor-default text-white" : "bg-cream-light cursor-pointer text-stone-500"}`}
           >
@@ -68,7 +81,7 @@ export default function Pagination({ totalPages, totalCount, pageSize, currentPa
           </button>
         ))}
         <button
-          onClick={() => onPageChange(currentPage + 1)}
+          onClick={() => handlePageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
           className="active:bg-accent border-accent/40 bg-cream-light hover:bg-accent order-last flex-1 cursor-pointer rounded-xl border px-4 py-2 text-stone-500 hover:text-white active:text-white disabled:cursor-default sm:w-auto"
         >
