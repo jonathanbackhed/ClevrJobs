@@ -1,3 +1,4 @@
+using Api.Data;
 using Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,6 +12,13 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddData(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddMemoryCache(options =>
+{
+    options.SizeLimit = 1000;
+    options.CompactionPercentage = 0.10;
+});
+builder.Services.AddSingleton<IJobCache, JobCache>();
 
 if (builder.Configuration["Frontend"] is null)
     throw new Exception("Frontend url is null");

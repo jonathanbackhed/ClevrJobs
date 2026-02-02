@@ -7,8 +7,8 @@ export function useJobs(page: number) {
   return useQuery({
     queryKey: ["jobs", "all", page],
     queryFn: async (): Promise<PagedResult<JobListingMiniDto>> => await api.getAllJobs(page),
-    staleTime: times.fifteen,
-    gcTime: times.hour,
+    staleTime: times.five,
+    gcTime: times.ten,
   });
 }
 

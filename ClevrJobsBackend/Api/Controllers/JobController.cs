@@ -1,4 +1,5 @@
-﻿using Api.Models;
+﻿using Api.Data;
+using Api.Models;
 using Api.Models.Dto;
 using Data.Models;
 using Data.Repositories;
@@ -11,10 +12,12 @@ namespace Api.Controllers
     public class JobController : ControllerBase
     {
         private readonly IProcessRepository _processRepository;
+        private readonly IJobCache _cache;
 
-        public JobController(IProcessRepository processRepository)
+        public JobController(IProcessRepository processRepository, IJobCache cache)
         {
             _processRepository = processRepository;
+            _cache = cache;
         }
 
         [HttpGet]
@@ -23,31 +26,37 @@ namespace Api.Controllers
         {
             var pageSize = 15;
 
-            var (items, totalCount) = await _processRepository.GetFullProcessedJobsByLatestAsync(page, pageSize);
-
-            var dtos = items.Select(i => new JobListingMiniDto
+            var result = _cache.GetJobs(page);
+            if (result is null)
             {
-                Title = i.RawJob.Title,
-                CompanyName = i.RawJob.CompanyName,
-                Location = i.RawJob.Location,
-                Extent = i.RawJob.Extent,
-                Duration = i.RawJob.Duration,
-                ApplicationDeadline = i.RawJob.ApplicationDeadline,
-                Source = i.RawJob.Source,
-                ProcessedAt = (DateTime)i.ProcessRun.FinishedAt!,
-                Id = i.Id,
-                Description = i.Description,
-                RequiredTechnologies = i.RequiredTechnologies,
-                CompetenceRank = i.CompetenceRank
-            }).ToList();
+                var (items, totalCount) = await _processRepository.GetFullProcessedJobsByLatestAsync(page, pageSize);
 
-            var result = new PagedResult<JobListingMiniDto>
-            {
-                Items = dtos,
-                TotalCount = totalCount,
-                Page = page,
-                PageSize = pageSize
-            };
+                var dtos = items.Select(i => new JobListingMiniDto
+                {
+                    Title = i.RawJob.Title,
+                    CompanyName = i.RawJob.CompanyName,
+                    Location = i.RawJob.Location,
+                    Extent = i.RawJob.Extent,
+                    Duration = i.RawJob.Duration,
+                    ApplicationDeadline = i.RawJob.ApplicationDeadline,
+                    Source = i.RawJob.Source,
+                    ProcessedAt = (DateTime)i.ProcessRun.FinishedAt!,
+                    Id = i.Id,
+                    Description = i.Description,
+                    RequiredTechnologies = i.RequiredTechnologies,
+                    CompetenceRank = i.CompetenceRank
+                }).ToList();
+
+                result = new PagedResult<JobListingMiniDto>
+                {
+                    Items = dtos,
+                    TotalCount = totalCount,
+                    Page = page,
+                    PageSize = pageSize
+                };
+
+                _cache.AddJobs(result);
+            }
 
             return Ok(result);
         }
@@ -56,38 +65,44 @@ namespace Api.Controllers
         [Route("{id}")]
         public async Task<ActionResult<JobListingDto>> GetJobById([FromRoute] int id)
         {
-            var job = await _processRepository.GetFullProcessedJobByIdAsync(id);
-            if (job is null)
+            var result = _cache.GetJob(id);
+            if (result is null)
             {
-                return BadRequest($"Job with id {id} not found.");
+                var job = await _processRepository.GetFullProcessedJobByIdAsync(id);
+                if (job is null)
+                {
+                    return BadRequest($"Job with id {id} not found.");
+                }
+
+                result = new JobListingDto
+                {
+                    Title = job.RawJob.Title,
+                    CompanyName = job.RawJob.CompanyName,
+                    RoleName = job.RawJob.RoleName,
+                    Location = job.RawJob.Location,
+                    Extent = job.RawJob.Extent,
+                    Duration = job.RawJob.Duration,
+                    ApplicationDeadline = job.RawJob.ApplicationDeadline,
+                    Published = job.RawJob.Published,
+                    ListingId = job.RawJob.ListingId,
+                    ListingUrl = job.RawJob.ListingUrl,
+                    Source = job.RawJob.Source,
+                    ProcessedAt = (DateTime)job.ProcessRun.FinishedAt!,
+                    Id = job.Id,
+                    Description = job.Description,
+                    RequiredTechnologies = job.RequiredTechnologies,
+                    NiceTohaveTechnologies = job.NiceTohaveTechnologies,
+                    CompetenceRank = job.CompetenceRank,
+                    KeywordsCV = job.KeywordsCV,
+                    KeywordsCL = job.KeywordsCL,
+                    CustomCoverLetterFocus = job.CustomCoverLetterFocus,
+                    Motivation = job.Motivation
+                };
+
+                _cache.AddJob(result);
             }
 
-            var dto = new JobListingDto
-            {
-                Title = job.RawJob.Title,
-                CompanyName = job.RawJob.CompanyName,
-                RoleName = job.RawJob.RoleName,
-                Location = job.RawJob.Location,
-                Extent = job.RawJob.Extent,
-                Duration = job.RawJob.Duration,
-                ApplicationDeadline = job.RawJob.ApplicationDeadline,
-                Published = job.RawJob.Published,
-                ListingId = job.RawJob.ListingId,
-                ListingUrl = job.RawJob.ListingUrl,
-                Source = job.RawJob.Source,
-                ProcessedAt = (DateTime)job.ProcessRun.FinishedAt!,
-                Id = job.Id,
-                Description = job.Description,
-                RequiredTechnologies = job.RequiredTechnologies,
-                NiceTohaveTechnologies = job.NiceTohaveTechnologies,
-                CompetenceRank = job.CompetenceRank,
-                KeywordsCV = job.KeywordsCV,
-                KeywordsCL = job.KeywordsCL,
-                CustomCoverLetterFocus = job.CustomCoverLetterFocus,
-                Motivation = job.Motivation
-            };
-
-            return Ok(dto);
+            return Ok(result);
         }
     }
 }
