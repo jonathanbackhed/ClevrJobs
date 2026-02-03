@@ -32,9 +32,9 @@ namespace Workers
 
                     var lastRun = await jobRepository.GetLastScrapeRun();
 
-                    if (lastRun != null && lastRun.StartedAt.Date == DateTime.Now.Date)
+                    if (lastRun != null && lastRun.StartedAt.Date == DateTime.UtcNow.Date)
                     {
-                        var now = DateTime.Now;
+                        var now = DateTime.UtcNow;
                         var targetTime = now.Date.AddDays(1).AddHours(2);
                         var delayUntilTarget = targetTime - now;
 
@@ -42,18 +42,18 @@ namespace Workers
                         await Task.Delay(delayUntilTarget, stoppingToken);
                     }
 
-                    _logger.LogInformation($"Scrape started at {DateTime.Now}");
+                    _logger.LogInformation($"Scrape started at {DateTime.UtcNow}");
 
                     var (success, scrapeRunId) = await _scraperService.ScrapePlatsbankenAsync(jobRepository, stoppingToken);
 
-                    _logger.LogInformation("Scrape ended at {DateTime.Now} with success status: {success}", success);
+                    _logger.LogInformation("Scrape ended at {DateTime} with success status: {success}", DateTime.UtcNow, success);
 
                     if (success)
                     {
                         await _messageService.PublishAsync(new ScrapeCompletedEvent
                         {
                             ScrapeRunId = scrapeRunId,
-                            TimeStamp = DateTime.Now
+                            TimeStamp = DateTime.UtcNow
                         });
                     }
 

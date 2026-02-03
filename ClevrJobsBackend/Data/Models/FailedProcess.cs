@@ -20,7 +20,7 @@ namespace Data.Models
         [Required]
         public required string ErrorMessage { get; set; }
 
-        public DateTime FailedAt { get; set; } = DateTime.Now;
+        public DateTime FailedAt { get; set; } = DateTime.UtcNow;
 
         public string? ErrorType { get; set; }
 

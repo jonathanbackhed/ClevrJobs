@@ -324,7 +324,7 @@ namespace Workers.Services
         {
             var scrapeRun = new ScrapeRun
             {
-                StartedAt = DateTime.Now,
+                StartedAt = DateTime.UtcNow,
                 Status = Status.InProgress
             };
 
@@ -340,7 +340,7 @@ namespace Workers.Services
         private async Task<bool> EndScrapeRunAsync(IJobRepository jobRepository, ScrapeRun scrapeRun, bool errorOccured)
         {
             scrapeRun.Status = errorOccured ? Status.Failed : Status.Completed;
-            scrapeRun.FinishedAt = DateTime.Now;
+            scrapeRun.FinishedAt = DateTime.UtcNow;
             scrapeRun.ScrapedJobs = scrapeRun.ScrapedJobs;
             scrapeRun.FailedJobs = scrapeRun.FailedJobs;
 

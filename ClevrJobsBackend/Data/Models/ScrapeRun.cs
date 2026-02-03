@@ -11,7 +11,7 @@ namespace Data.Models
         [Key]
         public int Id { get; set; }
 
-        public DateTime StartedAt { get; set; } = DateTime.Now;
+        public DateTime StartedAt { get; set; } = DateTime.UtcNow;
 
         public DateTime? FinishedAt { get; set; }
 

@@ -190,7 +190,7 @@ namespace Workers.Services
         {
             var processRun = new ProcessRun
             {
-                StartedAt = DateTime.Now,
+                StartedAt = DateTime.UtcNow,
                 Model = model,
                 Prompt = prompt
             };
@@ -206,7 +206,7 @@ namespace Workers.Services
 
         private async Task<bool> EndProcessRunAsync(IProcessRepository processRepository, ProcessRun processRun)
         {
-            processRun.FinishedAt = DateTime.Now;
+            processRun.FinishedAt = DateTime.UtcNow;
 
             var success = await processRepository.UpdateProcessRun(processRun);
             if (!success)
