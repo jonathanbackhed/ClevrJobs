@@ -1,9 +1,12 @@
 ﻿using Api.Data;
 using Api.Models;
 using Api.Models.Dto;
+using Api.Models.Dto.Requests;
 using Data.Models;
 using Data.Repositories;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Api.Controllers
 {
@@ -103,6 +106,37 @@ namespace Api.Controllers
             }
 
             return Ok(result);
+        }
+
+        [HttpPost]
+        [Route("{jobId}/report")]
+        public async Task<IActionResult> ReportJob([FromRoute]int jobId, [FromBody] ReportJobRequest request)
+        {
+            try
+            {
+                var jobExists = await _processRepository.JobExists(jobId);
+                if (!jobExists)
+                {
+                    return NotFound($"Job with id {jobId} not found.");
+                }
+
+                var report = new JobReport
+                {
+                    ProcessedJobId = jobId,
+                    Reason = request.Reason,
+                    Description = request.Description,
+                    IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString(),
+                    UserIdentifier = null
+                };
+
+                await _processRepository.AddJobReport(report);
+            }
+            catch (DbUpdateException e)
+            {
+                return StatusCode(500, "An error occurred while saving the report");
+            }
+
+            return Ok();
         }
     }
 }

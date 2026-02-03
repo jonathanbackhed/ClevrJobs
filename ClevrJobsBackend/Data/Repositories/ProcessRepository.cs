@@ -89,5 +89,17 @@ namespace Data.Repositories
 
             return await _dbc.SaveChangesAsync() > 0;
         }
+
+        public async Task AddJobReport(JobReport jobReport)
+        {
+            await _dbc.JobReports.AddAsync(jobReport);
+            await _dbc.SaveChangesAsync();
+        }
+
+        public async Task<bool> JobExists(int id)
+        {
+            var exists = await _dbc.ProcessedJobs.AnyAsync(j => j.Id == id);
+            return exists;
+        }
     }
 }
