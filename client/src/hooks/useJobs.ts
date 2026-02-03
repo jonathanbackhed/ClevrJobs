@@ -1,7 +1,7 @@
 import { api } from "@/lib/api";
 import { times } from "@/lib/constants";
-import { JobListingDto, JobListingMiniDto, PagedResult } from "@/types/job";
-import { useQuery } from "@tanstack/react-query";
+import { JobListingDto, JobListingMiniDto, PagedResult, ReportJobRequest } from "@/types/job";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 export function useJobs(page: number) {
   return useQuery({
@@ -19,5 +19,11 @@ export function useJob(id: number) {
     staleTime: times.thirty,
     gcTime: times.thirty,
     enabled: !!id,
+  });
+}
+
+export function useReportJob(id: number) {
+  return useMutation({
+    mutationFn: async (reportJobRequest: ReportJobRequest) => await api.reportJob(id, reportJobRequest),
   });
 }

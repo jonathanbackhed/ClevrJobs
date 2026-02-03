@@ -136,7 +136,7 @@ namespace Api.Controllers
                 return StatusCode(500, "An error occurred while saving the report");
             }
 
-            return Ok();
+            return Ok(new {});
         }
     }
 }

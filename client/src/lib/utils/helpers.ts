@@ -1,3 +1,4 @@
+import { ReportReason } from "@/types/enum";
 import { CompetenceRank, Source } from "@/types/job";
 import clsx, { ClassValue } from "clsx";
 import { formatDistanceToNowStrict } from "date-fns";
@@ -27,6 +28,23 @@ export function getSourceName(value: number): string {
   };
 
   if (value in Source) {
+    return displayMap[value];
+  }
+
+  return "N/A";
+}
+
+export function getReasonName(value: number): string {
+  const displayMap: Record<number, string> = {
+    [ReportReason.Spam]: "Spam",
+    [ReportReason.Inappropriate]: "Olämplig",
+    [ReportReason.Duplicate]: "Duplicerad",
+    [ReportReason.Outdated]: "Föråldrad",
+    [ReportReason.IncorrectInformation]: "Felaktig information",
+    [ReportReason.Other]: "Annat (beskriv gärna nedan)",
+  };
+
+  if (value in ReportReason) {
     return displayMap[value];
   }
 

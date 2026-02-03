@@ -1,3 +1,5 @@
+import { ReportReason } from "./enum";
+
 export interface PagedResult<T> {
   items: T[];
   totalCount: number;
@@ -47,6 +49,11 @@ export interface JobListingMiniDto {
   description: string;
   requiredTechnologies: string;
   competenceRank: CompetenceRank;
+}
+
+export interface ReportJobRequest {
+  reason: ReportReason;
+  description?: string;
 }
 
 export enum CompetenceRank {

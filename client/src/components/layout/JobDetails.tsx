@@ -1,8 +1,8 @@
 "use client";
 
-import { useJob } from "@/hooks/useJobs";
-import { formatDateTime, getSourceName, isMoreThan24hAgo } from "@/lib/utils/helpers";
-import { CompetenceRank, JobListingDto } from "@/types/job";
+import { useJob, useReportJob } from "@/hooks/useJobs";
+import { formatDateTime, getReasonName, getSourceName, isMoreThan24hAgo } from "@/lib/utils/helpers";
+import { CompetenceRank, JobListingDto, ReportJobRequest } from "@/types/job";
 import {
   Bot,
   Briefcase,
@@ -29,12 +29,20 @@ import toast, { Toaster } from "react-hot-toast";
 import CustomButton from "../ui/CustomButton";
 import Toast from "../ui/Toast";
 import { useRouter } from "next/navigation";
+import { useRef, useState } from "react";
+import { ReportReason } from "@/types/enum";
+import Modal from "../ui/Modal";
 
 interface Props {
   job: JobListingDto;
 }
 
 export default function JobDetails({ job }: Props) {
+  const [showModal, setShowModal] = useState(false);
+
+  const formRef = useRef<HTMLFormElement>(null);
+
+  const reportMutation = useReportJob(job.id);
   const router = useRouter();
 
   const requirementsList = job.requiredTechnologies.split(",");
@@ -55,12 +63,75 @@ export default function JobDetails({ job }: Props) {
     }
   };
 
-  const sendReport = async () => {
-    console.log("Not implemented yet!");
+  const sendReport = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const formData = new FormData(e.currentTarget);
+    const reasonValue = formData.get("reportReason") as string;
+    const testData: ReportJobRequest = {
+      reason: Number(reasonValue) as ReportReason,
+      description: (formData.get("reportDescription") as string)?.trim() || undefined,
+    };
+
+    reportMutation.mutate(testData, {
+      onSuccess: () => {
+        toast.success("Rapport skickad");
+        setShowModal(false);
+        formRef.current?.reset();
+      },
+      onError: () => {
+        toast.error("Rapport skickades inte");
+      },
+    });
   };
 
   return (
     <div className="flex flex-col gap-4">
+      <Modal isOpen={showModal} close={setShowModal}>
+        <form ref={formRef} onSubmit={sendReport} className="flex flex-col gap-4">
+          <h3 className="font-serif text-3xl">Rapportera annons</h3>
+          <div className="flex flex-col">
+            <label htmlFor="reportReason">Anledning:</label>
+            <select
+              name="reportReason"
+              defaultValue=""
+              required
+              className="bg-cream-light outline-accent rounded-lg px-3 py-2 outline-0 focus:outline-2"
+            >
+              <option value="" disabled>
+                - Välj nedan -
+              </option>
+              {Object.values(ReportReason)
+                .filter((key) => typeof key === "number")
+                .map((reason: number) => {
+                  const name = getReasonName(Number(reason));
+                  return (
+                    <option key={`reason-${reason}`} value={reason}>
+                      {name}
+                    </option>
+                  );
+                })}
+            </select>
+          </div>
+          <div className="flex flex-col">
+            <label htmlFor="reportDescription">Beskrivning:</label>
+            <textarea
+              name="reportDescription"
+              placeholder="Beskriv gärna ditt problem i detalj."
+              maxLength={300}
+              className="bg-cream-light outline-accent resize-none rounded-2xl p-2.5 outline-0 focus:outline-2"
+              rows={5}
+              cols={60}
+            />
+          </div>
+          <input
+            type="submit"
+            value={reportMutation.isPending ? "Skickar..." : "Skicka"}
+            disabled={reportMutation.isPending}
+            className="bg-accent outline-accent cursor-pointer rounded-2xl px-3 py-2 text-white outline-0 focus:outline-1 disabled:opacity-25"
+          />
+        </form>
+      </Modal>
       <Toast />
 
       <button
@@ -232,7 +303,13 @@ export default function JobDetails({ job }: Props) {
       <div className="flex justify-center">
         <span className="mt-2 text-sm font-semibold">
           Något som inte stämmer?{" "}
-          <CustomButton type="button" action={sendReport} variant="none" size="none">
+          <CustomButton
+            type="button"
+            action={() => setShowModal((prev) => !prev)}
+            disabled={reportMutation.isPending}
+            variant="none"
+            size="none"
+          >
             <strong className="text-accent hover:text-accent/80">Rapportera annons</strong>
           </CustomButton>
         </span>

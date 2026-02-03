@@ -1,4 +1,4 @@
-import { JobListingDto, JobListingMiniDto, PagedResult } from "@/types/job";
+import { JobListingDto, JobListingMiniDto, PagedResult, ReportJobRequest } from "@/types/job";
 
 const getApiUrl = (): string => {
   if (typeof window === "undefined") {
@@ -8,18 +8,23 @@ const getApiUrl = (): string => {
   return process.env.NEXT_PUBLIC_BASE_API_URL || "http://localhost:5075";
 };
 
-const apiFetch = async (path: string) => {
+const apiFetch = async (path: string, body?: {}) => {
   const url = getApiUrl() + path;
   console.log("Req url:", url);
-  const res = await fetch(getApiUrl() + path);
+  const res = await fetch(
+    getApiUrl() + path,
+    body ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) } : undefined,
+  );
   if (!res.ok) {
     throw new Error(`API error: ${res.status}`);
   }
 
-  return await res.json();
+  return res.json();
 };
 
 export const api = {
   getAllJobs: async (page: number): Promise<PagedResult<JobListingMiniDto>> => await apiFetch(`/job/all?page=${page}`),
   getSingleJob: async (id: number): Promise<JobListingDto> => await apiFetch(`/job/${id}`),
+  reportJob: async (id: number, reportJobRequest: ReportJobRequest) =>
+    await apiFetch(`/job/${id}/report`, reportJobRequest),
 };
