@@ -1,7 +1,7 @@
 ﻿using Data.Enums;
 using System.ComponentModel.DataAnnotations;
 
-namespace Api.Models.Dto.Requests
+namespace Api.DTOs.Requests
 {
     public record ReportJobRequest(
         [Required] ReportReason Reason,

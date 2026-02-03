@@ -1,8 +1,8 @@
 ﻿using Data.Enums;
 
-namespace Api.Models.Dto
+namespace Api.DTOs.Responses
 {
-    public record JobListingDto
+    public record JobListingResponse
     {
         public required string Title { get; init; }
         public required string CompanyName { get; init; }
@@ -15,7 +15,7 @@ namespace Api.Models.Dto
         public required string ListingId { get; init; }
         public required string ListingUrl { get; init; }
         public required Source Source { get; init; }
-        public required DateTime ProcessedAt { get; set; }
+        public required DateTime ProcessedAt { get; init; }
 
         // Processed fields
         public required int Id { get; init; }

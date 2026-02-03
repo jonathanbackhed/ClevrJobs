@@ -1,7 +1,6 @@
 ﻿using Api.Data;
-using Api.Models;
-using Api.Models.Dto;
-using Api.Models.Dto.Requests;
+using Api.DTOs.Requests;
+using Api.DTOs.Responses;
 using Data.Models;
 using Data.Repositories;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -25,7 +24,7 @@ namespace Api.Controllers
 
         [HttpGet]
         [Route("all")]
-        public async Task<ActionResult<PagedResult<JobListingMiniDto>>> GetJobsByLatest([FromQuery] int page = 1)
+        public async Task<ActionResult<PagedResult<JobListingMiniResponse>>> GetJobsByLatest([FromQuery] int page = 1)
         {
             var pageSize = 15;
 
@@ -34,7 +33,7 @@ namespace Api.Controllers
             {
                 var (items, totalCount) = await _processRepository.GetFullProcessedJobsByLatestAsync(page, pageSize);
 
-                var dtos = items.Select(i => new JobListingMiniDto
+                var dtos = items.Select(i => new JobListingMiniResponse
                 {
                     Title = i.RawJob.Title,
                     CompanyName = i.RawJob.CompanyName,
@@ -50,7 +49,7 @@ namespace Api.Controllers
                     CompetenceRank = i.CompetenceRank
                 }).ToList();
 
-                result = new PagedResult<JobListingMiniDto>
+                result = new PagedResult<JobListingMiniResponse>
                 {
                     Items = dtos,
                     TotalCount = totalCount,
@@ -66,7 +65,7 @@ namespace Api.Controllers
 
         [HttpGet]
         [Route("{id}")]
-        public async Task<ActionResult<JobListingDto>> GetJobById([FromRoute] int id)
+        public async Task<ActionResult<JobListingResponse>> GetJobById([FromRoute] int id)
         {
             var result = _cache.GetJob(id);
             if (result is null)
@@ -77,7 +76,7 @@ namespace Api.Controllers
                     return BadRequest($"Job with id {id} not found.");
                 }
 
-                result = new JobListingDto
+                result = new JobListingResponse
                 {
                     Title = job.RawJob.Title,
                     CompanyName = job.RawJob.CompanyName,

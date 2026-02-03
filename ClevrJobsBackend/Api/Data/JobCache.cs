@@ -1,5 +1,4 @@
-﻿using Api.Models;
-using Api.Models.Dto;
+﻿using Api.DTOs.Responses;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace Api.Data
@@ -13,7 +12,7 @@ namespace Api.Data
             _cache = cache;
         }
 
-        public void AddJob(JobListingDto job)
+        public void AddJob(JobListingResponse job)
         {
             var cacheOptions = new MemoryCacheEntryOptions
             {
@@ -24,7 +23,7 @@ namespace Api.Data
             _cache.Set(job.Id, job, cacheOptions);
         }
 
-        public void AddJobs(PagedResult<JobListingMiniDto> jobs)
+        public void AddJobs(PagedResult<JobListingMiniResponse> jobs)
         {
             var cacheOptions = new MemoryCacheEntryOptions
             {
@@ -35,15 +34,15 @@ namespace Api.Data
             _cache.Set(jobs.Page, jobs, cacheOptions);
         }
 
-        public JobListingDto? GetJob(int id)
+        public JobListingResponse? GetJob(int id)
         {
-            _cache.TryGetValue(id, out JobListingDto? job);
+            _cache.TryGetValue(id, out JobListingResponse? job);
             return job;
         }
 
-        public PagedResult<JobListingMiniDto>? GetJobs(int page)
+        public PagedResult<JobListingMiniResponse>? GetJobs(int page)
         {
-            _cache.TryGetValue(page, out PagedResult<JobListingMiniDto>? jobs);
+            _cache.TryGetValue(page, out PagedResult<JobListingMiniResponse>? jobs);
             return jobs;
         }
     }
