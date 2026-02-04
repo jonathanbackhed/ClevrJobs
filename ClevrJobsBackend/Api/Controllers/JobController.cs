@@ -1,6 +1,7 @@
 ﻿using Api.Data;
 using Api.DTOs.Requests;
 using Api.DTOs.Responses;
+using Asp.Versioning;
 using Data.Models;
 using Data.Repositories;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -11,7 +12,8 @@ using Microsoft.EntityFrameworkCore;
 namespace Api.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/v{version:apiVersion}/jobs")]
+    [ApiVersion("1.0")]
     public class JobController : ControllerBase
     {
         private readonly IProcessRepository _processRepository;
