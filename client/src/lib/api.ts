@@ -23,8 +23,9 @@ const apiFetch = async (path: string, body?: {}) => {
 };
 
 export const api = {
-  getAllJobs: async (page: number): Promise<PagedResult<JobListingMiniDto>> => await apiFetch(`/job/all?page=${page}`),
-  getSingleJob: async (id: number): Promise<JobListingDto> => await apiFetch(`/job/${id}`),
+  getAllJobs: async (page: number): Promise<PagedResult<JobListingMiniDto>> =>
+    await apiFetch(`/api/v1/jobs/all?page=${page}`),
+  getSingleJob: async (id: number): Promise<JobListingDto> => await apiFetch(`/api/v1/jobs/${id}`),
   reportJob: async (id: number, reportJobRequest: ReportJobRequest) =>
-    await apiFetch(`/job/${id}/report`, reportJobRequest),
+    await apiFetch(`/api/v1/jobs/${id}/report`, reportJobRequest),
 };
