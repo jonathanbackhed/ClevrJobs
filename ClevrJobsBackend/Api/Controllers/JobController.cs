@@ -5,6 +5,7 @@ using Data.Models;
 using Data.Repositories;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 
 namespace Api.Controllers
@@ -109,6 +110,7 @@ namespace Api.Controllers
 
         [HttpPost]
         [Route("{jobId}/report")]
+        [EnableRateLimiting("reportByIp")]
         public async Task<IActionResult> ReportJob([FromRoute]int jobId, [FromBody] ReportJobRequest request)
         {
             try
