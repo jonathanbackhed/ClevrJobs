@@ -6,6 +6,7 @@ import JobListItem from "./JobListItem";
 import { useState } from "react";
 import Pagination from "./Pagination";
 import { useSearchParams } from "next/navigation";
+import PulsatingText from "../ui/PulsatingText";
 
 export default function JobList() {
   const params = useSearchParams();
@@ -15,8 +16,8 @@ export default function JobList() {
 
   const { data, isLoading, error } = useJobs(currentPage);
 
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error.message}</div>;
+  if (isLoading) return <PulsatingText text="Loading..." />;
+  if (error) return <PulsatingText text={`Error: \n${error.message}`} />;
 
   return (
     <>

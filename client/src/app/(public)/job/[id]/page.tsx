@@ -2,6 +2,7 @@
 
 import JobDetails from "@/components/layout/JobDetails";
 import Logo from "@/components/ui/Logo";
+import PulsatingText from "@/components/ui/PulsatingText";
 import { useJob } from "@/hooks/useJobs";
 import { notFound, useParams } from "next/navigation";
 
@@ -15,8 +16,8 @@ export default function Details() {
 
   const { data, isLoading, error } = useJob(jobId);
 
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error.message}</div>;
+  if (isLoading) return <PulsatingText text="Loading..." customStyles="h-screen flex items-center justify-center" />;
+  if (error) return <PulsatingText text={`Error: ${error.message}`} />;
   if (!data) notFound();
 
   return (
