@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils/helpers";
 import { useRouter } from "next/navigation";
 
 interface Props {
@@ -70,16 +71,23 @@ export default function Pagination({ totalPages, totalCount, pageSize, currentPa
         >
           Föregående
         </button>
-        {pages.map((page) => (
-          <button
-            key={page}
-            onClick={() => handlePageChange(page)}
-            disabled={currentPage === page}
-            className={`border-accent/40 hover:bg-accent flex-1 rounded-xl border px-3 py-1 hover:text-white sm:px-4 ${currentPage === page ? "bg-accent-light cursor-default text-white" : "bg-cream-light cursor-pointer text-stone-500"}`}
-          >
-            {page}
-          </button>
-        ))}
+        <div className="flex basis-full justify-center gap-1.5 sm:basis-0">
+          {pages.map((page) => (
+            <button
+              key={page}
+              onClick={() => handlePageChange(page)}
+              disabled={currentPage === page}
+              className={cn(
+                "border-accent/40 hover:bg-accent size-10 flex-1 rounded-xl border hover:text-white",
+                currentPage === page
+                  ? "bg-accent-light cursor-default text-white"
+                  : "bg-cream-light cursor-pointer text-stone-500",
+              )}
+            >
+              {page}
+            </button>
+          ))}
+        </div>
         <button
           onClick={() => handlePageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
