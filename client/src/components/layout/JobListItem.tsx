@@ -54,7 +54,14 @@ export default function JobListItem({ job, index }: Props) {
             Sista ansökningsdag:{" "}
             <strong className="font-semibold text-stone-700 dark:text-stone-400">{job.applicationDeadline}</strong>
           </span>
-          <CustomButton type="link" action={`/job/${job.id}`} children="Visa mer" variant="borderHoverFill" size="sm" />
+          <CustomButton
+            type="link"
+            action={`/job/${job.id}`}
+            children="Visa mer"
+            variant="borderHoverFill"
+            size="sm"
+            customStyles="text-center"
+          />
         </div>
       </article>
     </div>

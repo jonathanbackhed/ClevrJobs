@@ -166,7 +166,7 @@ export default function JobDetails({ job }: Props) {
 
           <div className="border-accent-light/30 border-t" />
 
-          <div className="flex flex-row items-center justify-around gap-4">
+          <div className="flex flex-row items-start justify-around gap-4 sm:items-center">
             <div>
               <p className="mb-1 text-xs font-semibold tracking-wide text-stone-500 uppercase">Anställning</p>
               <p className="text-[0.925rem] font-semibold text-stone-800 dark:text-stone-300">
@@ -281,7 +281,7 @@ export default function JobDetails({ job }: Props) {
               action={job.listingUrl}
               variant="filled"
               size="md"
-              customStyles="flex items-center gap-2 hover:-translate-y-px"
+              customStyles="flex items-center justify-center gap-2 hover:-translate-y-px"
               target="_blank"
             >
               <ExternalLink size={16} className="-translate-y-0.5" /> Öppna på {getSourceName(job.source)}
@@ -291,7 +291,7 @@ export default function JobDetails({ job }: Props) {
               action={copyToClipboard}
               variant="border"
               size="md"
-              customStyles="gap-2 flex items-center"
+              customStyles="gap-2 flex items-center justify-center"
             >
               <LinkIcon size={16} className="-translate-y-0.5" />
               Kopiera länk
@@ -301,7 +301,7 @@ export default function JobDetails({ job }: Props) {
       </CardContainer>
 
       <div className="flex justify-center">
-        <span className="mt-2 text-sm font-semibold">
+        <span className="mt-2 text-center text-sm font-semibold">
           Något som inte stämmer?{" "}
           <CustomButton
             type="button"
