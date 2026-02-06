@@ -16,12 +16,15 @@ export default function JobList() {
 
   const { data, isLoading, error } = useJobs(currentPage);
 
-  if (isLoading) return <PulsatingText text="Loading..." />;
-  if (error) return <PulsatingText text={`Error: \n${error.message}`} />;
+  if (isLoading) return <PulsatingText text="Loading..." customStyles="flex-1" />;
+  if (error) return <PulsatingText text={`Error: \n${error.message}`} customStyles="flex-1" />;
 
   return (
     <>
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-1 flex-col gap-4">
+        {data?.items && data.items.length < 1 && (
+          <span className="text-center text-xl font-bold">Inga job hittades</span>
+        )}
         {data?.items.map((job: JobListingMiniDto, i: number) => (
           <JobListItem key={job.id} job={job} index={i} />
         ))}
