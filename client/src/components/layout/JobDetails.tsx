@@ -120,7 +120,7 @@ export default function JobDetails({ job }: Props) {
               placeholder="Beskriv gärna ditt problem i detalj."
               maxLength={300}
               className="bg-cream-light outline-accent resize-none rounded-2xl p-2.5 outline-0 focus:outline-2"
-              rows={5}
+              rows={4}
               cols={60}
             />
           </div>
