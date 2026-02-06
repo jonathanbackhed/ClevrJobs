@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils/helpers";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface Props {
@@ -67,9 +68,9 @@ export default function Pagination({ totalPages, totalCount, pageSize, currentPa
         <button
           onClick={() => handlePageChange(currentPage - 1)}
           disabled={currentPage === 1}
-          className="active:bg-accent border-accent/40 bg-cream-light hover:bg-accent order-8 flex-1 cursor-pointer rounded-xl border px-4 py-2 text-stone-500 hover:text-white active:text-white disabled:cursor-default sm:order-first sm:w-auto"
+          className="active:bg-accent border-accent/40 bg-cream-light hover:bg-accent order-8 flex flex-1 cursor-pointer justify-center rounded-xl border px-6 py-2 text-stone-500 hover:text-white active:text-white disabled:cursor-default sm:order-first sm:w-auto"
         >
-          Föregående
+          <ChevronLeft size={18} />
         </button>
         <div className="flex basis-full justify-center gap-1.5 sm:basis-0">
           {pages.map((page) => (
@@ -91,9 +92,9 @@ export default function Pagination({ totalPages, totalCount, pageSize, currentPa
         <button
           onClick={() => handlePageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
-          className="active:bg-accent border-accent/40 bg-cream-light hover:bg-accent order-last flex-1 cursor-pointer rounded-xl border px-4 py-2 text-stone-500 hover:text-white active:text-white disabled:cursor-default sm:w-auto"
+          className="active:bg-accent border-accent/40 bg-cream-light hover:bg-accent order-last flex flex-1 cursor-pointer justify-center rounded-xl border px-6 py-2 text-stone-500 hover:text-white active:text-white disabled:cursor-default sm:w-auto"
         >
-          Nästa
+          <ChevronRight size={18} />
         </button>
       </div>
       <span className="mt-2 text-sm font-semibold">
