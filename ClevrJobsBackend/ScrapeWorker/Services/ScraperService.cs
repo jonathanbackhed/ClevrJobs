@@ -158,15 +158,21 @@ namespace Workers.Services
 
                     string currentListingIdStr = href?.Split("/").Last() ?? "-1";
                     var parseSuccess = int.TryParse(currentListingIdStr, out var currentListingId);
-                    if (parseSuccess && currentListingId == lastJobListingId)
+                    if (!parseSuccess)
                     {
-                        _logger.LogInformation($"Job already scraped, exiting run.");
+                        _logger.LogInformation("Job listing id parse failed for {jobListingID}", currentListingIdStr);
+                    }
+                    else if (parseSuccess && currentListingId == lastJobListingId)
+                    {
+                        _logger.LogInformation("Job {jobId} already scraped, exiting run.", currentListingId);
                         shouldContinue = false;
                         break;
                     }
 
                     listUrl = _platsbankenBaseUrl + href;
                     listId = currentListingId;
+
+                    _logger.LogInformation("Scraping job {jobId}", currentListingId);
 
                     var context = await browser.NewContextAsync();
                     newPage = await context.NewPageAsync();
