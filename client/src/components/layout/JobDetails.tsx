@@ -29,7 +29,7 @@ import toast, { Toaster } from "react-hot-toast";
 import CustomButton from "../ui/CustomButton";
 import Toast from "../ui/Toast";
 import { useRouter } from "next/navigation";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ReportReason } from "@/types/enum";
 import Modal from "../ui/Modal";
 
@@ -84,6 +84,22 @@ export default function JobDetails({ job }: Props) {
       },
     });
   };
+
+  useEffect(() => {
+    if (!showModal) return;
+
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setShowModal(false);
+      }
+    };
+
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [showModal]);
 
   return (
     <div className="flex flex-col gap-4">
