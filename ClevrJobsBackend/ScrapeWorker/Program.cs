@@ -16,6 +16,7 @@ builder.Services.AddSerilog();
 
 builder.Services.AddHostedService<ScrapeWorker>();
 builder.Services.AddHostedService<ProcessingWorker>();
+builder.Services.AddHostedService<RetryWorker>();
 
 builder.Services.AddSingleton<IScraperService, ScraperService>();
 builder.Services.AddSingleton<IProcessService, ProcessService>();
