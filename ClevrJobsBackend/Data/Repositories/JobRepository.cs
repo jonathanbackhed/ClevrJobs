@@ -44,6 +44,16 @@ namespace Data.Repositories
             return await _dbc.SaveChangesAsync() > 0;
         }
 
+        public async Task<List<FailedScrape>> GetFailedScrapesForRetryAsync()
+        {
+            var failed = await _dbc.FailedScrapes
+                .Include(i => i.ScrapeRun)
+                .Where(f => f.Status == FailedStatus.ReadyForRetry)
+                .ToListAsync();
+
+            return failed;
+        }
+
         public async Task<RawJob?> GetLastPublishedRawJob()
         {
             return await _dbc.RawJobs.OrderByDescending(o => o.ListingId).FirstOrDefaultAsync();
@@ -72,6 +82,21 @@ namespace Data.Repositories
                 .ExecuteUpdateAsync(s => s.SetProperty(p => p.ProcessedStatus, true));
 
             return result > 0;
+        }
+
+        public async Task<bool> UpdateFailedScrape(FailedScrape failedScrape)
+        {
+            var rowsAffected = await _dbc.FailedScrapes
+                .Where(x => x.Id == failedScrape.Id)
+                .ExecuteUpdateAsync(s => s
+                    .SetProperty(p => p.RetryCount, p => p.RetryCount + 1)
+                    .SetProperty(p => p.RetriedAt, failedScrape.RetriedAt)
+                    .SetProperty(p => p.Status, failedScrape.Status)
+                    .SetProperty(p => p.ErrorType, failedScrape.ErrorType)
+                    .SetProperty(p => p.ErrorMessage, failedScrape.ErrorMessage)
+                );
+
+            return rowsAffected > 0;
         }
 
         public async Task<bool> UpdateRawJobs(ICollection<RawJob> rawJobs)

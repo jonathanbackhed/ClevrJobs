@@ -17,5 +17,7 @@ namespace Data.Repositories
         Task<ICollection<RawJob>> GetUnprocessedRawJobsfromScrapeRunId(int id);
         Task<bool> UpdateRawJobs(ICollection<RawJob> rawJobs);
         Task<bool> MarkRawJobAsProcessed(RawJob rawJob);
+        Task<List<FailedScrape>> GetFailedScrapesForRetryAsync();
+        Task<bool> UpdateFailedScrape(FailedScrape failedScrape);
     }
 }
