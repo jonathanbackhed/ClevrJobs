@@ -7,14 +7,14 @@ using Workers.Services;
 
 namespace Workers
 {
-    public class RetryWorker : BackgroundService
+    public class ScrapeRetryWorker : BackgroundService
     {
-        private readonly ILogger<RetryWorker> _logger;
+        private readonly ILogger<ScrapeRetryWorker> _logger;
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly IScraperService _scraperService;
         private readonly IMessageQueue _messageQueue;
 
-        public RetryWorker(ILogger<RetryWorker> logger, IServiceScopeFactory scopeFactory, IScraperService scraperService, IMessageQueue messageQueue)
+        public ScrapeRetryWorker(ILogger<ScrapeRetryWorker> logger, IServiceScopeFactory scopeFactory, IScraperService scraperService, IMessageQueue messageQueue)
         {
             _logger = logger;
             _scopeFactory = scopeFactory;
