@@ -33,7 +33,7 @@ namespace Workers
 
                     _logger.LogInformation($"Scrape started at {DateTime.UtcNow}");
 
-                    var result = await _scraperService.RetryFailedScrapesPlatsbankenAsync(jobRepository, _messageQueue, stoppingToken);
+                    await _scraperService.RetryFailedScrapesPlatsbankenAsync(jobRepository, _messageQueue, stoppingToken);
 
                     _logger.LogInformation($"Scrape ended at {DateTime.UtcNow}");
 
