@@ -16,6 +16,13 @@ namespace Data.Repositories
             _dbc = dbc;
         }
 
+        public async Task<bool> AddFailedScrape(FailedScrape failedScrape)
+        {
+            await _dbc.FailedScrapes.AddAsync(failedScrape);
+
+            return await _dbc.SaveChangesAsync() > 0;
+        }
+
         public async Task<bool> AddMultipleFailedScrapes(IEnumerable<FailedScrape> failedScrapes)
         {
             await _dbc.FailedScrapes.AddRangeAsync(failedScrapes);
@@ -56,7 +63,12 @@ namespace Data.Repositories
 
         public async Task<RawJob?> GetLastPublishedRawJob()
         {
-            return await _dbc.RawJobs.OrderByDescending(o => o.ListingId).FirstOrDefaultAsync();
+            var job = await _dbc.RawJobs
+                .OrderByDescending(o => o.ScrapeRunId)
+                .ThenBy(o => o.Id)
+                .FirstOrDefaultAsync();
+
+            return job;
         }
 
         public async Task<ScrapeRun?> GetLastScrapeRun()

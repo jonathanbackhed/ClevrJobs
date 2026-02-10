@@ -11,14 +11,14 @@ namespace Workers
         private readonly ILogger<ScrapeWorker> _logger;
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly IScraperService _scraperService;
-        private readonly IMessageQueue _messageService;
+        private readonly IMessageQueue _messageQueue;
 
-        public ScrapeWorker(ILogger<ScrapeWorker> logger, IServiceScopeFactory scopeFactory, IScraperService scraperService, IMessageQueue messageService)
+        public ScrapeWorker(ILogger<ScrapeWorker> logger, IServiceScopeFactory scopeFactory, IScraperService scraperService, IMessageQueue messageQueue)
         {
             _logger = logger;
             _scopeFactory = scopeFactory;
             _scraperService = scraperService;
-            _messageService = messageService;
+            _messageQueue = messageQueue;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -44,26 +44,15 @@ namespace Workers
 
                     _logger.LogInformation($"Scrape started at {DateTime.UtcNow}");
 
-                    var (success, scrapeRunId) = await _scraperService.ScrapePlatsbankenAsync(jobRepository, stoppingToken);
+                    await _scraperService.ScrapePlatsbankenAsync(jobRepository, _messageQueue, stoppingToken);
 
-                    _logger.LogInformation("Scrape ended at {DateTime} with success status: {success}", DateTime.UtcNow, success);
-
-                    if (success)
-                    {
-                        await _messageService.PublishAsync(new ScrapeCompletedEvent
-                        {
-                            ScrapeRunId = scrapeRunId,
-                            TimeStamp = DateTime.UtcNow
-                        });
-                    }
+                    _logger.LogInformation($"Scrape ended at {DateTime.UtcNow}");
 
                 }
                 catch (Exception e)
                 {
-                    _logger.LogError(e, "Error occurred during scraping");
-                    await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
+                    _logger.LogError(e, "Error occurred for ScrapeWorker");
                 }
-
             }
         }
     }
