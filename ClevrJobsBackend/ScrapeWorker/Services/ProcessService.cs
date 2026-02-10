@@ -6,8 +6,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.Json;
-using Workers.Models.Dto;
-using Workers.Models.Dto.Responses;
+using Workers.DTOs;
+using Workers.DTOs.Responses;
 
 namespace Workers.Services
 {

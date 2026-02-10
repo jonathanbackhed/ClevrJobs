@@ -3,7 +3,7 @@ using Data.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Workers.Models.Dto.Responses;
+using Workers.DTOs.Responses;
 
 namespace Workers.Services
 {

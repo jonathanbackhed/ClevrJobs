@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Workers.Models.Dto
+namespace Workers.DTOs
 {
     public class AiResponse
     {

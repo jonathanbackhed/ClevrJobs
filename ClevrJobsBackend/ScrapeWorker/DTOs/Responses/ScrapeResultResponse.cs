@@ -3,9 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Workers.Models.Dto
+namespace Workers.DTOs.Responses
 {
-    public record ScrapeResultDto
+    public record ScrapeResultResponse
     {
         public required List<RawJob> Jobs { get; init; }
 
