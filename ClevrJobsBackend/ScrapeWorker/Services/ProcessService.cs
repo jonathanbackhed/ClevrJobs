@@ -2,9 +2,6 @@
 using Data.Models;
 using Data.Repositories;
 using Google.GenAI;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Text.Json;
 using Workers.DTOs;
 using Workers.DTOs.Responses;
@@ -22,112 +19,65 @@ namespace Workers.Services
             _configuration = configuration;
         }
 
-        public async Task<ServiceResponse> ProcessRawJobs(ICollection<RawJob> rawJobs, IProcessRepository processRepository, IJobRepository jobRepository)
+        public async Task ProcessRawJob(RawJob rawJob, IProcessRepository processRepository, IJobRepository jobRepository)
         {
             var prompt = await processRepository.GetLatestActivePromptAsync();
             if (prompt is null)
             {
                 _logger.LogError("Error getting prompt");
-                return new ServiceResponse
-                {
-                    Success = false,
-                    MinorError = false
-                };
+                return;
             }
 
             var processRun = await CreateProcessRunAsync(processRepository, "gemini-3-flash-preview", prompt);
             if (processRun is null)
             {
                 _logger.LogError("Error creating ProcessRun");
-                return new ServiceResponse
-                {
-                    Success = false,
-                    MinorError = false
-                };
+                return;
             }
 
-            List<ProcessedJob> processedJobs = new();
-            List<FailedProcess> failedProcesses = new();
-
-            foreach (var job in rawJobs)
+            try
             {
-                try
+                var result = await ProcessSingleJob(rawJob, processRun, prompt);
+                if (result.ProcessedJob != null)
                 {
-                    var result = await ProcessSingleJob(job, processRun, prompt);
-                    if (result is null)
-                    {
-                        throw new Exception("ProcessedJob is null");
-                    }
+                    await processRepository.AddProcessedJob(result.ProcessedJob);
+                    await jobRepository.MarkRawJobAsProcessed(rawJob);
 
-                    await jobRepository.MarkRawJobAsProcessed(job);
-
-                    processedJobs.Add(result);
+                    _logger.LogInformation("Successfully processed {Id}", rawJob.Id);
                 }
-                catch (Exception e)
+                else
                 {
-                    //_logger.LogError(e, "Error processing job {jobId}. Continuing with next rawjob", job.Id);
-
                     var failed = new FailedProcess
                     {
-                        RawJob = job,
+                        RawJob = rawJob,
                         ProcessRun = processRun,
-                        ErrorMessage = e.Message
+                        ErrorMessage = result.ErrorMessage ?? "Unknown error",
+                        FailedAt = DateTime.UtcNow,
+                        ErrorType = result.ErrorType
                     };
-                    failedProcesses.Add(failed);
+                    await processRepository.AddFailedProcess(failed);
 
-                    continue;
-                }
-                finally
-                {
-                    // To avoid rate limiting
-                    await Task.Delay(TimeSpan.FromSeconds(13));
+                    _logger.LogWarning("Failed to process {Id}.", rawJob.Id);
                 }
             }
-
-            bool errorOccured = false;
-
-            if (processedJobs.Any())
+            catch (Exception e)
             {
-                _logger.LogInformation($"Trying to save {processedJobs.Count} processedjob(s) to database");
-                var addResult = await processRepository.AddMultipleProcessedJobs(processedJobs);
-                if (!addResult)
-                {
-                    _logger.LogError("Failed to save processedjob(s) to database. Process id: {processRunId}", processRun.Id);
-                    errorOccured = true;
-                }
+                _logger.LogError(e, "Unexpected error during processing for {Id}", rawJob.Id);
             }
-
-            if (failedProcesses.Any())
+            finally
             {
-                _logger.LogInformation($"Trying to save {failedProcesses.Count} failed processedjob(s) to database");
-                var addFailedResult = await processRepository.AddMultipleFailedProcesses(failedProcesses);
-                if (!addFailedResult)
-                {
-                    _logger.LogError("Failed to save failed processedjob(s) to database. Process id: {processRunId}", processRun.Id);
-                    errorOccured = true;
-                }
+                // To avoid rate limiting
+                await Task.Delay(TimeSpan.FromSeconds(13));
             }
 
             var endProcessRunResult = await EndProcessRunAsync(processRepository, processRun);
             if (!endProcessRunResult)
             {
                 _logger.LogError("Error ending ProcessRun");
-                return new ServiceResponse
-                {
-                    Success = true,
-                    MinorError = true,
-                    ErrorMessage = "Error ending ProcessRun"
-                };
             }
-
-            return new ServiceResponse
-            {
-                Success = true,
-                MinorError = false
-            };
         }
 
-        private async Task<ProcessedJob?> ProcessSingleJob(RawJob rawJob, ProcessRun processRun, Prompt prompt)
+        private async Task<ProcessResultResponse> ProcessSingleJob(RawJob rawJob, ProcessRun processRun, Prompt prompt)
         {
             string? aiRes = string.Empty;
             try
@@ -167,22 +117,22 @@ namespace Workers.Services
                     ProcessRun = processRun
                 };
 
-                return processedJob;
+                return ProcessResultResponse.Success(processedJob);
             }
             catch (JsonException e)
             {
-                _logger.LogError(e, "Failed to deserialize AI response for job {rawJobId}\nAiResponse: {aiResponse}", rawJob.Id, aiRes);
-                throw;
+                _logger.LogError(e, "Failed to deserialize AI response for {rawJobId}\nAiResponse: {aiResponse}", rawJob.Id, aiRes);
+                return ProcessResultResponse.Failure(e, isRetryable: false);
             }
             catch (HttpRequestException e)
             {
-                _logger.LogError(e, "API call failed for job {rawJobId}", rawJob.Id);
-                throw;
+                _logger.LogError(e, "API call failed for {rawJobId}", rawJob.Id);
+                return ProcessResultResponse.Failure(e, isRetryable: false);
             }
             catch (Exception e)
             {
                 _logger.LogError(e, "Something went wrong processing rawjob {rawJobId}", rawJob.Id);
-                throw;
+                return ProcessResultResponse.Failure(e, isRetryable: false);
             }
         }
 

@@ -28,7 +28,7 @@ namespace Workers
             while (!stoppingToken.IsCancellationRequested)
             {
                 _logger.LogInformation("Waiting for ScrapeCompletedEvent event...");
-                await _messageQueue.SubscribeAsync<ScrapeCompletedEvent>(async evt =>
+                await _messageQueue.SubscribeAsync<JobScrapedEvent>(async evt =>
                 {
                     _logger.LogInformation("ScrapeCompletedEvent recieved");
                     try
@@ -36,23 +36,22 @@ namespace Workers
                         using var scope = _scopeFactory.CreateScope();
                         var jobRepository = scope.ServiceProvider.GetRequiredService<IJobRepository>();
 
-                        var jobs = await jobRepository.GetUnprocessedRawJobsfromScrapeRunId(evt.ScrapeRunId);
-                        if (jobs is null)
+                        var job = await jobRepository.GetRawJobById(evt.RawJobId);
+                        if (job is null)
                         {
-                            _logger.LogInformation("No unprocessed jobs found for ScrapeRunId: {scrapeRunId}", evt.ScrapeRunId);
+                            _logger.LogInformation("RawJob not found {Id}", evt.RawJobId);
                             return;
                         }
 
                         var processRepository = scope.ServiceProvider.GetRequiredService<IProcessRepository>();
 
-                        var result = await _processService.ProcessRawJobs(jobs, processRepository, jobRepository);
+                        await _processService.ProcessRawJob(job, processRepository, jobRepository);
 
-                        _logger.LogInformation("Processing finished with success status: {success} and minor error status: {minorError}", result.Success, result.MinorError);
+                        _logger.LogInformation("Processing finished for {Id}", evt.RawJobId);
                     }
                     catch (Exception e)
                     {
                         _logger.LogError(e, "Error occurred during processing");
-                        await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
                     }
                 },
                 stoppingToken);

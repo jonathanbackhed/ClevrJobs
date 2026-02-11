@@ -78,6 +78,12 @@ namespace Data.Repositories
             return lastRun;
         }
 
+        public async Task<RawJob?> GetRawJobById(int id)
+        {
+            var job = await _dbc.RawJobs.FirstOrDefaultAsync(j => j.Id == id);
+            return job;
+        }
+
         public async Task<ICollection<RawJob>> GetUnprocessedRawJobsfromScrapeRunId(int id)
         {
             var jobs = await _dbc.RawJobs

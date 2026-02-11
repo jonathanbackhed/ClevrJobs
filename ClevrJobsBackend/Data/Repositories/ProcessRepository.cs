@@ -101,5 +101,17 @@ namespace Data.Repositories
             var exists = await _dbc.ProcessedJobs.AnyAsync(j => j.Id == id);
             return exists;
         }
+
+        public async Task AddFailedProcess(FailedProcess failedProcess)
+        {
+            await _dbc.FailedProcesses.AddAsync(failedProcess);
+            await _dbc.SaveChangesAsync();
+        }
+
+        public async Task AddProcessedJob(ProcessedJob processedJob)
+        {
+            await _dbc.ProcessedJobs.AddAsync(processedJob);
+            await _dbc.SaveChangesAsync();
+        }
     }
 }
