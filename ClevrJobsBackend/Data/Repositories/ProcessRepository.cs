@@ -1,4 +1,5 @@
-﻿using Data.Models;
+﻿using Data.Enums;
+using Data.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -112,6 +113,32 @@ namespace Data.Repositories
         {
             await _dbc.ProcessedJobs.AddAsync(processedJob);
             await _dbc.SaveChangesAsync();
+        }
+
+        public async Task<List<FailedProcess>> GetFailedProcessesForRetryAsync()
+        {
+            var failed = await _dbc.FailedProcesses
+                .Include(i => i.RawJob)
+                .Include(i => i.ProcessRun)
+                .Where(f => f.Status == FailedStatus.ReadyForRetry)
+                .ToListAsync();
+
+            return failed;
+        }
+
+        public async Task<bool> UpdateFailedProcess(FailedProcess failedProcess)
+        {
+            var rowsAffected = await _dbc.FailedProcesses
+                .Where(x => x.Id == failedProcess.Id)
+                .ExecuteUpdateAsync(s => s
+                    .SetProperty(p => p.RetryCount, p => p.RetryCount + 1)
+                    .SetProperty(p => p.RetriedAt, failedProcess.RetriedAt)
+                    .SetProperty(p => p.Status, failedProcess.Status)
+                    .SetProperty(p => p.ErrorType, failedProcess.ErrorType)
+                    .SetProperty(p => p.ErrorMessage, failedProcess.ErrorMessage)
+                );
+
+            return rowsAffected > 0;
         }
     }
 }

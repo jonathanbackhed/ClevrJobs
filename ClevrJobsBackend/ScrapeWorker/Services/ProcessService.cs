@@ -77,6 +77,66 @@ namespace Workers.Services
             }
         }
 
+        public async Task RetryFailedProcesses(IProcessRepository processRepository, IJobRepository jobRepository, CancellationToken cancellationToken)
+        {
+            var failedProcesses = await processRepository.GetFailedProcessesForRetryAsync();
+            if (!failedProcesses.Any())
+            {
+                _logger.LogInformation("No failed processes to retry.");
+                return;
+            }
+
+            var prompt = await processRepository.GetLatestActivePromptAsync();
+            if (prompt is null)
+            {
+                _logger.LogError("Error getting prompt");
+                return;
+            }
+
+            _logger.LogInformation("Retrying {Count} failed processes.", failedProcesses.Count);
+
+            foreach (var item in failedProcesses)
+            {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    _logger.LogInformation("Cancellation requested, stopping retry process.");
+                    break;
+                }
+
+                try
+                {
+                    var result = await ProcessSingleJob(item.RawJob, item.ProcessRun, prompt);
+                    if (result.ProcessedJob != null)
+                    {
+                        await processRepository.AddProcessedJob(result.ProcessedJob);
+                        await jobRepository.MarkRawJobAsProcessed(item.RawJob);
+
+                        _logger.LogInformation("Successfully processed {Id}", item.RawJobId);
+                    }
+                    else
+                    {
+                        item.ErrorMessage = result.ErrorMessage ?? "Unknown error";
+                        item.ErrorType = result.ErrorType;
+                        item.RetriedAt = DateTime.UtcNow;
+                        item.Status = result.IsRetryable ? FailedStatus.ReadyForRetry : FailedStatus.Failed;
+
+                        await processRepository.UpdateFailedProcess(item);
+
+                        _logger.LogWarning("Failed to process {Id}.", item.RawJobId);
+                    }
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e, "Unexpected error during retry for {Id}", item.RawJobId);
+                }
+                finally
+                {
+                    // To avoid rate limiting
+                    await Task.Delay(TimeSpan.FromSeconds(13));
+                }
+            }
+        }
+
         private async Task<ProcessResultResponse> ProcessSingleJob(RawJob rawJob, ProcessRun processRun, Prompt prompt)
         {
             string? aiRes = string.Empty;
