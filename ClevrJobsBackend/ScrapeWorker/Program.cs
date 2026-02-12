@@ -2,12 +2,16 @@ using Data;
 using Microsoft.EntityFrameworkCore;
 using Queue.Services;
 using Serilog;
+using Serilog.Events;
 using Workers;
 using Workers.Services;
 
 Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .MinimumLevel.Override("Microsoft.EntityFrameworkCore", LogEventLevel.Warning)
+    .MinimumLevel.Override("Microsoft.EntityFrameworkCore.Database.Command", LogEventLevel.Warning)
     .WriteTo.Console()
-    .WriteTo.File("logs/worker.txt", rollingInterval: RollingInterval.Day, retainedFileCountLimit: 30)
+    .WriteTo.File("logs/log-.txt", rollingInterval: RollingInterval.Day, retainedFileCountLimit: 30)
     .CreateLogger();
 
 var builder = Host.CreateApplicationBuilder(args);
