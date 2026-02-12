@@ -19,6 +19,7 @@ namespace Data.Repositories
         Task<ProcessedJob?> GetFullProcessedJobByIdAsync(int id);
         Task<bool> JobExists(int id);
         Task AddJobReport(JobReport jobReport);
+        Task<JobReport?> GetJobReportByJobAndIpOrUserId(int jobId, string? identifier);
         Task<List<FailedProcess>> GetFailedProcessesForRetryAsync();
         Task<bool> UpdateFailedProcess(FailedProcess failedProcess);
     }

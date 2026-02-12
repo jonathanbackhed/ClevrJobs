@@ -1,6 +1,7 @@
 ﻿using Api.Data;
 using Api.DTOs.Requests;
 using Api.DTOs.Responses;
+using Api.Extensions;
 using Asp.Versioning;
 using Data.Models;
 using Data.Repositories;
@@ -19,12 +20,14 @@ namespace Api.Controllers
         private readonly ILogger<JobController> _logger;
         private readonly IProcessRepository _processRepository;
         private readonly IJobCache _cache;
+        private readonly IConfiguration _configuration;
 
-        public JobController(ILogger<JobController> logger, IProcessRepository processRepository, IJobCache cache)
+        public JobController(ILogger<JobController> logger, IProcessRepository processRepository, IJobCache cache, IConfiguration configuration)
         {
             _logger = logger;
             _processRepository = processRepository;
             _cache = cache;
+            _configuration = configuration;
         }
 
         [HttpGet]
@@ -120,37 +123,45 @@ namespace Api.Controllers
         [HttpPost]
         [Route("{jobId}/report")]
         [EnableRateLimiting("reportByIp")]
-        public async Task<IActionResult> ReportJob([FromRoute]int jobId, [FromBody] ReportJobRequest request)
+        public async Task<IActionResult> ReportJob([FromRoute] int jobId, [FromBody] ReportJobRequest request)
         {
             _logger.LogInformation("Received report for job id {jobId} with reason {reason}", jobId, request.Reason);
 
+            var jobExists = await _processRepository.JobExists(jobId);
+            if (!jobExists)
+            {
+                _logger.LogWarning("Attempted to report non-existent job with id {jobId}", jobId);
+                return NotFound(new { error = "Job not found" });
+            }
+
+            var ipAddress = HttpContext.GetHashedIp(_configuration["Security:IpHashSalt"]);
+
+            var existingReport = await _processRepository.GetJobReportByJobAndIpOrUserId(jobId, ipAddress);
+            if (existingReport != null)
+            {
+                _logger.LogWarning("Duplicate report attempt for job {jobId} from IP {ip}", jobId, ipAddress);
+                return Conflict(new { error = "You have already reported this job" });
+            }
+
+            var report = new JobReport
+            {
+                ProcessedJobId = jobId,
+                Reason = request.Reason,
+                Description = request.Description,
+                IpAddress = ipAddress,
+                UserIdentifier = null
+            };
+
             try
             {
-                var jobExists = await _processRepository.JobExists(jobId);
-                if (!jobExists)
-                {
-                    _logger.LogWarning("Attempted to report non-existent job with id {jobId}", jobId);
-                    return NotFound($"Job with id {jobId} not found.");
-                }
-
-                var report = new JobReport
-                {
-                    ProcessedJobId = jobId,
-                    Reason = request.Reason,
-                    Description = request.Description,
-                    IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString(),
-                    UserIdentifier = null
-                };
-
                 await _processRepository.AddJobReport(report);
+                return Ok(new { });
             }
-            catch (DbUpdateException e)
+            catch (Exception e)
             {
-                _logger.LogError(e, "Database error while saving job report for job id {jobId}", jobId);
-                return StatusCode(500, "An error occurred while saving the report");
+                _logger.LogError(e, "Error saving report for job {jobId}", jobId);
+                return StatusCode(500, new { error = "An error occurred while saving the report" });
             }
-
-            return Ok(new {});
         }
     }
 }

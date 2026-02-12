@@ -140,5 +140,14 @@ namespace Data.Repositories
 
             return rowsAffected > 0;
         }
+
+        public async Task<JobReport?> GetJobReportByJobAndIpOrUserId(int jobId, string? identifier)
+        {
+            var report = await _dbc.JobReports
+                .Where(r => r.ProcessedJobId == jobId && (r.IpAddress == identifier || r.UserIdentifier == identifier))
+                .FirstOrDefaultAsync();
+
+            return report;
+        }
     }
 }

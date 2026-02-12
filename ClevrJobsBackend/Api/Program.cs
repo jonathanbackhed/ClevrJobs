@@ -57,17 +57,23 @@ try
 
         options.AddSlidingWindowLimiter("reportLimiter", opt =>
         {
-            opt.PermitLimit = 5;
-            opt.Window = TimeSpan.FromHours(1);
-            opt.SegmentsPerWindow = 12;
+            opt.PermitLimit = 2;
+            opt.Window = TimeSpan.FromHours(24);
+            opt.SegmentsPerWindow = 24;
         }).AddPolicy("reportByIp", context =>
         {
             var ipAddress = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
-            return RateLimitPartition.GetSlidingWindowLimiter(ipAddress, _ => new()
+            var endpoint = context.GetEndpoint();
+            var routeValues = context.GetRouteData()?.Values;
+            var jobId = routeValues?["jobId"]?.ToString() ?? "no-job";
+
+            var partitionKey = $"{ipAddress}:{jobId}";
+
+            return RateLimitPartition.GetSlidingWindowLimiter(partitionKey, _ => new()
             {
-                PermitLimit = 5,
-                Window = TimeSpan.FromHours(1),
-                SegmentsPerWindow = 12
+                PermitLimit = 2,
+                Window = TimeSpan.FromHours(24),
+                SegmentsPerWindow = 24
             });
         });
     });
