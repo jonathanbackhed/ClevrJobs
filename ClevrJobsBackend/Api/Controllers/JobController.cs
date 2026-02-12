@@ -16,11 +16,13 @@ namespace Api.Controllers
     [ApiVersion("1.0")]
     public class JobController : ControllerBase
     {
+        private readonly ILogger<JobController> _logger;
         private readonly IProcessRepository _processRepository;
         private readonly IJobCache _cache;
 
-        public JobController(IProcessRepository processRepository, IJobCache cache)
+        public JobController(ILogger<JobController> logger, IProcessRepository processRepository, IJobCache cache)
         {
+            _logger = logger;
             _processRepository = processRepository;
             _cache = cache;
         }
@@ -34,6 +36,8 @@ namespace Api.Controllers
             var result = _cache.GetJobs(page);
             if (result is null)
             {
+                _logger.LogInformation("Cache miss for jobs page {page}", page);
+
                 var (items, totalCount) = await _processRepository.GetFullProcessedJobsByLatestAsync(page, pageSize);
 
                 var dtos = items.Select(i => new JobListingMiniResponse
@@ -73,10 +77,13 @@ namespace Api.Controllers
             var result = _cache.GetJob(id);
             if (result is null)
             {
+                _logger.LogInformation("Cache miss for job id {id}", id);
+
                 var job = await _processRepository.GetFullProcessedJobByIdAsync(id);
                 if (job is null)
                 {
-                    return BadRequest($"Job with id {id} not found.");
+                    _logger.LogInformation("Job with id {id} not found.", id);
+                    return NotFound($"Job with id {id} not found.");
                 }
 
                 result = new JobListingResponse
@@ -115,11 +122,14 @@ namespace Api.Controllers
         [EnableRateLimiting("reportByIp")]
         public async Task<IActionResult> ReportJob([FromRoute]int jobId, [FromBody] ReportJobRequest request)
         {
+            _logger.LogInformation("Received report for job id {jobId} with reason {reason}", jobId, request.Reason);
+
             try
             {
                 var jobExists = await _processRepository.JobExists(jobId);
                 if (!jobExists)
                 {
+                    _logger.LogWarning("Attempted to report non-existent job with id {jobId}", jobId);
                     return NotFound($"Job with id {jobId} not found.");
                 }
 
@@ -136,6 +146,7 @@ namespace Api.Controllers
             }
             catch (DbUpdateException e)
             {
+                _logger.LogError(e, "Database error while saving job report for job id {jobId}", jobId);
                 return StatusCode(500, "An error occurred while saving the report");
             }
 
