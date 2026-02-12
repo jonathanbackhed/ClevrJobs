@@ -111,6 +111,12 @@ namespace Workers.Services
                         await processRepository.AddProcessedJob(result.ProcessedJob);
                         await jobRepository.MarkRawJobAsProcessed(item.RawJob);
 
+                        item.RetriedAt = DateTime.UtcNow;
+                        item.Status = FailedStatus.Resolved;
+                        item.RetryCount += 1;
+
+                        await processRepository.UpdateFailedProcess(item);
+
                         _logger.LogInformation("Successfully processed {Id}", item.RawJobId);
                     }
                     else
@@ -119,6 +125,7 @@ namespace Workers.Services
                         item.ErrorType = result.ErrorType;
                         item.RetriedAt = DateTime.UtcNow;
                         item.Status = result.IsRetryable ? FailedStatus.ReadyForRetry : FailedStatus.Failed;
+                        item.RetryCount += 1;
 
                         await processRepository.UpdateFailedProcess(item);
 
