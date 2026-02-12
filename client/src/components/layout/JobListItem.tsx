@@ -5,6 +5,7 @@ import RequirementTag from "../ui/RequirementTag";
 import CustomButton from "../ui/CustomButton";
 import { isMoreThan24hAgo } from "@/lib/utils/helpers";
 import Badge from "../ui/Badge";
+import { CAME_FROM_LISTING, SCROLL_KEY } from "@/lib/constants";
 
 interface Props {
   job: JobListingMiniDto;
@@ -15,6 +16,11 @@ export default function JobListItem({ job, index }: Props) {
   const requirementsList = job.requiredTechnologies.split(",");
 
   const isOld = isMoreThan24hAgo(job.processedAt);
+
+  const saveScroll = () => {
+    sessionStorage.setItem(SCROLL_KEY, window.scrollY.toString());
+    sessionStorage.setItem(CAME_FROM_LISTING, "true");
+  };
 
   return (
     <div className="relative">
@@ -57,10 +63,12 @@ export default function JobListItem({ job, index }: Props) {
           <CustomButton
             type="link"
             action={`/job/${job.id}`}
+            onClick={saveScroll}
             children="Visa mer"
             variant="borderHoverFill"
             size="sm"
             customStyles="text-center"
+            scroll={false}
           />
         </div>
       </article>

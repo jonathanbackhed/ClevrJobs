@@ -1,6 +1,6 @@
 "use client";
 
-import { useJob, useReportJob } from "@/hooks/useJobs";
+import { useReportJob } from "@/hooks/useJobs";
 import { formatDateTime, getReasonName, getSourceName, isMoreThan24hAgo } from "@/lib/utils/helpers";
 import { CompetenceRank, JobListingDto, ReportJobRequest } from "@/types/job";
 import {
@@ -19,19 +19,19 @@ import {
   Flag,
   Pickaxe,
 } from "lucide-react";
-import Link from "next/link";
 import CompetenceTag from "../ui/CompetenceTag";
 import RequirementTag from "../ui/RequirementTag";
 import Badge from "../ui/Badge";
 import CardContainer from "../ui/CardContainer";
 import SectionHeading from "../ui/SectionHeading";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 import CustomButton from "../ui/CustomButton";
 import Toast from "../ui/Toast";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { ReportReason } from "@/types/enum";
 import Modal from "../ui/Modal";
+import { CAME_FROM_LISTING } from "@/lib/constants";
 
 interface Props {
   job: JobListingDto;
@@ -83,6 +83,15 @@ export default function JobDetails({ job }: Props) {
         toast.error("Rapport skickades inte");
       },
     });
+  };
+
+  const handleBack = () => {
+    if (sessionStorage.getItem(CAME_FROM_LISTING) === "true") {
+      sessionStorage.removeItem(CAME_FROM_LISTING);
+      router.back();
+    } else {
+      router.push("/");
+    }
   };
 
   useEffect(() => {
@@ -151,7 +160,7 @@ export default function JobDetails({ job }: Props) {
       <Toast />
 
       <button
-        onClick={() => router.back()}
+        onClick={handleBack}
         className="group hover:text-accent flex w-fit cursor-pointer items-center gap-1 text-sm font-medium text-stone-500 transition-all duration-200 hover:-translate-x-0.5"
       >
         <ChevronLeft className="transition-transform duration-200 group-hover:-translate-x-1" /> Gå tillbaka

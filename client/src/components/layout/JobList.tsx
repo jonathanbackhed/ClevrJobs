@@ -3,10 +3,11 @@
 import { useJobs } from "@/hooks/useJobs";
 import { JobListingMiniDto } from "@/types/job";
 import JobListItem from "./JobListItem";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Pagination from "./Pagination";
 import { useSearchParams } from "next/navigation";
 import PulsatingText from "../ui/PulsatingText";
+import { SCROLL_KEY } from "@/lib/constants";
 
 export default function JobList() {
   const params = useSearchParams();
@@ -15,6 +16,14 @@ export default function JobList() {
   const [currentPage, setCurrentPage] = useState(page);
 
   const { data, isLoading, error } = useJobs(currentPage);
+
+  useEffect(() => {
+    const savedPos = sessionStorage.getItem(SCROLL_KEY);
+    if (savedPos) {
+      window.scrollTo(0, parseInt(savedPos));
+      sessionStorage.removeItem(SCROLL_KEY);
+    }
+  }, []);
 
   if (isLoading) return <PulsatingText text="Loading..." customStyles="flex-1" />;
   if (error) return <PulsatingText text={`Error: \n${error.message}`} customStyles="flex-1" />;

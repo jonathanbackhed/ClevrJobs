@@ -5,3 +5,6 @@ export const times = {
   thirty: 1000 * 60 * 30, // 30 min
   hour: 1000 * 60 * 60, // 1h
 };
+
+export const SCROLL_KEY = "scroll-pos";
+export const CAME_FROM_LISTING = "cameFromListing";
