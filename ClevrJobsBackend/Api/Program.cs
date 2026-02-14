@@ -1,8 +1,10 @@
 using Api.Data;
 using Asp.Versioning;
 using Data;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using Serilog.Events;
 using System.Threading.RateLimiting;
@@ -78,6 +80,33 @@ try
         });
     });
 
+    builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        .AddJwtBearer(options =>
+        {
+            options.Authority = builder.Configuration["Clerk:Domain"];
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidIssuer = builder.Configuration["Clerk:Domain"],
+                ValidateAudience = true,
+                ValidAudience = builder.Configuration["Clerk:Audience"],
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                NameClaimType = "sub" // user id
+            };
+
+            options.Events = new JwtBearerEvents
+            {
+                OnAuthenticationFailed = context =>
+                {
+                    Log.Information("Authentication failed {Message}", context.Exception.Message);
+                    return Task.CompletedTask;
+                }
+            };
+        });
+
+    builder.Services.AddAuthorization();
+
     builder.Services.AddMemoryCache(options =>
     {
         options.SizeLimit = 1000;
@@ -110,6 +139,7 @@ try
 
     app.UseCors("CorsPolicy");
 
+    app.UseAuthentication();
     app.UseAuthorization();
 
     app.UseRateLimiter();
