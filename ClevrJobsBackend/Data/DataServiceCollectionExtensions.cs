@@ -1,4 +1,6 @@
-﻿using Data.Repositories;
+﻿using Data.Models;
+using Data.Repositories;
+using Data.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -15,6 +17,7 @@ namespace Data
 
             services.AddScoped<IJobRepository, JobRepository>();
             services.AddScoped<IProcessRepository, ProcessRepository>();
+            services.AddScoped<IUserContextRepository<SavedJob>, SavedJobsRepository>();
 
             return services;
         }
