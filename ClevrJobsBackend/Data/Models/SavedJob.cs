@@ -27,6 +27,7 @@ namespace Data.Models
         public string? RejectReason { get; set; }
         [MaxLength(1000)]
         public string? Notes { get; set; }
+        public required DateTime SavedAt { get; set; } = DateTime.UtcNow;
 
         // For manually added jobs
         [MaxLength(150)]
@@ -43,27 +44,27 @@ namespace Data.Models
 
         // Computed properties
         [NotMapped]
-        public string DisplayTitle => this.SaveType == SaveType.SavedFromListing 
+        public string ComputedTitle => this.SaveType == SaveType.SavedFromListing 
             ? ProcessedJob?.RawJob.Title ?? "Unknown" 
             : this.Title ?? "Unknown";
         [NotMapped]
-        public string DisplayCompany => this.SaveType == SaveType.SavedFromListing
+        public string ComputedCompany => this.SaveType == SaveType.SavedFromListing
             ? ProcessedJob?.RawJob.CompanyName ?? "Unknown"
             : this.CompanyName ?? "Unknown";
         [NotMapped]
-        public string DisplayLocation => this.SaveType == SaveType.SavedFromListing
+        public string ComputedLocation => this.SaveType == SaveType.SavedFromListing
             ? ProcessedJob?.RawJob.Location?? "Unknown"
             : this.Location ?? "Unknown";
         [NotMapped]
-        public string DisplayDescription => this.SaveType == SaveType.SavedFromListing
+        public string ComputedDescription => this.SaveType == SaveType.SavedFromListing
             ? ProcessedJob?.Description ?? ""
             : this.Description ?? "";
         [NotMapped]
-        public string DisplayDeadline => this.SaveType == SaveType.SavedFromListing
+        public string ComputedDeadline => this.SaveType == SaveType.SavedFromListing
             ? ProcessedJob?.RawJob.ApplicationDeadline ?? "Unknown"
             : this.ApplicationDeadline ?? "Unknown";
         [NotMapped]
-        public string DisplayUrl => this.SaveType == SaveType.SavedFromListing
+        public string ComputedUrl => this.SaveType == SaveType.SavedFromListing
             ? ProcessedJob?.RawJob.ListingUrl ?? "Unknown"
             : this.ListingUrl ?? "Unknown";
     }
