@@ -27,12 +27,12 @@ namespace Api.Controllers
 
         [HttpGet]
         [Route("saved")]
-        public async Task<IActionResult> GetAllSavedJobs()
+        public async Task<IActionResult> GetAllSavedJobs([FromQuery] int page = 1, [FromQuery] int pageSize = 30)
         {
             var userId = User.Identity?.Name;
             if (userId == null) return Unauthorized();
 
-            var savedJobs = await _savedJobsRepository.GetAllForCurrentUserAsync(userId);
+            var savedJobs = await _savedJobsService.GetSavedJobs(page, pageSize, userId);
 
             return Ok(savedJobs);
         }

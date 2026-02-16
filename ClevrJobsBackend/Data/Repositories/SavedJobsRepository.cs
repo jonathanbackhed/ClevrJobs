@@ -34,9 +34,23 @@ namespace Data.Repositories
             return true;
         }
 
-        public async Task<List<SavedJob>> GetAllForCurrentUserAsync(string userId)
+        public async Task<(List<SavedJob>, int)> GetAllForCurrentUserAsync(int page, int pageSize, string userId)
         {
-            return await _dbc.SavedJobs.Where(w => w.UserId == userId).ToListAsync();
+            var query = _dbc.SavedJobs
+                .AsNoTracking()
+                .Include(i => i.ProcessedJob)
+                .ThenInclude(i => i.RawJob)
+                .Where(w => w.UserId == userId)
+                .OrderByDescending(o => o.SavedAt);
+
+            var totalCount = await query.CountAsync();
+
+            var items = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (items, totalCount);
         }
 
         public async Task<SavedJob?> GetByIdForCurrentUserAsync(Guid id, string userId)

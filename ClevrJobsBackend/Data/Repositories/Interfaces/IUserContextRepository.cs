@@ -6,7 +6,7 @@ namespace Data.Repositories.Interfaces
 {
     public interface IUserContextRepository<T> where T : class
     {
-        Task<List<T>> GetAllForCurrentUserAsync(string userId);
+        Task<(List<T> items, int totalCount)> GetAllForCurrentUserAsync(int page, int pageSize, string userId);
         Task<T?> GetByIdForCurrentUserAsync(Guid id, string userId);
         Task<T> CreateForCurrentUserAsync(T entity, string userId);
         Task<T?> UpdateForCurrentUserAsync(T entity, string userId);

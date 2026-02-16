@@ -1,4 +1,5 @@
 ﻿using Api.DTOs.Requests;
+using Api.DTOs.Responses;
 using Data.Enums;
 using Data.Models;
 using Data.Repositories;
@@ -17,6 +18,39 @@ namespace Api.Services
             _processRepository = processRepository;
         }
 
+        public async Task<PagedResult<SavedJobResponse>> GetSavedJobs(int page, int pageSize, string userId)
+        {
+            var (items, totalCount) = await _savedJobsRepository.GetAllForCurrentUserAsync(page, pageSize, userId);
+
+            var savedJobs = items.Select(i => new SavedJobResponse
+            {
+                Id = i.Id,
+                SaveType = i.SaveType,
+                ProcessedJobId = i.ProcessedJobId,
+
+                HaveApplied = i.HaveApplied,
+                ApplicationStatus = i.ApplicationStatus,
+                RejectReason = i.RejectReason,
+                Notes = i.Notes,
+                SavedAt = i.SavedAt,
+
+                Title = i.ComputedTitle,
+                Description = i.ComputedDescription,
+                CompanyName = i.ComputedCompany,
+                Location = i.ComputedLocation,
+                ApplicationDeadline = i.ComputedDeadline,
+                ListingUrl = i.ComputedUrl
+            }).ToList();
+
+            return new PagedResult<SavedJobResponse>
+            {
+                Items = savedJobs,
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = pageSize
+            };
+        }
+
         public async Task<SavedJob> CreateCustomJob(SavedJobRequest savedJob, string userId)
         {
             var newSavedJob = new SavedJob
@@ -30,6 +64,7 @@ namespace Api.Services
                 ApplicationStatus = savedJob.ApplicationStatus,
                 RejectReason = savedJob.RejectReason,
                 Notes = savedJob.Notes,
+                SavedAt = DateTime.UtcNow,
 
                 Title = savedJob.Title,
                 Description = savedJob.Description,
@@ -56,7 +91,8 @@ namespace Api.Services
                 ProcessedJobId = jobId,
 
                 HaveApplied = false,
-                ApplicationStatus = ApplicationStatus.NotApplied
+                ApplicationStatus = ApplicationStatus.NotApplied,
+                SavedAt = DateTime.UtcNow
             };
 
             var result = await _savedJobsRepository.CreateForCurrentUserAsync(newSavedJob, userId);
