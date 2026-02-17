@@ -17,7 +17,7 @@ namespace Data
 
             services.AddScoped<IJobRepository, JobRepository>();
             services.AddScoped<IProcessRepository, ProcessRepository>();
-            services.AddScoped<IUserContextRepository<SavedJob>, SavedJobsRepository>();
+            services.AddScoped<ISavedJobsRepository, SavedJobsRepository>();
 
             return services;
         }

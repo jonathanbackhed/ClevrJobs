@@ -7,7 +7,7 @@ using System.Text;
 
 namespace Data.Repositories
 {
-    public class SavedJobsRepository : IUserContextRepository<SavedJob>
+    public class SavedJobsRepository : ISavedJobsRepository
     {
         private readonly AppDbContext _dbc;
 
@@ -51,6 +51,16 @@ namespace Data.Repositories
                 .ToListAsync();
 
             return (items, totalCount);
+        }
+
+        public async Task<List<(int processedJobId, Guid savedJobId)>> GetAllSavedProcessedJobIdsForUserAsync(string userId)
+        {
+            var result = await _dbc.SavedJobs
+                .Where(w => w.UserId == userId && w.ProcessedJobId != null)
+                .Select(s => new { s.ProcessedJobId, s.Id })
+                .ToListAsync();
+
+            return result.Select(s => ((int)s.ProcessedJobId!, s.Id)).ToList();
         }
 
         public async Task<SavedJob?> GetByIdForCurrentUserAsync(Guid id, string userId)

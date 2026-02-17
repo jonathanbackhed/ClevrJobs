@@ -12,7 +12,7 @@ namespace Api.Services
         private readonly IUserContextRepository<SavedJob> _savedJobsRepository;
         private readonly IProcessRepository _processRepository;
 
-        public SavedJobsService(IUserContextRepository<SavedJob> savedJobsRepository, IProcessRepository processRepository)
+        public SavedJobsService(ISavedJobsRepository savedJobsRepository, IProcessRepository processRepository)
         {
             _savedJobsRepository = savedJobsRepository;
             _processRepository = processRepository;

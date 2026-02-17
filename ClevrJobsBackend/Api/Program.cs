@@ -95,7 +95,6 @@ try
                 ValidAudience = builder.Configuration["Clerk:Audience"],
                 ValidateLifetime = true,
                 ValidateIssuerSigningKey = true,
-                NameClaimType = "sub" // user id
             };
 
             options.Events = new JwtBearerEvents

@@ -16,10 +16,10 @@ namespace Api.Controllers
     public class UserController : ControllerBase
     {
         private readonly ILogger<UserController> _logger;
-        private readonly IUserContextRepository<SavedJob> _savedJobsRepository;
+        private readonly ISavedJobsRepository _savedJobsRepository;
         private readonly SavedJobsService _savedJobsService;
 
-        public UserController(ILogger<UserController> logger, IUserContextRepository<SavedJob> savedJobsRepository, SavedJobsService savedJobsService)
+        public UserController(ILogger<UserController> logger, ISavedJobsRepository savedJobsRepository, SavedJobsService savedJobsService)
         {
             _logger = logger;
             _savedJobsRepository = savedJobsRepository;
@@ -53,9 +53,21 @@ namespace Api.Controllers
             return Ok(savedJob);
         }
 
+        [HttpGet]
+        [Route("saved/ids")]
+        public async Task<IActionResult> GetSavedProcessedJobIds()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null) return Unauthorized();
+
+            var ids = await _savedJobsRepository.GetAllSavedProcessedJobIdsForUserAsync(userId);
+
+            return Ok(ids);
+        }
+
         [HttpPost]
         [Route("saved")]
-        public async Task<IActionResult> AddCustomJob([FromBody] SavedJobRequest savedJob)
+        public async Task<IActionResult> SaveCustomJob([FromBody] SavedJobRequest savedJob)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (userId == null) return Unauthorized();
@@ -67,7 +79,7 @@ namespace Api.Controllers
 
         [HttpPost]
         [Route("saved/{jobId}")]
-        public async Task<IActionResult> AddExistingJob([FromRoute] int jobId)
+        public async Task<IActionResult> SaveExistingJob([FromRoute] int jobId)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (userId == null) return Unauthorized();
@@ -80,7 +92,7 @@ namespace Api.Controllers
 
         [HttpPut]
         [Route("saved")]
-        public async Task<IActionResult> UpdateJob([FromBody] SavedJobRequest saveJob)
+        public async Task<IActionResult> UpdateSavedJob([FromBody] SavedJobRequest saveJob)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (userId == null) return Unauthorized();
@@ -93,7 +105,7 @@ namespace Api.Controllers
 
         [HttpDelete]
         [Route("saved")]
-        public async Task<IActionResult> DeleteJob([FromRoute] Guid jobId)
+        public async Task<IActionResult> DeleteSavedJob([FromRoute] Guid jobId)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (userId == null) return Unauthorized();
