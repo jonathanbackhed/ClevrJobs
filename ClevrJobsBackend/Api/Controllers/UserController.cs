@@ -5,6 +5,7 @@ using Data.Models;
 using Data.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Api.Controllers
 {
@@ -27,10 +28,12 @@ namespace Api.Controllers
 
         [HttpGet]
         [Route("saved")]
-        public async Task<IActionResult> GetAllSavedJobs([FromQuery] int page = 1, [FromQuery] int pageSize = 30)
+        public async Task<IActionResult> GetAllSavedJobs([FromQuery] int page = 1)
         {
-            var userId = User.Identity?.Name;
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (userId == null) return Unauthorized();
+
+            var pageSize = 30;
 
             var savedJobs = await _savedJobsService.GetSavedJobs(page, pageSize, userId);
 
@@ -41,7 +44,7 @@ namespace Api.Controllers
         [Route("saved/{savedId}")]
         public async Task<IActionResult> GetSavedJob([FromRoute] Guid savedId)
         {
-            var userId = User.Identity?.Name;
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (userId == null) return Unauthorized();
 
             var savedJob = await _savedJobsRepository.GetByIdForCurrentUserAsync(savedId, userId);
@@ -54,7 +57,7 @@ namespace Api.Controllers
         [Route("saved")]
         public async Task<IActionResult> AddCustomJob([FromBody] SavedJobRequest savedJob)
         {
-            var userId = User.Identity?.Name;
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (userId == null) return Unauthorized();
 
             var saved = await _savedJobsService.CreateCustomJob(savedJob, userId);
@@ -64,9 +67,9 @@ namespace Api.Controllers
 
         [HttpPost]
         [Route("saved/{jobId}")]
-        public async Task<IActionResult> AddCustomJob([FromRoute] int jobId)
+        public async Task<IActionResult> AddExistingJob([FromRoute] int jobId)
         {
-            var userId = User.Identity?.Name;
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (userId == null) return Unauthorized();
 
             var saved = await _savedJobsService.SaveExistingJob(jobId, userId);
@@ -79,7 +82,7 @@ namespace Api.Controllers
         [Route("saved")]
         public async Task<IActionResult> UpdateJob([FromBody] SavedJobRequest saveJob)
         {
-            var userId = User.Identity?.Name;
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (userId == null) return Unauthorized();
 
             var updated = await _savedJobsService.UpdateSavedJob(saveJob, userId);
@@ -92,7 +95,7 @@ namespace Api.Controllers
         [Route("saved")]
         public async Task<IActionResult> DeleteJob([FromRoute] Guid jobId)
         {
-            var userId = User.Identity?.Name;
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (userId == null) return Unauthorized();
 
             var result = await _savedJobsRepository.DeleteForCurrentUserAsync(jobId, userId);
