@@ -20,21 +20,15 @@ export default function SaveButton({ id }: Props) {
 
   const { data: savedIds } = useExistingSavedIds(isSignedIn);
 
-  let isSaved = false;
-  if (typeof id === "string" || savedIds?.has(id)) {
-    isSaved = true;
-  }
+  const savedJobId = typeof id === "string" ? id : savedIds?.get(id);
+  const isSaved = Boolean(savedJobId);
 
   const handleClick = () => {
-    if (!savedIds) return;
-
     if (isSaved) {
-      const savedId = typeof id === "string" ? id : savedIds.get(id);
-      if (!savedId) return;
-
+      if (!savedJobId) return;
       if (!confirm("Är du säker på att du vill ta bort jobb?")) return;
 
-      deleteMutation.mutate(savedId, {
+      deleteMutation.mutate(savedJobId, {
         onSuccess: () => {
           toast.success("Jobb borttaget");
           queryClient.invalidateQueries({ queryKey: ["saved"] });
@@ -43,17 +37,20 @@ export default function SaveButton({ id }: Props) {
           console.log("Error deleting saving job");
         },
       });
-    } else {
-      saveMutation.mutate(id as number, {
-        onSuccess: () => {
-          toast.success("Jobb sparat");
-          queryClient.invalidateQueries({ queryKey: ["saved"] });
-        },
-        onError: () => {
-          console.log("Error saving job");
-        },
-      });
+      return;
     }
+
+    if (typeof id !== "number") return;
+
+    saveMutation.mutate(id, {
+      onSuccess: () => {
+        toast.success("Jobb sparat");
+        queryClient.invalidateQueries({ queryKey: ["saved"] });
+      },
+      onError: () => {
+        console.log("Error saving job");
+      },
+    });
   };
 
   return (
