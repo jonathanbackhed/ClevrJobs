@@ -6,6 +6,7 @@ import CustomButton from "../ui/CustomButton";
 import { isMoreThan24hAgo } from "@/lib/utils/helpers";
 import Badge from "../ui/Badge";
 import { CAME_FROM_LISTING, SCROLL_KEY } from "@/lib/constants";
+import SaveButton from "../ui/SaveButton";
 
 interface Props {
   job: JobListingMiniDto;
@@ -60,16 +61,19 @@ export default function JobListItem({ job, index }: Props) {
             Sista ansökningsdag:{" "}
             <strong className="font-semibold text-stone-700 dark:text-stone-400">{job.applicationDeadline}</strong>
           </span>
-          <CustomButton
-            type="link"
-            action={`/job/${job.id}`}
-            onClick={saveScroll}
-            children="Visa mer"
-            variant="borderHoverFill"
-            size="sm"
-            customStyles="text-center"
-            scroll={false}
-          />
+          <div className="flex items-center gap-4">
+            <SaveButton id={job.id} />
+            <CustomButton
+              type="link"
+              action={`/job/${job.id}`}
+              onClick={saveScroll}
+              children="Visa mer"
+              variant="borderHoverFill"
+              size="sm"
+              customStyles="text-center"
+              scroll={false}
+            />
+          </div>
         </div>
       </article>
     </div>

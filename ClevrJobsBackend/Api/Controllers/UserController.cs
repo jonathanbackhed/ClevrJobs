@@ -62,7 +62,7 @@ namespace Api.Controllers
 
             var ids = await _savedJobsRepository.GetAllSavedProcessedJobIdsForUserAsync(userId);
 
-            return Ok(ids);
+            return Ok(ids.Select(s => new {s.processedJobId, s.savedJobId}));
         }
 
         [HttpPost]
@@ -104,14 +104,14 @@ namespace Api.Controllers
         }
 
         [HttpDelete]
-        [Route("saved")]
-        public async Task<IActionResult> DeleteSavedJob([FromRoute] Guid jobId)
+        [Route("saved/{savedJobId}")]
+        public async Task<IActionResult> DeleteSavedJob([FromRoute] Guid savedJobId)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (userId == null) return Unauthorized();
 
-            var result = await _savedJobsRepository.DeleteForCurrentUserAsync(jobId, userId);
-            if (!result) return NotFound(new { error = $"Saved job with id {jobId} not found." });
+            var result = await _savedJobsRepository.DeleteForCurrentUserAsync(savedJobId, userId);
+            if (!result) return NotFound(new { error = $"Saved job with id {savedJobId} not found." });
 
             return Ok(new {});
         }

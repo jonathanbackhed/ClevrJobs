@@ -8,6 +8,7 @@ import Pagination from "./Pagination";
 import { useSearchParams } from "next/navigation";
 import PulsatingText from "../ui/PulsatingText";
 import { SCROLL_KEY } from "@/lib/constants";
+import Toast from "../ui/Toast";
 
 export default function JobList() {
   const params = useSearchParams();
@@ -30,6 +31,7 @@ export default function JobList() {
 
   return (
     <>
+      <Toast />
       <div className="flex flex-1 flex-col gap-4">
         {data?.items && data.items.length < 1 && (
           <span className="text-center text-xl font-bold">Inga job hittades</span>

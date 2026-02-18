@@ -86,8 +86,22 @@ export const api = {
   // auth
   getAllSavedJobs: async (page: number, token: string): Promise<PagedResult<SavedJobResponse>> =>
     await apiFetchAuth(`/api/v1/user/saved?page=${page}`, fetchOptions.GET(token)),
+
+  getSingleSavedJob: async (id: string, token: string): Promise<SavedJobResponse> =>
+    await apiFetchAuth(`/api/v1/user/saved/${id}`, fetchOptions.GET(token)),
+
+  getExistingSavedIds: async (token: string): Promise<{ processedJobId: number; savedJobId: string }[]> =>
+    await apiFetchAuth(`/api/v1/user/saved/ids`, fetchOptions.GET(token)),
+
   saveCustomJob: async (savedJobRequest: SavedJobRequest, token: string): Promise<SavedJobResponse> =>
     await apiFetchAuth(`/api/v1/user/saved`, fetchOptions.POST(token, savedJobRequest)),
-  saveExistingJob: async (id: string, token: string): Promise<SavedJobResponse> =>
+
+  saveExistingJob: async (id: number, token: string): Promise<SavedJobResponse> =>
     await apiFetchAuth(`/api/v1/user/saved/${id}`, fetchOptions.POST(token)),
+
+  updateSavedJob: async (saveJob: SavedJobRequest, token: string): Promise<SavedJobResponse> =>
+    await apiFetchAuth(`/api/v1/user/saved`, fetchOptions.PUT(token, saveJob)),
+
+  deleteSavedJob: async (id: string, token: string): Promise<{}> =>
+    await apiFetchAuth(`/api/v1/user/saved/${id}`, fetchOptions.DELETE(token)),
 };
