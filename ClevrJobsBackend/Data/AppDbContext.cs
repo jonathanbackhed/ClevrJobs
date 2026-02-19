@@ -19,6 +19,7 @@ namespace Data
         public DbSet<FailedProcess> FailedProcesses { get; set; }
         public DbSet<JobReport> JobReports { get; set; }
         public DbSet<SavedJob> SavedJobs { get; set; }
+        public DbSet<TrackedJob> TrackedJobs { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
