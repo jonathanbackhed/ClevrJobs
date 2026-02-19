@@ -1,4 +1,4 @@
-import { ReportReason } from "@/types/enum";
+import { ApplicationStatus, ReportReason, SaveType } from "@/types/enum";
 import { CompetenceRank, Source } from "@/types/job";
 import clsx, { ClassValue } from "clsx";
 import { formatDistanceToNowStrict } from "date-fns";
@@ -45,6 +45,39 @@ export function getReasonName(value: number): string {
   };
 
   if (value in ReportReason) {
+    return displayMap[value];
+  }
+
+  return "N/A";
+}
+
+export function getSaveTypeName(value: number): string {
+  const displayMap: Record<number, string> = {
+    [SaveType.SavedFromListing]: "Sparat från ClevrJobs",
+    [SaveType.ManuallyAdded]: "Tillagt själv",
+  };
+
+  if (value in SaveType) {
+    return displayMap[value];
+  }
+
+  return "N/A";
+}
+
+export function getApplicationStatusName(value: number): string {
+  const displayMap: Record<number, string> = {
+    [ApplicationStatus.NotApplied]: "Inte ansökt",
+    [ApplicationStatus.Applied]: "Ansökt",
+    [ApplicationStatus.Interviewing]: "Intervjuprocess",
+    [ApplicationStatus.WaitingForResponse]: "Väntar på svar",
+    [ApplicationStatus.Offered]: "Fått erbjudande",
+    [ApplicationStatus.Rejected]: "Inget erbjudande",
+    [ApplicationStatus.Accepted]: "Accepterat erbjudande",
+    [ApplicationStatus.Declined]: "Nekat erbjudande",
+    [ApplicationStatus.Ghosted]: "Ghostad",
+  };
+
+  if (value in ApplicationStatus) {
     return displayMap[value];
   }
 

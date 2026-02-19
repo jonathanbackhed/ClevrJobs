@@ -1,4 +1,5 @@
 using Api.Data;
+using Api.Services;
 using Asp.Versioning;
 using Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -30,6 +31,8 @@ try
     builder.Services.AddControllers();
     // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
     builder.Services.AddOpenApi();
+
+    builder.Services.AddScoped<SavedJobsService>();
 
     builder.Services.AddData(options =>
         options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -92,7 +95,6 @@ try
                 ValidAudience = builder.Configuration["Clerk:Audience"],
                 ValidateLifetime = true,
                 ValidateIssuerSigningKey = true,
-                NameClaimType = "sub" // user id
             };
 
             options.Events = new JwtBearerEvents

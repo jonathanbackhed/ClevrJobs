@@ -32,6 +32,8 @@ import { useEffect, useRef, useState } from "react";
 import { ReportReason } from "@/types/enum";
 import Modal from "../ui/Modal";
 import { CAME_FROM_LISTING } from "@/lib/constants";
+import SaveButton from "../ui/SaveButton";
+import { SignedIn } from "@clerk/nextjs";
 
 interface Props {
   job: JobListingDto;
@@ -172,9 +174,14 @@ export default function JobDetails({ job }: Props) {
           <div className="from-accent via-accent-light absolute top-0 right-0 left-0 h-1 bg-linear-to-r to-transparent" />
 
           <div className="flex flex-col gap-3">
-            <div className="flex gap-3">
-              <CompetenceTag rank={job.competenceRank} />
-              <CompetenceTag rank={CompetenceRank.Unknown} customText={job.extent} />
+            <div className="flex justify-between">
+              <div className="flex gap-3">
+                <CompetenceTag rank={job.competenceRank} />
+                <CompetenceTag rank={CompetenceRank.Unknown} customText={job.extent} />
+              </div>
+              <SignedIn>
+                <SaveButton id={job.id} />
+              </SignedIn>
             </div>
             <h2 className="font-serif text-3xl leading-tight font-bold tracking-tight text-stone-800 dark:text-stone-300">
               {job.title}
