@@ -9,7 +9,7 @@ namespace Api.Services
 {
     public class SavedJobsService
     {
-        private readonly IUserContextRepository<SavedJob> _savedJobsRepository;
+        private readonly ISavedJobsRepository _savedJobsRepository;
         private readonly IProcessRepository _processRepository;
 
         public SavedJobsService(ISavedJobsRepository savedJobsRepository, IProcessRepository processRepository)
@@ -18,28 +18,30 @@ namespace Api.Services
             _processRepository = processRepository;
         }
 
-        public async Task<PagedResult<SavedJobResponse>> GetSavedJobs(int page, int pageSize, string userId)
+        public async Task<PagedResult<SavedJobResponse>> GetAllSavedJobs(int page, int pageSize, string userId)
         {
-            var (items, totalCount) = await _savedJobsRepository.GetAllForCurrentUserAsync(page, pageSize, userId);
+            var (items, totalCount) = await _savedJobsRepository.GetAllSavedJobsAsync(page, pageSize, userId);
 
             var savedJobs = items.Select(i => new SavedJobResponse
             {
                 Id = i.Id,
-                SaveType = i.SaveType,
-                ProcessedJobId = i.ProcessedJobId,
+                JobListingMini = new JobListingMiniResponse
+                {
+                    Title = i.ProcessedJob!.RawJob.Title,
+                    CompanyName = i.ProcessedJob.RawJob.CompanyName,
+                    Location = i.ProcessedJob.RawJob.Location,
+                    Extent = i.ProcessedJob.RawJob.Extent,
+                    Duration = i.ProcessedJob.RawJob.Duration,
+                    ApplicationDeadline = i.ProcessedJob.RawJob.ApplicationDeadline,
+                    Source = i.ProcessedJob.RawJob.Source,
+                    ProcessedAt = (DateTime)i.ProcessedJob.ProcessRun.FinishedAt!,
 
-                HaveApplied = i.HaveApplied,
-                ApplicationStatus = i.ApplicationStatus,
-                RejectReason = i.RejectReason,
-                Notes = i.Notes,
+                    Id = i.ProcessedJobId,
+                    Description = i.ProcessedJob.Description,
+                    RequiredTechnologies = i.ProcessedJob.RequiredTechnologies,
+                    CompetenceRank = i.ProcessedJob.CompetenceRank
+                },
                 SavedAt = i.SavedAt,
-
-                Title = i.ComputedTitle,
-                Description = i.ComputedDescription,
-                CompanyName = i.ComputedCompany,
-                Location = i.ComputedLocation,
-                ApplicationDeadline = i.ComputedDeadline,
-                ListingUrl = i.ComputedUrl
             }).ToList();
 
             return new PagedResult<SavedJobResponse>
@@ -51,35 +53,7 @@ namespace Api.Services
             };
         }
 
-        public async Task<SavedJob> CreateCustomJob(SavedJobRequest savedJob, string userId)
-        {
-            var newSavedJob = new SavedJob
-            {
-                UserId = userId,
-                SaveType = SaveType.ManuallyAdded,
-                ProcessedJobId = null,
-                ProcessedJob = null,
-
-                HaveApplied = savedJob.HaveApplied,
-                ApplicationStatus = savedJob.ApplicationStatus,
-                RejectReason = savedJob.RejectReason,
-                Notes = savedJob.Notes,
-                SavedAt = DateTime.UtcNow,
-
-                Title = savedJob.Title,
-                Description = savedJob.Description,
-                CompanyName = savedJob.CompanyName,
-                Location = savedJob.Location,
-                ApplicationDeadline = savedJob.ApplicationDeadline,
-                ListingUrl = savedJob.ListingUrl
-            };
-
-            var result = await _savedJobsRepository.CreateForCurrentUserAsync(newSavedJob, userId);
-
-            return result;
-        }
-
-        public async Task<SavedJob?> SaveExistingJob(int jobId, string userId)
+        public async Task<SavedJob?> SaveJob(int jobId, string userId)
         {
             var exists = await _processRepository.JobExists(jobId);
             if (!exists) return null;
@@ -87,40 +61,11 @@ namespace Api.Services
             var newSavedJob = new SavedJob
             {
                 UserId = userId,
-                SaveType = SaveType.SavedFromListing,
                 ProcessedJobId = jobId,
-
-                HaveApplied = false,
-                ApplicationStatus = ApplicationStatus.NotApplied,
                 SavedAt = DateTime.UtcNow
             };
 
-            var result = await _savedJobsRepository.CreateForCurrentUserAsync(newSavedJob, userId);
-
-            return result;
-        }
-
-        public async Task<SavedJob?> UpdateSavedJob(SavedJobRequest savedJob, string userId)
-        {
-            var existing = await _savedJobsRepository.GetByIdForCurrentUserAsync(savedJob.Id, userId);
-            if (existing is null) return null;
-
-            existing.HaveApplied = savedJob.HaveApplied;
-            existing.ApplicationStatus = savedJob.ApplicationStatus;
-            existing.RejectReason = savedJob.RejectReason;
-            existing.Notes = savedJob.Notes;
-
-            if (existing.SaveType == SaveType.ManuallyAdded)
-            {
-                existing.Title = savedJob.Title;
-                existing.Description = savedJob.Description;
-                existing.CompanyName = savedJob.CompanyName;
-                existing.Location = savedJob.Location;
-                existing.ApplicationDeadline = savedJob.ApplicationDeadline;
-                existing.ListingUrl = savedJob.ListingUrl;
-            }
-
-            var result = await _savedJobsRepository.UpdateForCurrentUserAsync(existing, userId);
+            var result = await _savedJobsRepository.SaveJobAsync(newSavedJob, userId);
 
             return result;
         }

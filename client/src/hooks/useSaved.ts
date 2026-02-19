@@ -1,16 +1,15 @@
 import { api } from "@/lib/api";
 import { times } from "@/lib/constants";
-import { PagedResult } from "@/types/job";
-import { SavedJobRequest, SavedJobResponse } from "@/types/user";
 import { useAuth } from "@clerk/nextjs";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
 
 export function useSavedJobs(page: number) {
   const { getToken } = useAuth();
 
   return useQuery({
     queryKey: ["saved", "all", page],
-    queryFn: async (): Promise<PagedResult<SavedJobResponse>> => {
+    queryFn: async () => {
       const token = await getToken({ template: "cs-api" });
       return await api.getAllSavedJobs(page, token!);
     },
@@ -19,14 +18,14 @@ export function useSavedJobs(page: number) {
   });
 }
 
-export function useExistingSavedIds(isSignedIn: boolean | undefined) {
+export function useSavedIds(isSignedIn: boolean | undefined) {
   const { getToken } = useAuth();
 
   return useQuery({
     queryKey: ["saved", "ids"],
-    queryFn: async (): Promise<{ processedJobId: number; savedJobId: string }[]> => {
+    queryFn: async () => {
       const token = await getToken({ template: "cs-api" });
-      return await api.getExistingSavedIds(token!);
+      return await api.getSavedIds(token!);
     },
     staleTime: times.hour,
     gcTime: times.hour,
@@ -36,46 +35,40 @@ export function useExistingSavedIds(isSignedIn: boolean | undefined) {
   });
 }
 
-export function useSaveCustomJob() {
+export function useSaveJob() {
   const { getToken } = useAuth();
-
-  return useMutation({
-    mutationFn: async (savedJobRequest: SavedJobRequest) => {
-      const token = await getToken({ template: "cs-api" });
-      return await api.saveCustomJob(savedJobRequest, token!);
-    },
-  });
-}
-
-export function useSaveExistingJob() {
-  const { getToken } = useAuth();
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (id: number) => {
       const token = await getToken({ template: "cs-api" });
-      return await api.saveExistingJob(id, token!);
+      return await api.saveJob(id, token!);
     },
-  });
-}
-
-export function useUpdateSavedJob() {
-  const { getToken } = useAuth();
-
-  return useMutation({
-    mutationFn: async (saveJob: SavedJobRequest) => {
-      const token = await getToken({ template: "cs-api" });
-      return await api.updateSavedJob(saveJob, token!);
+    onSuccess: () => {
+      toast.success("Jobb sparat");
+      queryClient.invalidateQueries({ queryKey: ["saved"] });
+    },
+    onError: () => {
+      toast.error("Något gick fel, försök igen senare");
     },
   });
 }
 
 export function useDeleteSavedJob() {
   const { getToken } = useAuth();
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (id: string) => {
       const token = await getToken({ template: "cs-api" });
       return await api.deleteSavedJob(id, token!);
+    },
+    onSuccess: () => {
+      toast.success("Jobb borttaget");
+      queryClient.invalidateQueries({ queryKey: ["saved"] });
+    },
+    onError: () => {
+      toast.error("Något gick fel, försök igen senare");
     },
   });
 }

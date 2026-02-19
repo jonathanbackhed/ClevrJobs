@@ -1,15 +1,11 @@
 "use client";
 
+import JobListItem from "@/components/layout/JobListItem";
 import Pagination from "@/components/layout/Pagination";
-import SavedListItem from "@/components/layout/SavedListItem";
 import BackButton from "@/components/ui/BackButton";
-import CardContainer from "@/components/ui/CardContainer";
-import CustomButton from "@/components/ui/CustomButton";
 import PulsatingText from "@/components/ui/PulsatingText";
-import { useSavedJobs } from "@/hooks/useProfile";
-import { cn, formatDateTime, getApplicationStatusName, getSaveTypeName } from "@/lib/utils/helpers";
-import { SavedJobResponse } from "@/types/user";
-import { Clock, Heart, MapPin } from "lucide-react";
+import { useSavedJobs } from "@/hooks/useSaved";
+import { SavedJobResponse } from "@/types/saved";
 import { notFound, useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
@@ -33,8 +29,8 @@ export default function Saved() {
         {data?.items && data.items.length < 1 && (
           <span className="text-center text-xl font-bold">Inga sparade jobb hittades</span>
         )}
-        {data.items.map((savedJob: SavedJobResponse) => (
-          <SavedListItem key={savedJob.id} savedJob={savedJob} />
+        {data.items.map((savedJob: SavedJobResponse, index: number) => (
+          <JobListItem key={savedJob.id} job={savedJob.jobListingMini} index={index} />
         ))}
       </div>
 
