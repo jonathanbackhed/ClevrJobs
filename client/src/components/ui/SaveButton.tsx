@@ -18,6 +18,7 @@ export default function SaveButton({ id }: Props) {
   const { data: savedIds } = useSavedIds(isSignedIn);
 
   const savedJobId = savedIds?.get(id);
+  const isPending = saveMutation.isPending || deleteMutation.isPending;
 
   const handleClick = () => {
     if (savedJobId) {
@@ -29,12 +30,13 @@ export default function SaveButton({ id }: Props) {
   };
 
   return (
-    <button onClick={handleClick}>
+    <button onClick={handleClick} disabled={isPending}>
       <Heart
         size={22}
         className={cn(
           "text-accent hover:text-accent-light transition-colors duration-200 hover:cursor-pointer",
           savedJobId && "fill-accent hover:fill-accent-light",
+          isPending && "opacity-50",
         )}
       />
     </button>

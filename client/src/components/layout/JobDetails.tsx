@@ -33,6 +33,7 @@ import { ReportReason } from "@/types/enum";
 import Modal from "../ui/Modal";
 import { CAME_FROM_LISTING } from "@/lib/constants";
 import SaveButton from "../ui/SaveButton";
+import { SignedIn } from "@clerk/nextjs";
 
 interface Props {
   job: JobListingDto;
@@ -178,7 +179,9 @@ export default function JobDetails({ job }: Props) {
                 <CompetenceTag rank={job.competenceRank} />
                 <CompetenceTag rank={CompetenceRank.Unknown} customText={job.extent} />
               </div>
-              <SaveButton id={job.id} />
+              <SignedIn>
+                <SaveButton id={job.id} />
+              </SignedIn>
             </div>
             <h2 className="font-serif text-3xl leading-tight font-bold tracking-tight text-stone-800 dark:text-stone-300">
               {job.title}
