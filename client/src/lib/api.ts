@@ -1,5 +1,7 @@
 import { JobListingDto, JobListingMiniDto, PagedResult, ReportJobRequest } from "@/types/job";
 import { SavedJobResponse } from "@/types/saved";
+import { TrackedJobRequest, TrackedJobResponse } from "@/types/tracked";
+import { UUID } from "crypto";
 
 const fetchOptions = {
   GET: (token: string) => {
@@ -83,7 +85,7 @@ export const api = {
   reportJob: async (id: number, reportJobRequest: ReportJobRequest) =>
     await apiFetch(`/api/v1/jobs/${id}/report`, reportJobRequest),
 
-  // auth
+  // saved
   getAllSavedJobs: async (page: number, token: string): Promise<PagedResult<SavedJobResponse>> =>
     await apiFetchAuth(`/api/v1/saved?page=${page}`, fetchOptions.GET(token)),
 
@@ -95,4 +97,24 @@ export const api = {
 
   deleteSavedJob: async (id: string, token: string): Promise<{}> =>
     await apiFetchAuth(`/api/v1/saved/${id}`, fetchOptions.DELETE(token)),
+
+  // tracked
+  getAllTrackedJobs: async (page: number, token: string): Promise<PagedResult<TrackedJobResponse>> =>
+    await apiFetchAuth(`/api/v1/tracked?page=${page}`, fetchOptions.GET(token)),
+
+  createTrackedJob: async (trackedJobReq: TrackedJobRequest, token: string): Promise<TrackedJobResponse> =>
+    await apiFetchAuth(`/api/v1/tracked`, fetchOptions.POST(token)),
+
+  createTrackedJobFromExisting: async (processedJobId: number, token: string): Promise<TrackedJobResponse> =>
+    await apiFetchAuth(`/api/v1/tracked/${processedJobId}`, fetchOptions.POST(token)),
+
+  updateTrackedJob: async (
+    trackedJobId: UUID,
+    trackedJobReq: TrackedJobRequest,
+    token: string,
+  ): Promise<TrackedJobResponse> =>
+    await apiFetchAuth(`/api/v1/tracked/${trackedJobId}`, fetchOptions.PUT(token, trackedJobReq)),
+
+  deleteTrackedJob: async (trackedJobId: string, token: string): Promise<{}> =>
+    await apiFetchAuth(`/api/v1/tracked/${trackedJobId}`, fetchOptions.DELETE(token)),
 };
