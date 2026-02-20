@@ -103,7 +103,7 @@ export const api = {
     await apiFetchAuth(`/api/v1/tracked?page=${page}`, fetchOptions.GET(token)),
 
   createTrackedJob: async (trackedJobReq: TrackedJobRequest, token: string): Promise<TrackedJobResponse> =>
-    await apiFetchAuth(`/api/v1/tracked`, fetchOptions.POST(token)),
+    await apiFetchAuth(`/api/v1/tracked`, fetchOptions.POST(token, trackedJobReq)),
 
   createTrackedJobFromExisting: async (processedJobId: number, token: string): Promise<TrackedJobResponse> =>
     await apiFetchAuth(`/api/v1/tracked/${processedJobId}`, fetchOptions.POST(token)),

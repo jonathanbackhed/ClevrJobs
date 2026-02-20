@@ -102,6 +102,8 @@ export function isMoreThan24hAgo(dateTime: string): boolean {
   return hoursDifference > 24;
 }
 
+export const toUndefinedIfEmpty = (value: string) => (value === "" ? undefined : value);
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
