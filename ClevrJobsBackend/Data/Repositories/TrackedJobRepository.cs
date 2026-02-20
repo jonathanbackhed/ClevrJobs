@@ -16,7 +16,7 @@ namespace Data.Repositories
             _dbc = dbc;
         }
 
-        public async Task<TrackedJob?> CreateNewTrackedJobAsync(TrackedJob trackedJob, string userId)
+        public async Task<TrackedJob> CreateAsync(TrackedJob trackedJob, string userId)
         {
             trackedJob.UserId = userId;
             await _dbc.TrackedJobs.AddAsync(trackedJob);
@@ -24,9 +24,9 @@ namespace Data.Repositories
             return trackedJob;
         }
 
-        public async Task<bool> DeleteTrackedJob(Guid id, string userId)
+        public async Task<bool> DeleteAsync(Guid id, string userId)
         {
-            var entity = await GetTrackedJobByIdAsync(id, userId);
+            var entity = await GetByIdAsync(id, userId);
             if (entity is null) return false;
 
             _dbc.TrackedJobs.Remove(entity);
@@ -34,7 +34,7 @@ namespace Data.Repositories
             return true;
         }
 
-        public async Task<(List<TrackedJob> items, int totalCount)> GetAllTrackedJobsAsync(int page, int pageSize, string userId)
+        public async Task<(List<TrackedJob> items, int totalCount)> GetAllAsync(int page, int pageSize, string userId)
         {
             var query = _dbc.TrackedJobs
                 .AsNoTracking()
@@ -51,28 +51,11 @@ namespace Data.Repositories
             return (items, totalCount);
         }
 
-        public async Task<TrackedJob?> GetTrackedJobByIdAsync(Guid id, string userId)
+        public async Task<TrackedJob?> GetByIdAsync(Guid id, string userId)
         {
             return await _dbc.TrackedJobs.FirstOrDefaultAsync(f => f.Id == id && f.UserId == userId);
         }
 
-        public async Task<TrackedJob?> UpdateTrackedJobAsync(TrackedJob trackedJob, string userId)
-        {
-            var exists = await GetTrackedJobByIdAsync(trackedJob.Id, userId);
-            if (exists is null) return null;
-
-            exists.ApplicationStatus = trackedJob.ApplicationStatus;
-            exists.RejectReason = trackedJob.RejectReason;
-            exists.Notes = trackedJob.Notes;
-
-            exists.Title = trackedJob.Title;
-            exists.CompanyName = trackedJob.CompanyName;
-            exists.Location = trackedJob.Location;
-            exists.ApplicationDeadline = trackedJob.ApplicationDeadline;
-            exists.ListingUrl = trackedJob.ListingUrl;
-
-            await _dbc.SaveChangesAsync();
-            return trackedJob;
-        }
+        public async Task UpdateAsync() => await _dbc.SaveChangesAsync();
     }
 }
