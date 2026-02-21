@@ -49,7 +49,7 @@ export function useCreateTrackedJobFromExisting() {
       return await api.createTrackedJobFromExisting(processedJobId, token!);
     },
     onSuccess: () => {
-      toast.success("Jobb skapat");
+      toast.success("Jobb tillagt i tracker");
       queryClient.invalidateQueries({ queryKey: ["tracked"] });
     },
     onError: () => {
