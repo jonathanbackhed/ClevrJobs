@@ -84,8 +84,9 @@ export function getApplicationStatusName(value: number): string {
   return "N/A";
 }
 
-export function formatDateTime(dateTime: string): string {
-  const formattedDateTime = formatDistanceToNowStrict(new Date(dateTime), {
+export function formatDateTime(dateTime: string | Date): string {
+  var date = typeof dateTime === "string" ? new Date(dateTime) : dateTime;
+  const formattedDateTime = formatDistanceToNowStrict(date, {
     addSuffix: true,
     locale: sv,
   });
@@ -93,8 +94,8 @@ export function formatDateTime(dateTime: string): string {
   return formattedDateTime;
 }
 
-export function isMoreThan24hAgo(dateTime: string): boolean {
-  const date = new Date(dateTime);
+export function isMoreThan24hAgo(dateTime: string | Date): boolean {
+  const date = typeof dateTime === "string" ? new Date(dateTime) : dateTime;
   const now = new Date();
 
   const hoursDifference = (now.getTime() - date.getTime()) / (1000 * 60 * 60);
@@ -102,7 +103,7 @@ export function isMoreThan24hAgo(dateTime: string): boolean {
   return hoursDifference > 24;
 }
 
-export const toUndefinedIfEmpty = (value: string) => (value === "" ? undefined : value);
+export const toUndefinedIfEmpty = (value: string) => (value && value.trim() === "" ? undefined : value);
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));

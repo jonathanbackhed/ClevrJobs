@@ -1,15 +1,17 @@
 "use client";
 
-import AddNewJobModal from "@/components/features/tracker/AddNewJobModal";
+import TrackedJobModal from "@/components/features/tracker/TrackedJobModal";
 import TrackedJob from "@/components/features/tracker/TrackedJob";
 import Pagination from "@/components/layout/Pagination";
 import BackButton from "@/components/ui/BackButton";
 import CustomButton from "@/components/ui/CustomButton";
 import PulsatingText from "@/components/ui/PulsatingText";
-import { useCreateTrackedJob, useTrackedJobs } from "@/hooks/useTracked";
+import Toast from "@/components/ui/Toast";
+import { useTrackedJobs } from "@/hooks/useTracked";
+import { SCROLL_KEY } from "@/lib/constants";
 import { TrackedJobResponse } from "@/types/tracked";
 import { notFound, useRouter, useSearchParams } from "next/navigation";
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function Tracked() {
   const router = useRouter();
@@ -18,9 +20,27 @@ export default function Tracked() {
 
   const [currentPage, setCurrentPage] = useState(page);
   const [showModal, setShowModal] = useState(false);
+  const [selectedJob, setSelectedJob] = useState<TrackedJobResponse | undefined>(undefined);
 
   const { data, isLoading, error } = useTrackedJobs(page);
-  const createMutation = useCreateTrackedJob();
+
+  const handleEdit = (job: TrackedJobResponse) => {
+    setSelectedJob(job);
+    setShowModal(true);
+  };
+
+  const handleClose = () => {
+    setShowModal(false);
+    setSelectedJob(undefined);
+  };
+
+  useEffect(() => {
+    const savedPos = sessionStorage.getItem(SCROLL_KEY);
+    if (savedPos) {
+      window.scrollTo(0, parseInt(savedPos));
+      sessionStorage.removeItem(SCROLL_KEY);
+    }
+  }, []);
 
   if (isLoading) return <PulsatingText text="Loading..." customStyles="h-screen flex items-center justify-center" />;
   if (error) return <PulsatingText text={`Error: ${error.message}`} />;
@@ -28,7 +48,8 @@ export default function Tracked() {
 
   return (
     <>
-      <AddNewJobModal showModal={showModal} setShowModal={setShowModal} />
+      <Toast />
+      <TrackedJobModal showModal={showModal} onClose={handleClose} defaultValues={selectedJob} />
       <div className="mx-auto flex min-h-screen max-w-3xl flex-col px-4 py-12 pb-20 sm:px-6 sm:py-16">
         <div className="flex flex-1 flex-col gap-4">
           <div className="flex items-center justify-between">
@@ -41,7 +62,7 @@ export default function Tracked() {
             <span className="text-center text-xl font-bold">Inga följda jobb hittades</span>
           )}
           {data.items.map((trackedJob: TrackedJobResponse, index: number) => (
-            <TrackedJob key={trackedJob.id} job={trackedJob} />
+            <TrackedJob key={trackedJob.id} job={trackedJob} index={index} onEdit={() => handleEdit(trackedJob)} />
           ))}
         </div>
 

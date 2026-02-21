@@ -1,20 +1,35 @@
 "use client";
 
 import Modal from "@/components/ui/Modal";
-import { useCreateTrackedJob } from "@/hooks/useTracked";
+import { useCreateTrackedJob, useUpdateTrackedJob } from "@/hooks/useTracked";
 import { cn, getApplicationStatusName, toUndefinedIfEmpty } from "@/lib/utils/helpers";
 import { ApplicationStatus } from "@/types/enum";
-import { TrackedJobRequest } from "@/types/tracked";
-import React, { useEffect, useRef, useState } from "react";
+import { TrackedJobRequest, TrackedJobResponse } from "@/types/tracked";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
+
+const emptyValues: TrackedJobRequest = {
+  applicationStatus: ApplicationStatus.NotApplied,
+  rejectReason: undefined,
+  notes: undefined,
+  title: "",
+  companyName: "",
+  location: "",
+  applicationDeadline: "",
+  listingUrl: "",
+};
 
 interface Props {
   showModal: boolean;
-  setShowModal: (state: boolean) => void;
+  onClose: () => void;
+  defaultValues?: TrackedJobResponse;
 }
 
-export default function AddNewJobModal({ showModal, setShowModal }: Props) {
+export default function TrackedJobModal({ showModal, onClose, defaultValues }: Props) {
+  const isEdit = !!defaultValues;
+
   const createMutation = useCreateTrackedJob();
+  const updateMutation = useUpdateTrackedJob(defaultValues?.id);
   const {
     register,
     handleSubmit,
@@ -22,9 +37,7 @@ export default function AddNewJobModal({ showModal, setShowModal }: Props) {
     formState: { errors },
     reset,
   } = useForm<TrackedJobRequest>({
-    defaultValues: {
-      applicationStatus: ApplicationStatus.NotApplied,
-    },
+    defaultValues: defaultValues ?? emptyValues,
   });
 
   const statusAsNumber = Number(watch("applicationStatus"));
@@ -39,18 +52,30 @@ export default function AddNewJobModal({ showModal, setShowModal }: Props) {
       notes: showNotes ? data.notes : undefined,
     };
 
-    createMutation.mutate(trackedJob);
+    if (isEdit) {
+      updateMutation.mutate(trackedJob, {
+        onSuccess: () => onClose(),
+      });
+    } else {
+      createMutation.mutate(trackedJob, {
+        onSuccess: () => onClose(),
+      });
+    }
   };
 
   useEffect(() => {
+    reset(defaultValues ?? emptyValues);
+  }, [defaultValues]);
+
+  useEffect(() => {
     if (!showModal) {
-      reset();
+      reset(emptyValues);
       return;
     }
 
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        setShowModal(false);
+        onClose();
       }
     };
 
@@ -60,7 +85,7 @@ export default function AddNewJobModal({ showModal, setShowModal }: Props) {
   }, [showModal]);
 
   return (
-    <Modal isOpen={showModal} close={setShowModal}>
+    <Modal isOpen={showModal} close={onClose}>
       <form onSubmit={handleSubmit(createTrackedJob)} className="flex flex-col gap-4">
         <h3 className="font-serif text-3xl">Skapa nytt jobb</h3>
         <div className="flex gap-10">
@@ -78,6 +103,7 @@ export default function AddNewJobModal({ showModal, setShowModal }: Props) {
               {...register("title", {
                 required: "Titel får inte vara tomt",
                 maxLength: { value: 150, message: "Titel får max vara 150 karaktärer lång" },
+                minLength: { value: 1, message: "Titel får inte vara tomt" },
               })}
             />
             {errors.title && <span className="ml-1 text-red-600 dark:text-red-800">{errors.title.message}</span>}
@@ -94,6 +120,7 @@ export default function AddNewJobModal({ showModal, setShowModal }: Props) {
               {...register("companyName", {
                 required: "Företagsnamn får inte vara tomt",
                 maxLength: { value: 100, message: "Företagsnamn får max vara 100 karaktärer lång" },
+                minLength: { value: 1, message: "Företagsnamn får inte vara tomt" },
               })}
             />
             {errors.companyName && (
@@ -114,6 +141,7 @@ export default function AddNewJobModal({ showModal, setShowModal }: Props) {
               {...register("location", {
                 required: "Plats får inte vara tomt",
                 maxLength: { value: 100, message: "Plats får max vara 100 karaktärer lång" },
+                minLength: { value: 1, message: "Plats får inte vara tomt" },
               })}
             />
             {errors.location && <span className="ml-1 text-red-600 dark:text-red-800">{errors.location.message}</span>}
@@ -207,12 +235,21 @@ export default function AddNewJobModal({ showModal, setShowModal }: Props) {
             {errors.notes && <span className="ml-1 text-red-600 dark:text-red-800">{errors.notes.message}</span>}
           </div>
         )}
-        <input
-          type="submit"
-          value={createMutation.isPending ? "Skapar..." : "Lägg till"}
-          disabled={createMutation.isPending}
-          className="bg-accent outline-accent cursor-pointer rounded-2xl px-3 py-2 text-white outline-0 focus:outline-1 disabled:opacity-25"
-        />
+        {isEdit ? (
+          <input
+            type="submit"
+            value={updateMutation.isPending ? "Uppdaterar..." : "Uppdatera"}
+            disabled={updateMutation.isPending}
+            className="bg-accent outline-accent cursor-pointer rounded-2xl px-3 py-2 text-white outline-0 focus:outline-1 disabled:opacity-25"
+          />
+        ) : (
+          <input
+            type="submit"
+            value={createMutation.isPending ? "Skapar..." : "Lägg till"}
+            disabled={createMutation.isPending}
+            className="bg-accent outline-accent cursor-pointer rounded-2xl px-3 py-2 text-white outline-0 focus:outline-1 disabled:opacity-25"
+          />
+        )}
       </form>
     </Modal>
   );

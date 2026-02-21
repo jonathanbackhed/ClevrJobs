@@ -114,7 +114,7 @@ export default function JobDetails({ job }: Props) {
 
   return (
     <div className="flex flex-col gap-4">
-      <Modal isOpen={showModal} close={setShowModal}>
+      <Modal isOpen={showModal} close={() => setShowModal(false)}>
         <form ref={formRef} onSubmit={sendReport} className="flex flex-col gap-4">
           <h3 className="font-serif text-3xl">Rapportera annons</h3>
           <div className="flex flex-col">

@@ -58,12 +58,13 @@ export function useCreateTrackedJobFromExisting() {
   });
 }
 
-export function useUpdateTrackedJob(trackedJobId: UUID) {
+export function useUpdateTrackedJob(trackedJobId?: UUID) {
   const { getToken } = useAuth();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (trackedJobReq: TrackedJobRequest) => {
+      if (!trackedJobId) throw new Error("No trackedJobId provided");
       const token = await getToken({ template: "cs-api" });
       return await api.updateTrackedJob(trackedJobId, trackedJobReq, token!);
     },

@@ -8,7 +8,7 @@ import CustomButton from "./CustomButton";
 interface Props {
   children: React.ReactNode;
   isOpen: boolean;
-  close: (state: boolean) => void;
+  close: () => void;
 }
 
 export default function Modal({ children, isOpen, close }: Props) {
@@ -33,7 +33,7 @@ export default function Modal({ children, isOpen, close }: Props) {
     >
       <div className="bg-cream animate-slide-in-from-top relative max-h-svh max-w-svw rounded-2xl p-10 sm:max-w-3xl">
         <div className="absolute top-3 right-3">
-          <CustomButton type="button" action={() => close(false)} variant="none" customStyles="p-0 hover:opacity-60">
+          <CustomButton type="button" action={() => close()} variant="none" customStyles="p-0 hover:opacity-60">
             <X size={22} />
           </CustomButton>
         </div>

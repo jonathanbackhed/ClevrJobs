@@ -71,7 +71,7 @@ namespace Api.Controllers
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (userId is null) return Unauthorized();
 
-            var result = _trackedJobService.UpdateTrackedJobAsync(trackedJobId, trackedJobReq, userId);
+            var result = await _trackedJobService.UpdateTrackedJobAsync(trackedJobId, trackedJobReq, userId);
             if (result is null) return NotFound(new { error = $"Tracked job with id {trackedJobId} not found." });
 
             return Ok(result);
