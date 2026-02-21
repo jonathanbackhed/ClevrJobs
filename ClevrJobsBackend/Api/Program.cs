@@ -33,6 +33,7 @@ try
     builder.Services.AddOpenApi();
 
     builder.Services.AddScoped<SavedJobsService>();
+    builder.Services.AddScoped<TrackedJobService>();
 
     builder.Services.AddData(options =>
         options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));

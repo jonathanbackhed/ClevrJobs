@@ -1,7 +1,7 @@
 "use client";
 
 import { useReportJob } from "@/hooks/useJobs";
-import { formatDateTime, getReasonName, getSourceName, isMoreThan24hAgo } from "@/lib/utils/helpers";
+import { cn, formatDateTime, getReasonName, getSourceName, isMoreThan24hAgo } from "@/lib/utils/helpers";
 import { CompetenceRank, JobListingDto, ReportJobRequest } from "@/types/job";
 import {
   Bot,
@@ -18,6 +18,7 @@ import {
   Cpu,
   Flag,
   Pickaxe,
+  CirclePlus,
 } from "lucide-react";
 import CompetenceTag from "../ui/CompetenceTag";
 import RequirementTag from "../ui/RequirementTag";
@@ -34,6 +35,7 @@ import Modal from "../ui/Modal";
 import { CAME_FROM_LISTING } from "@/lib/constants";
 import SaveButton from "../ui/SaveButton";
 import { SignedIn } from "@clerk/nextjs";
+import { useCreateTrackedJobFromExisting } from "@/hooks/useTracked";
 
 interface Props {
   job: JobListingDto;
@@ -45,6 +47,7 @@ export default function JobDetails({ job }: Props) {
   const formRef = useRef<HTMLFormElement>(null);
 
   const reportMutation = useReportJob(job.id);
+  const createExistingMutation = useCreateTrackedJobFromExisting();
   const router = useRouter();
 
   const requirementsList = job.requiredTechnologies.split(",");
@@ -114,7 +117,7 @@ export default function JobDetails({ job }: Props) {
 
   return (
     <div className="flex flex-col gap-4">
-      <Modal isOpen={showModal} close={setShowModal}>
+      <Modal isOpen={showModal} close={() => setShowModal(false)}>
         <form ref={formRef} onSubmit={sendReport} className="flex flex-col gap-4">
           <h3 className="font-serif text-3xl">Rapportera annons</h3>
           <div className="flex flex-col">
@@ -179,9 +182,22 @@ export default function JobDetails({ job }: Props) {
                 <CompetenceTag rank={job.competenceRank} />
                 <CompetenceTag rank={CompetenceRank.Unknown} customText={job.extent} />
               </div>
-              <SignedIn>
-                <SaveButton id={job.id} />
-              </SignedIn>
+              <div className="flex flex-row gap-4">
+                <SignedIn>
+                  <button
+                    onClick={() => createExistingMutation.mutate(job.id)}
+                    disabled={createExistingMutation.isPending}
+                    className={cn(
+                      "flex items-center gap-1 text-sm font-bold tracking-tight hover:cursor-pointer hover:opacity-70",
+                      createExistingMutation.isPending && "opacity-50",
+                    )}
+                  >
+                    <CirclePlus size={18} />
+                    Lägg till i tracker
+                  </button>
+                  <SaveButton id={job.id} />
+                </SignedIn>
+              </div>
             </div>
             <h2 className="font-serif text-3xl leading-tight font-bold tracking-tight text-stone-800 dark:text-stone-300">
               {job.title}

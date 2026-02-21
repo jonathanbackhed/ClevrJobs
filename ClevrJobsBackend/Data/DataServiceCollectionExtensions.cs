@@ -18,6 +18,7 @@ namespace Data
             services.AddScoped<IJobRepository, JobRepository>();
             services.AddScoped<IProcessRepository, ProcessRepository>();
             services.AddScoped<ISavedJobsRepository, SavedJobsRepository>();
+            services.AddScoped<ITrackedJobRepository, TrackedJobRepository>();
 
             return services;
         }
