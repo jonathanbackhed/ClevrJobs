@@ -40,6 +40,8 @@ namespace Api.Services
                 UserId = userId,
                 SaveType = SaveType.ManuallyAdded,
                 ApplicationStatus = trackedJobReq.ApplicationStatus,
+                RejectReason = trackedJobReq.RejectReason,
+                Notes = trackedJobReq.Notes,
                 CreatedAt = DateTime.UtcNow,
 
                 Title = trackedJobReq.Title,
