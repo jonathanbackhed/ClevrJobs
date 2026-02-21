@@ -31,14 +31,14 @@ export default function TrackedJob({ job, index, onEdit }: Props) {
 
   return (
     <CardContainer
-      customStyles="animate-fade-in-up transition-all duration-250 ease-out"
+      customStyles="animate-fade-in-up transition-all duration-250 ease-out overflow-hidden sm:p-6 p-4"
       style={{ animationDelay: `${index * 50 + 100}ms` }}
     >
       <div className="mb-1 flex items-center justify-between">
         <h2 className="font-serif text-2xl leading-tight font-bold tracking-tight text-stone-800 dark:text-stone-300">
           {job.title}
         </h2>
-        <span className="text-sm leading-tight font-medium text-stone-700 dark:text-stone-400">
+        <span className="text-sm leading-tight font-medium text-nowrap text-stone-700 dark:text-stone-400">
           {getApplicationStatusName(job.applicationStatus)}
         </span>
       </div>
@@ -47,7 +47,11 @@ export default function TrackedJob({ job, index, onEdit }: Props) {
           <MapPin size={14} opacity={0.6} />
           {job.companyName} – {job.location}
         </p>
-        {job.listingUrl && <p className="text-accent flex items-center gap-1 text-sm">{job.listingUrl}</p>}
+        {job.listingUrl && (
+          <a href={job.listingUrl} target="_blank" className="text-accent block gap-1 truncate text-sm">
+            {job.listingUrl}
+          </a>
+        )}
       </div>
       {job.notes && (
         <>
@@ -81,7 +85,7 @@ export default function TrackedJob({ job, index, onEdit }: Props) {
             </strong>
           </span>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center justify-end gap-4">
           <button onClick={onEdit}>
             <Pencil
               size={22}

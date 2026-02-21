@@ -12,6 +12,7 @@ import { SCROLL_KEY } from "@/lib/constants";
 import { TrackedJobResponse } from "@/types/tracked";
 import { notFound, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { Plus } from "lucide-react";
 
 export default function Tracked() {
   const router = useRouter();
@@ -54,9 +55,20 @@ export default function Tracked() {
         <div className="flex flex-1 flex-col gap-4">
           <div className="flex items-center justify-between">
             <BackButton text="Gå tillbaka" backFunction={() => router.push("/profile")} />
-            <CustomButton type="button" action={() => setShowModal(true)} variant="filled">
+            <CustomButton
+              type="button"
+              action={() => setShowModal(true)}
+              variant="filled"
+              customStyles="hidden sm:block"
+            >
               Skapa nytt jobb
             </CustomButton>
+            <button
+              onClick={() => setShowModal(true)}
+              className="bg-cream-warm border-accent/20 hover:bg-accent fixed right-4 bottom-4 z-40 rounded-full border p-4 transition-colors duration-150 hover:cursor-pointer"
+            >
+              <Plus size={22} />
+            </button>
           </div>
           {data?.items && data.items.length < 1 && (
             <span className="text-center text-xl font-bold">Inga följda jobb hittades</span>

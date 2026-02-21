@@ -85,10 +85,10 @@ export default function TrackedJobModal({ showModal, onClose, defaultValues }: P
   }, [showModal]);
 
   return (
-    <Modal isOpen={showModal} close={onClose}>
+    <Modal isOpen={showModal} close={onClose} customStyles="overflow-y-auto w-full h-full sm:w-auto sm:h-auto">
       <form onSubmit={handleSubmit(createTrackedJob)} className="flex flex-col gap-4">
         <h3 className="font-serif text-3xl">Skapa nytt jobb</h3>
-        <div className="flex gap-10">
+        <div className="flex flex-col gap-4 sm:flex-row sm:gap-10">
           <div className="flex w-full flex-col">
             <label htmlFor="title" className="ml-1">
               Titel:
@@ -128,7 +128,7 @@ export default function TrackedJobModal({ showModal, onClose, defaultValues }: P
             )}
           </div>
         </div>
-        <div className="flex gap-10">
+        <div className="flex flex-col gap-4 sm:flex-row sm:gap-10">
           <div className="flex w-full flex-col">
             <label htmlFor="location">Plats:</label>
             <input
