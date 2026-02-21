@@ -6,6 +6,7 @@ using Data.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Api.Controllers
 {
@@ -53,6 +54,7 @@ namespace Api.Controllers
 
         [HttpPost]
         [Route("{jobId}")]
+        [EnableRateLimiting("saveJobByUser")]
         public async Task<IActionResult> SaveJob([FromRoute] int jobId)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -66,6 +68,7 @@ namespace Api.Controllers
 
         [HttpDelete]
         [Route("{savedJobId}")]
+        [EnableRateLimiting("saveJobByUser")]
         public async Task<IActionResult> DeleteSavedJob([FromRoute] Guid savedJobId)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);

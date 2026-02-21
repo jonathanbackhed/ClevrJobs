@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Api.Data;
 using Api.Services;
 using Asp.Versioning;
@@ -61,12 +62,7 @@ try
             }, cancellationToken);
         };
 
-        options.AddSlidingWindowLimiter("reportLimiter", opt =>
-        {
-            opt.PermitLimit = 2;
-            opt.Window = TimeSpan.FromHours(24);
-            opt.SegmentsPerWindow = 24;
-        }).AddPolicy("reportByIp", context =>
+        options.AddPolicy("reportByIp", context =>
         {
             var ipAddress = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
             var endpoint = context.GetEndpoint();
@@ -80,6 +76,21 @@ try
                 PermitLimit = 2,
                 Window = TimeSpan.FromHours(24),
                 SegmentsPerWindow = 24
+            });
+        });
+
+        options.AddPolicy("saveJobByUser", context =>
+        {
+            var userId = context.User.FindFirstValue(ClaimTypes.NameIdentifier)
+                         ?? context.Connection.RemoteIpAddress?.ToString()
+                         ?? "unknown";
+            var jobId = context.GetRouteData()?.Values["jobId"]?.ToString() ?? "no-job";
+
+            return RateLimitPartition.GetSlidingWindowLimiter($"{userId}:{jobId}", _ => new()
+            {
+                PermitLimit = 5,
+                Window = TimeSpan.FromSeconds(10),
+                SegmentsPerWindow = 5
             });
         });
     });
