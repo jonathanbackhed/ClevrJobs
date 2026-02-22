@@ -5,6 +5,9 @@ export interface TrackedJobRequest {
   applicationStatus: ApplicationStatus;
   rejectReason?: string;
   notes?: string;
+  applyDate?: Date;
+  haveCalled: boolean;
+  spontaneousApplication: boolean;
 
   title: string;
   companyName: string;
@@ -21,6 +24,10 @@ export interface TrackedJobResponse {
   rejectReason?: string;
   notes?: string;
   createdAt: Date;
+  updatedAt?: Date;
+  applyDate?: Date;
+  haveCalled: boolean;
+  spontaneousApplication: boolean;
 
   title: string;
   companyName: string;

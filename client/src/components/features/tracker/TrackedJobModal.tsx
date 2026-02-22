@@ -1,5 +1,10 @@
 "use client";
 
+import CheckboxInput from "@/components/ui/form/CheckboxInput";
+import DateInput from "@/components/ui/form/DateInput";
+import SelectInput from "@/components/ui/form/SelectInput";
+import TextAreaInput from "@/components/ui/form/TextAreaInput";
+import TextInput from "@/components/ui/form/TextInput";
 import Modal from "@/components/ui/Modal";
 import { useCreateTrackedJob, useUpdateTrackedJob } from "@/hooks/useTracked";
 import { cn, getApplicationStatusName, toUndefinedIfEmpty } from "@/lib/utils/helpers";
@@ -12,6 +17,9 @@ const emptyValues: TrackedJobRequest = {
   applicationStatus: ApplicationStatus.NotApplied,
   rejectReason: undefined,
   notes: undefined,
+  applyDate: undefined,
+  haveCalled: false,
+  spontaneousApplication: false,
   title: "",
   companyName: "",
   location: "",
@@ -87,19 +95,15 @@ export default function TrackedJobModal({ showModal, onClose, defaultValues }: P
   return (
     <Modal isOpen={showModal} close={onClose} customStyles="overflow-y-auto w-full h-full sm:w-auto sm:h-auto">
       <form onSubmit={handleSubmit(createTrackedJob)} className="flex flex-col gap-4">
-        <h3 className="font-serif text-3xl">Skapa nytt jobb</h3>
+        <h3 className="font-serif text-3xl">{isEdit ? "Uppdatera jobb" : "Skapa nytt jobb"}</h3>
         <div className="flex flex-col gap-4 sm:flex-row sm:gap-10">
           <div className="flex w-full flex-col">
             <label htmlFor="title" className="ml-1">
               Titel:
             </label>
-            <input
-              type="text"
+            <TextInput
               placeholder="Titel"
-              className={cn(
-                "bg-cream-light outline-accent resize-none rounded-lg p-2.5 outline-0 focus:outline-2",
-                errors.title && "outline outline-red-600 dark:outline-red-800",
-              )}
+              errors={errors.title}
               {...register("title", {
                 required: "Titel får inte vara tomt",
                 maxLength: { value: 150, message: "Titel får max vara 150 karaktärer lång" },
@@ -109,14 +113,12 @@ export default function TrackedJobModal({ showModal, onClose, defaultValues }: P
             {errors.title && <span className="ml-1 text-red-600 dark:text-red-800">{errors.title.message}</span>}
           </div>
           <div className="flex w-full flex-col">
-            <label htmlFor="companyName">Företagets namn:</label>
-            <input
-              type="text"
+            <label htmlFor="companyName" className="ml-1">
+              Företagets namn:
+            </label>
+            <TextInput
               placeholder="Företagets namn"
-              className={cn(
-                "bg-cream-light outline-accent resize-none rounded-lg p-2.5 outline-0 focus:outline-2",
-                errors.companyName && "outline outline-red-600 dark:outline-red-800",
-              )}
+              errors={errors.companyName}
               {...register("companyName", {
                 required: "Företagsnamn får inte vara tomt",
                 maxLength: { value: 100, message: "Företagsnamn får max vara 100 karaktärer lång" },
@@ -130,14 +132,12 @@ export default function TrackedJobModal({ showModal, onClose, defaultValues }: P
         </div>
         <div className="flex flex-col gap-4 sm:flex-row sm:gap-10">
           <div className="flex w-full flex-col">
-            <label htmlFor="location">Plats:</label>
-            <input
-              type="text"
+            <label htmlFor="location" className="ml-1">
+              Plats:
+            </label>
+            <TextInput
               placeholder="Plats"
-              className={cn(
-                "bg-cream-light outline-accent resize-none rounded-lg p-2.5 outline-0 focus:outline-2",
-                errors.location && "outline outline-red-600 dark:outline-red-800",
-              )}
+              errors={errors.location}
               {...register("location", {
                 required: "Plats får inte vara tomt",
                 maxLength: { value: 100, message: "Plats får max vara 100 karaktärer lång" },
@@ -147,23 +147,25 @@ export default function TrackedJobModal({ showModal, onClose, defaultValues }: P
             {errors.location && <span className="ml-1 text-red-600 dark:text-red-800">{errors.location.message}</span>}
           </div>
           <div className="flex w-full flex-col">
-            <label htmlFor="applicationDeadline">Sista ansökningsdag:</label>
-            <input
-              type="date"
-              className="bg-cream-light outline-accent resize-none rounded-lg p-2.5 outline-0 focus:outline-2"
-              {...register("applicationDeadline", { required: false, setValueAs: toUndefinedIfEmpty })}
+            <label htmlFor="applicationDeadline" className="ml-1">
+              Sista ansökningsdag:
+            </label>
+            <DateInput
+              {...register("applicationDeadline", {
+                required: false,
+                setValueAs: toUndefinedIfEmpty,
+              })}
             />
           </div>
         </div>
         <div className="flex w-full flex-col">
-          <label htmlFor="listingUrl">Länk till annons:</label>
-          <input
+          <label htmlFor="listingUrl" className="ml-1">
+            Länk till annons:
+          </label>
+          <TextInput
             type="url"
-            placeholder="Länk till annons eller företagets hemsida"
-            className={cn(
-              "bg-cream-light outline-accent resize-none rounded-lg p-2.5 outline-0 focus:outline-2",
-              errors.listingUrl && "outline outline-red-600 dark:outline-red-800",
-            )}
+            placeholder="T.ex. https://www.linkedin.com/annons/12345"
+            errors={errors.listingUrl}
             {...register("listingUrl", {
               required: false,
               maxLength: { value: 100, message: "Länk får max vara 100 karaktärer lång" },
@@ -174,42 +176,77 @@ export default function TrackedJobModal({ showModal, onClose, defaultValues }: P
             <span className="ml-1 text-red-600 dark:text-red-800">{errors.listingUrl.message}</span>
           )}
         </div>
-        <div className="flex w-full flex-col">
-          <label htmlFor="applicationStatus">Status:</label>
-          <select
-            required
-            className="bg-cream-light outline-accent resize-none rounded-lg p-2.5 outline-0 focus:outline-2"
-            {...register("applicationStatus", {
-              required: false,
-            })}
-          >
-            {Object.values(ApplicationStatus)
-              .filter((key) => typeof key === "number")
-              .map((status: number) => {
-                const name = getApplicationStatusName(Number(status));
-                return (
-                  <option key={status} value={status}>
-                    {name}
-                  </option>
-                );
+        <div className="flex flex-col gap-4 sm:flex-row sm:gap-10">
+          <div className="flex w-full flex-col">
+            <label htmlFor="applicationStatus" className="ml-1">
+              Status:
+            </label>
+            <SelectInput
+              {...register("applicationStatus", {
+                required: false,
               })}
-          </select>
+            >
+              {Object.values(ApplicationStatus)
+                .filter((key) => typeof key === "number")
+                .map((status: number) => {
+                  const name = getApplicationStatusName(Number(status));
+                  return (
+                    <option key={status} value={status}>
+                      {name}
+                    </option>
+                  );
+                })}
+            </SelectInput>
+          </div>
+          {showNotes && (
+            <div className="flex w-full flex-col">
+              <label htmlFor="applyDate" className="ml-1">
+                Ansökt:
+              </label>
+              <DateInput
+                errors={errors.applyDate}
+                {...register("applyDate", {
+                  required: "Ansökt datum får inte vara tomt",
+                  setValueAs: toUndefinedIfEmpty,
+                })}
+              />
+              {errors.applyDate && (
+                <span className="ml-1 text-red-600 dark:text-red-800">{errors.applyDate.message}</span>
+              )}
+            </div>
+          )}
+        </div>
+        <div className="flex flex-col gap-4 sm:flex-row sm:gap-10">
+          {showNotes && (
+            <>
+              <div className="flex w-full items-center gap-1">
+                <label htmlFor="spontaneousApplication" className="ml-1">
+                  Spontanansökan:
+                </label>
+                <CheckboxInput {...register("spontaneousApplication")} />
+              </div>
+              <div className="flex w-full items-center gap-1">
+                <label htmlFor="haveCalled" className="ml-1">
+                  Har ringt:
+                </label>
+                <CheckboxInput {...register("haveCalled")} />
+              </div>
+            </>
+          )}
         </div>
         {showRejectReason && (
           <div className="flex w-full flex-col">
-            <label htmlFor="rejectReason">Anledning för nekad ansökan:</label>
-            <textarea
+            <label htmlFor="rejectReason" className="ml-1">
+              Anledning för nekad ansökan:
+            </label>
+            <TextAreaInput
               placeholder="T.ex. 'Hade för lite erfarenhet'"
-              className={cn(
-                "bg-cream-light outline-accent resize-none rounded-lg p-2.5 outline-0 focus:outline-2",
-                errors.rejectReason && "outline outline-red-600 dark:outline-red-800",
-              )}
+              errors={errors.rejectReason}
               {...register("rejectReason", {
                 required: false,
                 maxLength: { value: 500, message: "Anledning får max vara 500 karaktärer lång" },
                 setValueAs: toUndefinedIfEmpty,
               })}
-              rows={2}
             />
             {errors.rejectReason && (
               <span className="ml-1 text-red-600 dark:text-red-800">{errors.rejectReason.message}</span>
@@ -218,19 +255,18 @@ export default function TrackedJobModal({ showModal, onClose, defaultValues }: P
         )}
         {showNotes && (
           <div className="flex w-full flex-col">
-            <label htmlFor="notes">Anteckningar:</label>
-            <textarea
+            <label htmlFor="notes" className="ml-1">
+              Anteckningar:
+            </label>
+            <TextAreaInput
               placeholder="T.ex. 'Ringde rekryterare men fick inget svar'"
-              className={cn(
-                "bg-cream-light outline-accent resize-none rounded-lg p-2.5 outline-0 focus:outline-2",
-                errors.notes && "outline outline-red-600 dark:outline-red-800",
-              )}
+              rows={4}
+              errors={errors.notes}
               {...register("notes", {
                 required: false,
                 maxLength: { value: 1000, message: "Anteckningar får max vara 1000 karaktärer lång" },
                 setValueAs: toUndefinedIfEmpty,
               })}
-              rows={4}
             />
             {errors.notes && <span className="ml-1 text-red-600 dark:text-red-800">{errors.notes.message}</span>}
           </div>
