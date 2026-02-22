@@ -43,6 +43,9 @@ namespace Api.Services
                 RejectReason = trackedJobReq.RejectReason,
                 Notes = trackedJobReq.Notes,
                 CreatedAt = DateTime.UtcNow,
+                ApplyDate =  trackedJobReq.ApplyDate,
+                HaveCalled = trackedJobReq.HaveCalled,
+                SpontaneousApplication = trackedJobReq.SpontaneousApplication,
 
                 Title = trackedJobReq.Title,
                 CompanyName = trackedJobReq.CompanyName,
@@ -68,6 +71,8 @@ namespace Api.Services
                 ProcessedJobId = id,
                 ApplicationStatus = ApplicationStatus.NotApplied,
                 CreatedAt = DateTime.UtcNow,
+                HaveCalled = false,
+                SpontaneousApplication = false,
 
                 Title = existing.RawJob.Title,
                 CompanyName = existing.RawJob.CompanyName,
@@ -89,6 +94,10 @@ namespace Api.Services
             existing.ApplicationStatus = trackedJobReq.ApplicationStatus;
             existing.RejectReason = trackedJobReq.RejectReason;
             existing.Notes = trackedJobReq.Notes;
+            existing.UpdatedAt = DateTime.UtcNow;
+            existing.ApplyDate = trackedJobReq.ApplyDate;
+            existing.HaveCalled = trackedJobReq.HaveCalled;
+            existing.SpontaneousApplication = trackedJobReq.SpontaneousApplication;
 
             existing.Title = trackedJobReq.Title;
             existing.CompanyName = trackedJobReq.CompanyName;
@@ -100,7 +109,7 @@ namespace Api.Services
             return MapToResponse(existing);
         }
 
-        private TrackedJobResponse MapToResponse(TrackedJob trackedJob)
+        private static TrackedJobResponse MapToResponse(TrackedJob trackedJob)
         {
             var response = new TrackedJobResponse
             {
@@ -111,6 +120,11 @@ namespace Api.Services
                 RejectReason = trackedJob.RejectReason,
                 Notes = trackedJob.Notes,
                 CreatedAt = trackedJob.CreatedAt,
+                UpdatedAt =  trackedJob.UpdatedAt,
+                ApplyDate = trackedJob.ApplyDate,
+                HaveCalled = trackedJob.HaveCalled,
+                SpontaneousApplication = trackedJob.SpontaneousApplication,
+                
                 Title = trackedJob.Title,
                 CompanyName = trackedJob.CompanyName,
                 Location = trackedJob.Location,
