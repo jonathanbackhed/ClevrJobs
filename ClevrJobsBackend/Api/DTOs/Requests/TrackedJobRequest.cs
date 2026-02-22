@@ -11,6 +11,11 @@ namespace Api.DTOs.Requests
         public string? RejectReason { get; init; }
         [MaxLength(1000)]
         public string? Notes { get; init; }
+        public DateTime? ApplyDate { get; init; }
+        [Required]
+        public bool HaveCalled { get; init; }
+        [Required]
+        public bool SpontaneousApplication { get; init; }
 
         [Required]
         [MaxLength(150)]
