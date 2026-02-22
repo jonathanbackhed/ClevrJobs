@@ -12,7 +12,7 @@ namespace Api.DTOs.Responses
         public string? Notes { get; init; }
         public required DateTime CreatedAt { get; init; }
         public DateTime? UpdatedAt { get; init; }
-        public DateTime? ApplyDate { get; init; }
+        public DateOnly? ApplyDate { get; init; }
         public required bool HaveCalled { get; init; }
         public required bool SpontaneousApplication { get; init; }
 
