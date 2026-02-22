@@ -85,7 +85,7 @@ export function getApplicationStatusName(value: number): string {
 }
 
 export function formatDateTime(dateTime: string | Date): string {
-  var date = typeof dateTime === "string" ? new Date(dateTime) : dateTime;
+  var date = typeof dateTime === "string" ? new Date(dateTime + "Z") : dateTime;
   const formattedDateTime = formatDistanceToNowStrict(date, {
     addSuffix: true,
     locale: sv,
