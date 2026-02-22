@@ -23,7 +23,14 @@ namespace Data.Models
         public string? RejectReason { get; set; }
         [MaxLength(1000)]
         public string? Notes { get; set; }
-        public required DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        [Required]
+        public required DateTime CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
+        public DateTime? ApplyDate { get; set; }
+        [Required] 
+        public required bool HaveCalled { get; set; }
+        [Required]
+        public required bool SpontaneousApplication  { get; set; }
 
         [Required]
         [MaxLength(150)]
