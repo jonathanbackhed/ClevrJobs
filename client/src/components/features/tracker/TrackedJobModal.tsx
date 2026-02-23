@@ -94,7 +94,7 @@ export default function TrackedJobModal({ showModal, onClose, defaultValues }: P
   }, [showModal]);
 
   return (
-    <Modal isOpen={showModal} close={onClose} customStyles="overflow-y-auto w-full h-full sm:w-auto sm:h-auto">
+    <Modal isOpen={showModal} close={onClose}>
       <form onSubmit={handleSubmit(createTrackedJob)} className="flex flex-col gap-4">
         <h3 className="font-serif text-3xl">{isEdit ? "Uppdatera jobb" : "Skapa nytt jobb"}</h3>
         <div className="flex flex-col gap-4 sm:flex-row sm:gap-10">
