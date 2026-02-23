@@ -34,7 +34,7 @@ export default function Modal({ children, isOpen, close, customStyles }: Props) 
     >
       <div
         className={cn(
-          "bg-cream animate-slide-in-from-top relative max-h-svh max-w-svw rounded-2xl p-10 sm:max-w-3xl",
+          "bg-cream animate-slide-in-from-top relative h-full max-h-svh w-full max-w-svw overflow-y-auto rounded-none p-10 sm:h-auto sm:w-auto sm:max-w-3xl sm:rounded-2xl",
           customStyles,
         )}
       >

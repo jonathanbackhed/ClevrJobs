@@ -3,6 +3,7 @@
 import CheckboxInput from "@/components/ui/form/CheckboxInput";
 import DateInput from "@/components/ui/form/DateInput";
 import SelectInput from "@/components/ui/form/SelectInput";
+import SubmitInput from "@/components/ui/form/SubmitInput";
 import TextAreaInput from "@/components/ui/form/TextAreaInput";
 import TextInput from "@/components/ui/form/TextInput";
 import Modal from "@/components/ui/Modal";
@@ -93,7 +94,7 @@ export default function TrackedJobModal({ showModal, onClose, defaultValues }: P
   }, [showModal]);
 
   return (
-    <Modal isOpen={showModal} close={onClose} customStyles="overflow-y-auto w-full h-full sm:w-auto sm:h-auto">
+    <Modal isOpen={showModal} close={onClose}>
       <form onSubmit={handleSubmit(createTrackedJob)} className="flex flex-col gap-4">
         <h3 className="font-serif text-3xl">{isEdit ? "Uppdatera jobb" : "Skapa nytt jobb"}</h3>
         <div className="flex flex-col gap-4 sm:flex-row sm:gap-10">
@@ -272,18 +273,14 @@ export default function TrackedJobModal({ showModal, onClose, defaultValues }: P
           </div>
         )}
         {isEdit ? (
-          <input
-            type="submit"
+          <SubmitInput
             value={updateMutation.isPending ? "Uppdaterar..." : "Uppdatera"}
             disabled={updateMutation.isPending}
-            className="bg-accent outline-accent cursor-pointer rounded-2xl px-3 py-2 text-white outline-0 focus:outline-1 disabled:opacity-25"
           />
         ) : (
-          <input
-            type="submit"
+          <SubmitInput
             value={createMutation.isPending ? "Skapar..." : "Lägg till"}
             disabled={createMutation.isPending}
-            className="bg-accent outline-accent cursor-pointer rounded-2xl px-3 py-2 text-white outline-0 focus:outline-1 disabled:opacity-25"
           />
         )}
       </form>
