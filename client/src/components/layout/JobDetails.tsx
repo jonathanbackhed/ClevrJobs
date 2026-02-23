@@ -36,6 +36,9 @@ import { CAME_FROM_LISTING } from "@/lib/constants";
 import SaveButton from "../ui/SaveButton";
 import { SignedIn } from "@clerk/nextjs";
 import { useCreateTrackedJobFromExisting } from "@/hooks/useTracked";
+import SelectInput from "../ui/form/SelectInput";
+import TextAreaInput from "../ui/form/TextAreaInput";
+import SubmitInput from "../ui/form/SubmitInput";
 
 interface Props {
   job: JobListingDto;
@@ -122,12 +125,7 @@ export default function JobDetails({ job }: Props) {
           <h3 className="font-serif text-3xl">Rapportera annons</h3>
           <div className="flex flex-col">
             <label htmlFor="reportReason">Anledning:</label>
-            <select
-              name="reportReason"
-              defaultValue=""
-              required
-              className="bg-cream-light outline-accent rounded-lg px-3 py-2 outline-0 focus:outline-2"
-            >
+            <SelectInput name="reportReason" defaultValue="" required>
               <option value="" disabled>
                 - Välj nedan -
               </option>
@@ -141,25 +139,19 @@ export default function JobDetails({ job }: Props) {
                     </option>
                   );
                 })}
-            </select>
+            </SelectInput>
           </div>
           <div className="flex flex-col">
             <label htmlFor="reportDescription">Beskrivning:</label>
-            <textarea
+            <TextAreaInput
               name="reportDescription"
               placeholder="Beskriv gärna ditt problem i detalj."
               maxLength={300}
-              className="bg-cream-light outline-accent resize-none rounded-2xl p-2.5 outline-0 focus:outline-2"
               rows={4}
               cols={60}
             />
           </div>
-          <input
-            type="submit"
-            value={reportMutation.isPending ? "Skickar..." : "Skicka"}
-            disabled={reportMutation.isPending}
-            className="bg-accent outline-accent cursor-pointer rounded-2xl px-3 py-2 text-white outline-0 focus:outline-1 disabled:opacity-25"
-          />
+          <SubmitInput value={reportMutation.isPending ? "Skickar..." : "Skicka"} disabled={reportMutation.isPending} />
         </form>
       </Modal>
       <Toast />

@@ -6,10 +6,9 @@ interface Props extends React.SelectHTMLAttributes<HTMLSelectElement> {
   children: React.ReactNode;
   customStyles?: string;
   errors?: FieldError;
-  defaultValue?: string;
 }
 
-export default function SelectInput({ children, customStyles, errors, defaultValue, ...rest }: Props) {
+export default function SelectInput({ children, customStyles, errors, ...rest }: Props) {
   return (
     <select
       className={cn(
