@@ -28,6 +28,11 @@ export default function Saved() {
       <Toast />
       <div className="mx-auto flex min-h-screen max-w-3xl flex-col px-4 py-12 pb-20 sm:px-6 sm:py-16">
         <div className="flex flex-1 flex-col gap-4">
+          <header className="animate-fade-in-down mb-12 text-center">
+            <span className="text-accent relative inline-block font-serif text-4xl font-bold tracking-tight sm:text-6xl">
+              Sparade jobb
+            </span>
+          </header>
           {/* <BackButton text="Gå tillbaka" backFunction={() => router.push("/profile")} /> */}
           {data?.items && data.items.length < 1 && (
             <span className="text-center text-xl font-bold">Inga sparade jobb hittades</span>
