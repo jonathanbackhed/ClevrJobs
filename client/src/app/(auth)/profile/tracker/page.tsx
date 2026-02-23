@@ -51,7 +51,7 @@ export default function Tracked() {
     <>
       <Toast />
       <TrackedJobModal showModal={showModal} onClose={handleClose} defaultValues={selectedJob} />
-      <div className="mx-auto flex min-h-screen max-w-3xl flex-col px-4 py-12 pb-20 sm:px-6 sm:py-16">
+      <div className="mx-auto flex max-w-3xl flex-col px-4 py-12 pb-20 sm:px-6 sm:py-16">
         <div className="flex flex-1 flex-col gap-4">
           <header className="animate-fade-in-down mb-12 text-center">
             <span className="text-accent relative inline-block font-serif text-4xl font-bold tracking-tight sm:text-6xl">
