@@ -68,12 +68,6 @@ export default function Tracked() {
             >
               Skapa nytt jobb
             </CustomButton>
-            <button
-              onClick={() => setShowModal(true)}
-              className="bg-cream-warm border-accent/20 hover:bg-accent fixed right-4 bottom-4 z-40 rounded-full border p-4 transition-colors duration-150 hover:cursor-pointer"
-            >
-              <Plus size={22} />
-            </button>
           </div>
           {data?.items && data.items.length < 1 && (
             <span className="text-center text-xl font-bold">Inga följda jobb hittades</span>
@@ -82,6 +76,13 @@ export default function Tracked() {
             <TrackedJob key={trackedJob.id} job={trackedJob} index={index} onEdit={() => handleEdit(trackedJob)} />
           ))}
         </div>
+
+        <button
+          onClick={() => setShowModal(true)}
+          className="bg-cream-light border-accent/30 hover:bg-accent fixed right-4 bottom-4 z-40 rounded-full border p-4 transition-colors duration-150 hover:cursor-pointer"
+        >
+          <Plus size={22} />
+        </button>
 
         {data.items.length > data.pageSize && (
           <Pagination
