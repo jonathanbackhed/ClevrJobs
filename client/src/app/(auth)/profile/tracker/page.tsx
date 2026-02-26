@@ -3,25 +3,31 @@
 import TrackedJobModal from "@/components/features/tracker/TrackedJobModal";
 import TrackedJob from "@/components/features/tracker/TrackedJob";
 import Pagination from "@/components/layout/Pagination";
-import BackButton from "@/components/ui/BackButton";
 import CustomButton from "@/components/ui/CustomButton";
 import PulsatingText from "@/components/ui/PulsatingText";
 import Toast from "@/components/ui/Toast";
 import { useTrackedJobs } from "@/hooks/useTracked";
 import { SCROLL_KEY } from "@/lib/constants";
 import { TrackedJobResponse } from "@/types/tracked";
-import { notFound, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { notFound, useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 import { Plus } from "lucide-react";
+import TrackedJobFilter from "@/components/features/tracker/TrackedJobFilter";
+import { FilterOptions } from "@/types/filter";
+import Modal from "@/components/ui/Modal";
 
 export default function Tracked() {
-  const router = useRouter();
   const params = useSearchParams();
   const page = Number(params.get("page")) || 1;
 
   const [currentPage, setCurrentPage] = useState(page);
   const [showModal, setShowModal] = useState(false);
   const [selectedJob, setSelectedJob] = useState<TrackedJobResponse | undefined>(undefined);
+  const [filterOptions, setFilterOptions] = useState<FilterOptions>({
+    from: "",
+    to: "",
+    applicationStatus: undefined,
+  });
 
   const { data, isLoading, error } = useTrackedJobs(page);
 
@@ -34,6 +40,33 @@ export default function Tracked() {
     setShowModal(false);
     setSelectedJob(undefined);
   };
+
+  const filteredJobs = useMemo(() => {
+    return data?.items.filter((job: TrackedJobResponse) => {
+      const date = new Date(job.createdAt);
+      const month = date.getMonth() + 1;
+      const year = date.getFullYear();
+
+      const matchesFrom =
+        filterOptions.from && filterOptions.from !== ""
+          ? year > Number(filterOptions.from.split("-")[0]) ||
+            (year === Number(filterOptions.from.split("-")[0]) && month >= Number(filterOptions.from.split("-")[1]))
+          : true;
+
+      const matchesTo =
+        filterOptions.to && filterOptions.to !== ""
+          ? year < Number(filterOptions.to.split("-")[0]) ||
+            (year === Number(filterOptions.to.split("-")[0]) && month <= Number(filterOptions.to.split("-")[1]))
+          : true;
+
+      const matchesStatus =
+        filterOptions.applicationStatus && filterOptions.applicationStatus !== undefined
+          ? job.applicationStatus === Number(filterOptions.applicationStatus)
+          : true;
+
+      return matchesFrom && matchesTo && matchesStatus;
+    });
+  }, [data, filterOptions]);
 
   useEffect(() => {
     const savedPos = sessionStorage.getItem(SCROLL_KEY);
@@ -51,30 +84,28 @@ export default function Tracked() {
     <>
       <Toast />
       <TrackedJobModal showModal={showModal} onClose={handleClose} defaultValues={selectedJob} />
-      <div className="mx-auto flex max-w-3xl flex-col px-4 py-12 pb-20 sm:px-6 sm:py-16">
-        <div className="flex flex-1 flex-col gap-4">
-          <header className="animate-fade-in-down mb-12 text-center">
-            <span className="text-accent relative inline-block font-serif text-4xl font-bold tracking-tight sm:text-6xl">
-              Tracker
-            </span>
-          </header>
-          <div className="flex items-center justify-between">
-            {/* <BackButton text="Gå tillbaka" backFunction={() => router.push("/profile")} /> */}
-            <CustomButton
-              type="button"
-              action={() => setShowModal(true)}
-              variant="filled"
-              customStyles="hidden sm:block"
-            >
-              Skapa nytt jobb
-            </CustomButton>
+      <div className="mx-auto flex max-w-4xl flex-col px-4 py-12 pb-20 sm:px-6 sm:py-16">
+        <header className="animate-fade-in-down mb-12 text-center">
+          <span className="text-accent relative inline-block font-serif text-4xl font-bold tracking-tight sm:text-6xl">
+            Tracker
+          </span>
+        </header>
+        <div className="mb-4 flex items-center justify-between">
+          <CustomButton type="button" action={() => setShowModal(true)} variant="filled" customStyles="hidden sm:block">
+            Skapa nytt jobb
+          </CustomButton>
+        </div>
+        <div className="flex flex-1 gap-4">
+          <div className="flex w-full flex-col gap-4">
+            {filteredJobs && filteredJobs.length > 0 ? (
+              filteredJobs.map((trackedJob: TrackedJobResponse, index: number) => (
+                <TrackedJob key={trackedJob.id} job={trackedJob} index={index} onEdit={() => handleEdit(trackedJob)} />
+              ))
+            ) : (
+              <span className="text-center text-xl font-bold">Inga följda jobb hittades</span>
+            )}
           </div>
-          {data?.items && data.items.length < 1 && (
-            <span className="text-center text-xl font-bold">Inga följda jobb hittades</span>
-          )}
-          {data.items.map((trackedJob: TrackedJobResponse, index: number) => (
-            <TrackedJob key={trackedJob.id} job={trackedJob} index={index} onEdit={() => handleEdit(trackedJob)} />
-          ))}
+          <TrackedJobFilter filterOptions={filterOptions} onFilterChange={setFilterOptions} />
         </div>
 
         <button
