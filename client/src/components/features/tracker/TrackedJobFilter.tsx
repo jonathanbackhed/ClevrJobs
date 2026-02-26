@@ -59,7 +59,7 @@ export default function TrackedJobFilter({ filterOptions, onFilterChange }: Prop
           </SelectInput>
         </div>
         <button
-          onClick={() => onFilterChange({ from: "", to: "", applicationStatus: undefined })}
+          onClick={() => onFilterChange({ from: "", to: "", applicationStatus: "" })}
           className="mt-2 hover:cursor-pointer hover:opacity-80"
         >
           Återställ
