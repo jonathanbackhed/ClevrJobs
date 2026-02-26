@@ -11,10 +11,9 @@ import { SCROLL_KEY } from "@/lib/constants";
 import { TrackedJobResponse } from "@/types/tracked";
 import { notFound, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { Plus } from "lucide-react";
+import { Plus, SlidersHorizontal } from "lucide-react";
 import TrackedJobFilter from "@/components/features/tracker/TrackedJobFilter";
 import { FilterOptions } from "@/types/filter";
-import Modal from "@/components/ui/Modal";
 
 export default function Tracked() {
   const params = useSearchParams();
@@ -22,6 +21,7 @@ export default function Tracked() {
 
   const [currentPage, setCurrentPage] = useState(page);
   const [showModal, setShowModal] = useState(false);
+  const [showFilter, setShowFilter] = useState(false);
   const [selectedJob, setSelectedJob] = useState<TrackedJobResponse | undefined>(undefined);
   const [filterOptions, setFilterOptions] = useState<FilterOptions>({
     from: "",
@@ -91,10 +91,21 @@ export default function Tracked() {
           </span>
         </header>
         <div className="mb-4 flex items-center justify-between">
-          <CustomButton type="button" action={() => setShowModal(true)} variant="filled" customStyles="hidden sm:block">
+          <CustomButton type="button" action={() => setShowModal(true)} variant="filled" customStyles="w-auto">
             Skapa nytt jobb
           </CustomButton>
+          <button
+            onClick={() => setShowFilter((prev) => !prev)}
+            className="block hover:cursor-pointer hover:opacity-70 md:hidden"
+          >
+            <SlidersHorizontal size={24} />
+          </button>
         </div>
+        {showFilter && (
+          <div className="mb-4 block md:hidden">
+            <TrackedJobFilter filterOptions={filterOptions} onFilterChange={setFilterOptions} />
+          </div>
+        )}
         <div className="flex flex-1 gap-4">
           <div className="flex w-full flex-col gap-4">
             {filteredJobs && filteredJobs.length > 0 ? (
@@ -105,7 +116,9 @@ export default function Tracked() {
               <span className="text-center text-xl font-bold">Inga följda jobb hittades</span>
             )}
           </div>
-          <TrackedJobFilter filterOptions={filterOptions} onFilterChange={setFilterOptions} />
+          <div className="bg-cream-light border-accent/15 sticky top-6 hidden w-52 shrink-0 self-start rounded-2xl p-4 shadow-stone-800 md:block">
+            <TrackedJobFilter filterOptions={filterOptions} onFilterChange={setFilterOptions} />
+          </div>
         </div>
 
         <button

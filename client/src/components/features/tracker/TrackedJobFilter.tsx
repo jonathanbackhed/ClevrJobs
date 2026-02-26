@@ -12,7 +12,7 @@ interface Props {
 
 export default function TrackedJobFilter({ filterOptions, onFilterChange }: Props) {
   return (
-    <div className="bg-cream-light border-accent/15 sticky top-6 hidden w-52 shrink-0 self-start rounded-2xl p-4 shadow-stone-800 sm:block">
+    <>
       <h3 className="mb-2 text-xl font-bold">Filter</h3>
       <div className="flex flex-col gap-2">
         <div className="flex flex-col">
@@ -65,6 +65,6 @@ export default function TrackedJobFilter({ filterOptions, onFilterChange }: Prop
           Återställ
         </button>
       </div>
-    </div>
+    </>
   );
 }
