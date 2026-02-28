@@ -118,6 +118,10 @@ export default function JobDetails({ job }: Props) {
     };
   }, [showModal]);
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
     <div className="flex flex-col gap-4">
       <Modal isOpen={showModal} close={() => setShowModal(false)}>
