@@ -1,6 +1,6 @@
-import { JobListingDto, JobListingMiniDto, PagedResult, ReportJobRequest } from "@/types/job";
-import { SavedJobResponse } from "@/types/saved";
-import { TrackedJobRequest, TrackedJobResponse } from "@/types/tracked";
+import { JobListingDto, JobListingMiniDto, PagedResult, ReportJobRequest } from "@/types";
+import { SavedJobResponse } from "@/types";
+import { TrackedJobRequest, TrackedJobResponse } from "@/types";
 import { UUID } from "crypto";
 
 const fetchOptions = {

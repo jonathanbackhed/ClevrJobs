@@ -1,6 +1,6 @@
 import { api } from "@/lib/api";
 import { times } from "@/lib/constants";
-import { TrackedJobRequest } from "@/types/tracked";
+import { TrackedJobRequest } from "@/types";
 import { useAuth } from "@clerk/nextjs";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { UUID } from "crypto";

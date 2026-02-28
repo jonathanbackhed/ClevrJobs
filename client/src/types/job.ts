@@ -1,4 +1,4 @@
-import { ReportReason } from "./enum";
+import { CompetenceRank, ReportReason, Source } from "./enum";
 
 export interface PagedResult<T> {
   items: T[];
@@ -54,17 +54,4 @@ export interface JobListingMiniDto {
 export interface ReportJobRequest {
   reason: ReportReason;
   description?: string;
-}
-
-export enum CompetenceRank {
-  NewGrad = 0,
-  Junior,
-  MidLevel,
-  Senior,
-  Lead,
-  Unknown,
-}
-
-export enum Source {
-  Platsbanken = 0,
 }

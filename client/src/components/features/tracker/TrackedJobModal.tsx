@@ -10,7 +10,7 @@ import Modal from "@/components/ui/Modal";
 import { useCreateTrackedJob, useUpdateTrackedJob } from "@/hooks/useTracked";
 import { cn, getApplicationStatusName, toUndefinedIfEmpty } from "@/lib/utils/helpers";
 import { ApplicationStatus } from "@/types/enum";
-import { TrackedJobRequest, TrackedJobResponse } from "@/types/tracked";
+import { TrackedJobRequest, TrackedJobResponse } from "@/types";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 

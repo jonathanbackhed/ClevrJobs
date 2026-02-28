@@ -1,4 +1,4 @@
-import { JobListingMiniDto } from "@/types/job";
+import { JobListingMiniDto } from "@/types";
 import { Clock, MapPin } from "lucide-react";
 import CompetenceTag from "../ui/CompetenceTag";
 import RequirementTag from "../ui/RequirementTag";

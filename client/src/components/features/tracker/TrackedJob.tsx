@@ -6,7 +6,7 @@ import { useDeleteTrackedJob, useUpdateTrackedJob } from "@/hooks/useTracked";
 import { CAME_FROM_LISTING, SCROLL_KEY } from "@/lib/constants";
 import { formatDateTime, getApplicationStatusName } from "@/lib/utils/helpers";
 import { SaveType } from "@/types/enum";
-import { TrackedJobResponse } from "@/types/tracked";
+import { TrackedJobResponse } from "@/types";
 import { Clock, MapPin, Pencil, Trash } from "lucide-react";
 
 interface Props {

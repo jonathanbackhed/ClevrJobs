@@ -1,5 +1,5 @@
 import { cn, getCompetenceRankOrDefault } from "@/lib/utils/helpers";
-import { CompetenceRank } from "@/types/job";
+import { CompetenceRank } from "@/types/enum";
 
 interface Props {
   rank: CompetenceRank;

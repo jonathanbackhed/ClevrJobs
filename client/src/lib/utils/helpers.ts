@@ -1,5 +1,4 @@
-import { ApplicationStatus, ReportReason, SaveType } from "@/types/enum";
-import { CompetenceRank, Source } from "@/types/job";
+import { ApplicationStatus, ReportReason, SaveType, CompetenceRank, Source } from "@/types/enum";
 import clsx, { ClassValue } from "clsx";
 import { formatDistanceToNowStrict } from "date-fns";
 import { sv } from "date-fns/locale";

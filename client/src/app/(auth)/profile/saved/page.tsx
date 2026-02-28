@@ -6,7 +6,7 @@ import BackButton from "@/components/ui/BackButton";
 import PulsatingText from "@/components/ui/PulsatingText";
 import Toast from "@/components/ui/Toast";
 import { useSavedJobs } from "@/hooks/useSaved";
-import { SavedJobResponse } from "@/types/saved";
+import { SavedJobResponse } from "@/types";
 import { notFound, useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 

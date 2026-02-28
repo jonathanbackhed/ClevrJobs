@@ -23,3 +23,16 @@ export enum ApplicationStatus {
   Declined,
   Ghosted,
 }
+
+export enum CompetenceRank {
+  NewGrad = 0,
+  Junior,
+  MidLevel,
+  Senior,
+  Lead,
+  Unknown,
+}
+
+export enum Source {
+  Platsbanken = 0,
+}

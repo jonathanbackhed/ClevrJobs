@@ -2,7 +2,7 @@
 
 import { useReportJob } from "@/hooks/useJobs";
 import { cn, formatDateTime, getReasonName, getSourceName, isMoreThan24hAgo } from "@/lib/utils/helpers";
-import { CompetenceRank, JobListingDto, ReportJobRequest } from "@/types/job";
+import { JobListingDto, ReportJobRequest } from "@/types";
 import {
   Bot,
   Briefcase,
@@ -30,7 +30,7 @@ import CustomButton from "../ui/CustomButton";
 import Toast from "../ui/Toast";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { ReportReason } from "@/types/enum";
+import { CompetenceRank, ReportReason } from "@/types/enum";
 import Modal from "../ui/Modal";
 import { CAME_FROM_LISTING } from "@/lib/constants";
 import SaveButton from "../ui/SaveButton";
