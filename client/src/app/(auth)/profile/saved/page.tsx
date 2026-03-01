@@ -1,7 +1,7 @@
 "use client";
 
-import JobListItem from "@/components/layout/JobListItem";
-import Pagination from "@/components/layout/Pagination";
+import JobListItem from "@/components/features/home/JobListItem";
+import Pagination from "@/components/ui/Pagination";
 import PulsatingText from "@/components/ui/PulsatingText";
 import Toast from "@/components/ui/Toast";
 import { useSavedJobs } from "@/hooks/useSaved";

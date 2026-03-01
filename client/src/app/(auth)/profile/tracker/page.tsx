@@ -2,7 +2,7 @@
 
 import TrackedJobModal from "@/components/features/tracker/TrackedJobModal";
 import TrackedJob from "@/components/features/tracker/TrackedJob";
-import Pagination from "@/components/layout/Pagination";
+import Pagination from "@/components/ui/Pagination";
 import CustomButton from "@/components/ui/CustomButton";
 import PulsatingText from "@/components/ui/PulsatingText";
 import Toast from "@/components/ui/Toast";

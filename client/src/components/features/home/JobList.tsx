@@ -4,11 +4,11 @@ import { useJobs } from "@/hooks/useJobs";
 import type { JobListingMiniDto } from "@/types";
 import JobListItem from "./JobListItem";
 import { useEffect, useState } from "react";
-import Pagination from "./Pagination";
 import { useSearchParams } from "next/navigation";
-import PulsatingText from "../ui/PulsatingText";
 import { SCROLL_KEY } from "@/lib/constants";
-import Toast from "../ui/Toast";
+import PulsatingText from "@/components/ui/PulsatingText";
+import Toast from "@/components/ui/Toast";
+import Pagination from "@/components/ui/Pagination";
 
 export default function JobList() {
   const params = useSearchParams();

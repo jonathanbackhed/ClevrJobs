@@ -19,27 +19,27 @@ import {
   Pickaxe,
   CirclePlus,
 } from "lucide-react";
-import CompetenceTag from "../ui/CompetenceTag";
-import RequirementTag from "../ui/RequirementTag";
-import Badge from "../ui/Badge";
-import CardContainer from "../ui/CardContainer";
-import SectionHeading from "../ui/SectionHeading";
 import toast from "react-hot-toast";
-import CustomButton from "../ui/CustomButton";
-import Toast from "../ui/Toast";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { CompetenceRank, ReportReason } from "@/types/enum";
-import Modal from "../ui/Modal";
 import { CAME_FROM_LISTING } from "@/lib/constants";
-import SaveButton from "../ui/SaveButton";
 import { SignedIn } from "@clerk/nextjs";
 import { useCreateTrackedJobFromExisting } from "@/hooks/useTracked";
-import SelectInput from "../ui/form/SelectInput";
-import TextAreaInput from "../ui/form/TextAreaInput";
-import SubmitInput from "../ui/form/SubmitInput";
 import { cn, formatDateTime, isMoreThan24hAgo } from "@/lib/utils";
 import { getReasonLabel, getSourceLabel } from "@/lib/displayNameHelpers";
+import Modal from "@/components/ui/Modal";
+import SelectInput from "@/components/ui/form/SelectInput";
+import TextAreaInput from "@/components/ui/form/TextAreaInput";
+import SubmitInput from "@/components/ui/form/SubmitInput";
+import Toast from "@/components/ui/Toast";
+import Badge from "@/components/ui/Badge";
+import CardContainer from "@/components/ui/CardContainer";
+import CompetenceTag from "@/components/ui/CompetenceTag";
+import SaveButton from "@/components/ui/SaveButton";
+import SectionHeading from "@/components/ui/SectionHeading";
+import RequirementTag from "@/components/ui/RequirementTag";
+import CustomButton from "@/components/ui/CustomButton";
 
 interface Props {
   job: JobListingDto;

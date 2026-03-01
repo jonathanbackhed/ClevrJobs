@@ -1,4 +1,4 @@
-import JobList from "@/components/layout/JobList";
+import JobList from "@/components/features/home/JobList";
 import Logo from "@/components/ui/Logo";
 import { Search } from "lucide-react";
 

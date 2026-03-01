@@ -1,6 +1,6 @@
 "use client";
 
-import JobDetails from "@/components/layout/JobDetails";
+import JobDetails from "@/components/features/details/JobDetails";
 import Logo from "@/components/ui/Logo";
 import PulsatingText from "@/components/ui/PulsatingText";
 import { useJob } from "@/hooks/useJobs";
