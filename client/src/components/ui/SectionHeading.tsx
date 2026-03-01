@@ -1,5 +1,4 @@
-import { LucideProps } from "lucide-react";
-import React, { ForwardRefExoticComponent, RefAttributes } from "react";
+import React from "react";
 
 interface Props {
   icon: React.ReactNode;

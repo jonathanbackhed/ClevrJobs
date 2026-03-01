@@ -2,18 +2,17 @@
 
 import TrackedJobModal from "@/components/features/tracker/TrackedJobModal";
 import TrackedJob from "@/components/features/tracker/TrackedJob";
-import Pagination from "@/components/layout/Pagination";
+import Pagination from "@/components/ui/Pagination";
 import CustomButton from "@/components/ui/CustomButton";
 import PulsatingText from "@/components/ui/PulsatingText";
 import Toast from "@/components/ui/Toast";
 import { useTrackedJobs } from "@/hooks/useTracked";
 import { SCROLL_KEY } from "@/lib/constants";
-import { TrackedJobResponse } from "@/types/tracked";
+import type { TrackedJobResponse, FilterOptions } from "@/types";
 import { notFound, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { Plus, SlidersHorizontal } from "lucide-react";
 import TrackedJobFilter from "@/components/features/tracker/TrackedJobFilter";
-import { FilterOptions } from "@/types/filter";
 
 export default function Tracked() {
   const params = useSearchParams();

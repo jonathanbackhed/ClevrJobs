@@ -1,8 +1,7 @@
 "use client";
 
 import { useReportJob } from "@/hooks/useJobs";
-import { cn, formatDateTime, getReasonName, getSourceName, isMoreThan24hAgo } from "@/lib/utils/helpers";
-import { CompetenceRank, JobListingDto, ReportJobRequest } from "@/types/job";
+import type { JobListingDto } from "@/types";
 import {
   Bot,
   Briefcase,
@@ -20,25 +19,24 @@ import {
   Pickaxe,
   CirclePlus,
 } from "lucide-react";
-import CompetenceTag from "../ui/CompetenceTag";
-import RequirementTag from "../ui/RequirementTag";
-import Badge from "../ui/Badge";
-import CardContainer from "../ui/CardContainer";
-import SectionHeading from "../ui/SectionHeading";
 import toast from "react-hot-toast";
-import CustomButton from "../ui/CustomButton";
-import Toast from "../ui/Toast";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
-import { ReportReason } from "@/types/enum";
-import Modal from "../ui/Modal";
+import { useEffect, useState } from "react";
+import { CompetenceRank } from "@/types/enum";
 import { CAME_FROM_LISTING } from "@/lib/constants";
-import SaveButton from "../ui/SaveButton";
 import { SignedIn } from "@clerk/nextjs";
 import { useCreateTrackedJobFromExisting } from "@/hooks/useTracked";
-import SelectInput from "../ui/form/SelectInput";
-import TextAreaInput from "../ui/form/TextAreaInput";
-import SubmitInput from "../ui/form/SubmitInput";
+import { cn, formatDateTime, isMoreThan24hAgo } from "@/lib/utils";
+import { getSourceLabel } from "@/lib/displayNameHelpers";
+import Toast from "@/components/ui/Toast";
+import Badge from "@/components/ui/Badge";
+import CardContainer from "@/components/ui/CardContainer";
+import CompetenceTag from "@/components/ui/CompetenceTag";
+import SaveButton from "@/components/ui/SaveButton";
+import SectionHeading from "@/components/ui/SectionHeading";
+import RequirementTag from "@/components/ui/RequirementTag";
+import CustomButton from "@/components/ui/CustomButton";
+import ReportJobModal from "./ReportJobModal";
 
 interface Props {
   job: JobListingDto;
@@ -46,8 +44,6 @@ interface Props {
 
 export default function JobDetails({ job }: Props) {
   const [showModal, setShowModal] = useState(false);
-
-  const formRef = useRef<HTMLFormElement>(null);
 
   const reportMutation = useReportJob(job.id);
   const createExistingMutation = useCreateTrackedJobFromExisting();
@@ -71,28 +67,6 @@ export default function JobDetails({ job }: Props) {
     }
   };
 
-  const sendReport = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    const formData = new FormData(e.currentTarget);
-    const reasonValue = formData.get("reportReason") as string;
-    const testData: ReportJobRequest = {
-      reason: Number(reasonValue) as ReportReason,
-      description: (formData.get("reportDescription") as string)?.trim() || undefined,
-    };
-
-    reportMutation.mutate(testData, {
-      onSuccess: () => {
-        toast.success("Rapport skickad");
-        setShowModal(false);
-        formRef.current?.reset();
-      },
-      onError: () => {
-        toast.error("Rapport skickades inte");
-      },
-    });
-  };
-
   const handleBack = () => {
     if (sessionStorage.getItem(CAME_FROM_LISTING) === "true") {
       sessionStorage.removeItem(CAME_FROM_LISTING);
@@ -103,61 +77,12 @@ export default function JobDetails({ job }: Props) {
   };
 
   useEffect(() => {
-    if (!showModal) return;
-
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        setShowModal(false);
-      }
-    };
-
-    document.addEventListener("keydown", handleEscape);
-
-    return () => {
-      document.removeEventListener("keydown", handleEscape);
-    };
-  }, [showModal]);
-
-  useEffect(() => {
     window.scrollTo(0, 0);
-  }, []);
+  }, [job]);
 
   return (
     <div className="flex flex-col gap-4">
-      <Modal isOpen={showModal} close={() => setShowModal(false)}>
-        <form ref={formRef} onSubmit={sendReport} className="flex flex-col gap-4">
-          <h3 className="font-serif text-3xl">Rapportera annons</h3>
-          <div className="flex flex-col">
-            <label htmlFor="reportReason">Anledning:</label>
-            <SelectInput name="reportReason" defaultValue="" required>
-              <option value="" disabled>
-                - Välj nedan -
-              </option>
-              {Object.values(ReportReason)
-                .filter((key) => typeof key === "number")
-                .map((reason: number) => {
-                  const name = getReasonName(Number(reason));
-                  return (
-                    <option key={`reason-${reason}`} value={reason}>
-                      {name}
-                    </option>
-                  );
-                })}
-            </SelectInput>
-          </div>
-          <div className="flex flex-col">
-            <label htmlFor="reportDescription">Beskrivning:</label>
-            <TextAreaInput
-              name="reportDescription"
-              placeholder="Beskriv gärna ditt problem i detalj."
-              maxLength={300}
-              rows={4}
-              cols={60}
-            />
-          </div>
-          <SubmitInput value={reportMutation.isPending ? "Skickar..." : "Skicka"} disabled={reportMutation.isPending} />
-        </form>
-      </Modal>
+      <ReportJobModal showModal={showModal} setShowModal={setShowModal} reportMutation={reportMutation} />
       <Toast />
 
       <button
@@ -328,7 +253,7 @@ export default function JobDetails({ job }: Props) {
               customStyles="flex items-center justify-center gap-2 hover:-translate-y-px"
               target="_blank"
             >
-              <ExternalLink size={16} className="-translate-y-0.5" /> Öppna på {getSourceName(job.source)}
+              <ExternalLink size={16} className="-translate-y-0.5" /> Öppna på {getSourceLabel(job.source)}
             </CustomButton>
             <CustomButton
               type="button"

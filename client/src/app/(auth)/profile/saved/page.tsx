@@ -1,17 +1,15 @@
 "use client";
 
-import JobListItem from "@/components/layout/JobListItem";
-import Pagination from "@/components/layout/Pagination";
-import BackButton from "@/components/ui/BackButton";
+import JobListItem from "@/components/features/home/JobListItem";
+import Pagination from "@/components/ui/Pagination";
 import PulsatingText from "@/components/ui/PulsatingText";
 import Toast from "@/components/ui/Toast";
 import { useSavedJobs } from "@/hooks/useSaved";
-import { SavedJobResponse } from "@/types/saved";
-import { notFound, useRouter, useSearchParams } from "next/navigation";
+import type { SavedJobResponse } from "@/types";
+import { notFound, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 export default function Saved() {
-  const router = useRouter();
   const params = useSearchParams();
   const page = Number(params.get("page")) || 1;
 

@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils/helpers";
+import { cn } from "@/lib/utils";
 import React from "react";
 import { FieldError } from "react-hook-form";
 

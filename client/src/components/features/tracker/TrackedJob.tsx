@@ -2,12 +2,14 @@
 
 import CardContainer from "@/components/ui/CardContainer";
 import CustomButton from "@/components/ui/CustomButton";
-import { useDeleteTrackedJob, useUpdateTrackedJob } from "@/hooks/useTracked";
+import { useDeleteTrackedJob } from "@/hooks/useTracked";
 import { CAME_FROM_LISTING, SCROLL_KEY } from "@/lib/constants";
-import { formatDateTime, getApplicationStatusName } from "@/lib/utils/helpers";
+
 import { SaveType } from "@/types/enum";
-import { TrackedJobResponse } from "@/types/tracked";
+import type { TrackedJobResponse } from "@/types";
 import { Clock, MapPin, Pencil, Trash } from "lucide-react";
+import { getApplicationStatusLabel } from "@/lib/displayNameHelpers";
+import { formatDateTime } from "@/lib/utils";
 
 interface Props {
   job: TrackedJobResponse;
@@ -39,7 +41,7 @@ export default function TrackedJob({ job, index, onEdit }: Props) {
           {job.title}
         </h2>
         <span className="text-sm leading-tight font-medium text-nowrap text-stone-700 dark:text-stone-400">
-          {getApplicationStatusName(job.applicationStatus)}
+          {getApplicationStatusLabel(job.applicationStatus)}
         </span>
       </div>
       <div className="mb-4">

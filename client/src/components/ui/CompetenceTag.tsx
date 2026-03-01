@@ -1,5 +1,6 @@
-import { cn, getCompetenceRankOrDefault } from "@/lib/utils/helpers";
-import { CompetenceRank } from "@/types/job";
+import { getCompetenceRankLabel } from "@/lib/displayNameHelpers";
+import { cn } from "@/lib/utils";
+import type { CompetenceRank } from "@/types/enum";
 
 interface Props {
   rank: CompetenceRank;
@@ -7,7 +8,7 @@ interface Props {
 }
 
 export default function CompetenceTag({ rank, customText }: Props) {
-  const competenceRankText = getCompetenceRankOrDefault(rank);
+  const competenceRankText = getCompetenceRankLabel(rank);
 
   const styles = {
     0: "from-cyan-50 to-cyan-100 text-cyan-700", // Newgrad

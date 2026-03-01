@@ -1,5 +1,4 @@
-import { cn } from "@/lib/utils/helpers";
-import { InputHTMLAttributes } from "react";
+import { cn } from "@/lib/utils";
 
 interface Props extends React.InputHTMLAttributes<HTMLInputElement> {
   value: string;

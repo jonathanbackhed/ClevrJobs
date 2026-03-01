@@ -1,6 +1,6 @@
 "use client";
 
-import JobDetails from "@/components/layout/JobDetails";
+import JobDetails from "@/components/features/details/JobDetails";
 import Logo from "@/components/ui/Logo";
 import PulsatingText from "@/components/ui/PulsatingText";
 import { useJob } from "@/hooks/useJobs";
@@ -10,7 +10,7 @@ export default function Details() {
   const params = useParams<{ id: string }>();
 
   const jobId = Number(params.id);
-  if (isNaN(jobId) || jobId <= 0) {
+  if (Number.isNaN(jobId) || jobId <= 0) {
     notFound();
   }
 

@@ -1,5 +1,4 @@
-import { cn } from "@/lib/utils/helpers";
-import React from "react";
+import { cn } from "@/lib/utils";
 
 interface Props {
   text: string;

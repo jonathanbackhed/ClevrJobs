@@ -1,5 +1,5 @@
-import { UUID } from "crypto";
-import { ApplicationStatus, SaveType } from "./enum";
+import type { UUID } from "node:crypto";
+import type { ApplicationStatus, SaveType } from "./enum";
 
 export interface TrackedJobRequest {
   applicationStatus: ApplicationStatus;

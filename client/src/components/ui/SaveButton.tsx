@@ -1,7 +1,7 @@
 "use client";
 
 import { useDeleteSavedJob, useSavedIds, useSaveJob } from "@/hooks/useSaved";
-import { cn } from "@/lib/utils/helpers";
+import { cn } from "@/lib/utils";
 import { useUser } from "@clerk/nextjs";
 import { Heart } from "lucide-react";
 

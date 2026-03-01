@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@/lib/utils/helpers";
+import { cn } from "@/lib/utils";
 import { X } from "lucide-react";
 import React, { useEffect } from "react";
 import CustomButton from "./CustomButton";
@@ -13,6 +13,22 @@ interface Props {
 }
 
 export default function Modal({ children, isOpen, close, customStyles }: Props) {
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        close();
+      }
+    };
+
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [isOpen]);
+
   useEffect(() => {
     if (isOpen) {
       document.body.classList.add("overflow-hidden");
