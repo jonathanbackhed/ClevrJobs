@@ -1,4 +1,4 @@
-import { api } from "@/lib/api";
+import { trackedApi as api } from "@/lib/api";
 import { times } from "@/lib/constants";
 import { TrackedJobRequest } from "@/types";
 import { useAuth } from "@clerk/nextjs";

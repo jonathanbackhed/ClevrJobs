@@ -1,4 +1,4 @@
-import { api } from "@/lib/api";
+import { savedApi as api } from "@/lib/api";
 import { times } from "@/lib/constants";
 import { useAuth } from "@clerk/nextjs";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
