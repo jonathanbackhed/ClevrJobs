@@ -77,24 +77,8 @@ export default function JobDetails({ job }: Props) {
   };
 
   useEffect(() => {
-    if (!showModal) return;
-
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        setShowModal(false);
-      }
-    };
-
-    document.addEventListener("keydown", handleEscape);
-
-    return () => {
-      document.removeEventListener("keydown", handleEscape);
-    };
-  }, [showModal]);
-
-  useEffect(() => {
     window.scrollTo(0, 0);
-  }, []);
+  }, [job]);
 
   return (
     <div className="flex flex-col gap-4">

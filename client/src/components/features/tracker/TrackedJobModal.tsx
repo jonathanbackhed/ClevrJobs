@@ -75,24 +75,7 @@ export default function TrackedJobModal({ showModal, onClose, defaultValues }: P
 
   useEffect(() => {
     reset(defaultValues ?? emptyValues);
-  }, [defaultValues]);
-
-  useEffect(() => {
-    if (!showModal) {
-      reset(emptyValues);
-      return;
-    }
-
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        onClose();
-      }
-    };
-
-    document.addEventListener("keydown", handleEscape);
-
-    return () => document.removeEventListener("keydown", handleEscape);
-  }, [showModal]);
+  }, [defaultValues, showModal]);
 
   return (
     <Modal isOpen={showModal} close={onClose}>
