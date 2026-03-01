@@ -1,4 +1,4 @@
-import { JobListingDto, JobListingMiniDto, PagedResult, ReportJobRequest } from "@/types";
+import type { JobListingDto, JobListingMiniDto, PagedResult, ReportJobRequest } from "@/types";
 import { apiFetch } from "./fetch";
 
 export const jobsApi = {

@@ -10,7 +10,7 @@ export default function Details() {
   const params = useParams<{ id: string }>();
 
   const jobId = Number(params.id);
-  if (isNaN(jobId) || jobId <= 0) {
+  if (Number.isNaN(jobId) || jobId <= 0) {
     notFound();
   }
 

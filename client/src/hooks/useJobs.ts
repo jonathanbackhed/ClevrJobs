@@ -1,6 +1,6 @@
 import { jobsApi as api } from "@/lib/api";
 import { times } from "@/lib/constants";
-import { JobListingDto, JobListingMiniDto, PagedResult, ReportJobRequest } from "@/types";
+import type { JobListingDto, JobListingMiniDto, PagedResult, ReportJobRequest } from "@/types";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
 export function useJobs(page: number) {

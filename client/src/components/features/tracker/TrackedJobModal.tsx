@@ -9,7 +9,7 @@ import TextInput from "@/components/ui/form/TextInput";
 import Modal from "@/components/ui/Modal";
 import { useCreateTrackedJob, useUpdateTrackedJob } from "@/hooks/useTracked";
 import { ApplicationStatus } from "@/types/enum";
-import { TrackedJobRequest, TrackedJobResponse } from "@/types";
+import type { TrackedJobRequest, TrackedJobResponse } from "@/types";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toUndefinedIfEmpty } from "@/lib/utils";

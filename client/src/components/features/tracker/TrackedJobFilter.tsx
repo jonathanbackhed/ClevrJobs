@@ -2,7 +2,7 @@ import DateInput from "@/components/ui/form/DateInput";
 import SelectInput from "@/components/ui/form/SelectInput";
 import { getApplicationStatusLabel } from "@/lib/displayNameHelpers";
 import { ApplicationStatus } from "@/types/enum";
-import { FilterOptions } from "@/types";
+import type { FilterOptions } from "@/types";
 import React from "react";
 
 interface Props {

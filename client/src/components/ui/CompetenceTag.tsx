@@ -1,6 +1,6 @@
 import { getCompetenceRankLabel } from "@/lib/displayNameHelpers";
 import { cn } from "@/lib/utils";
-import { CompetenceRank } from "@/types/enum";
+import type { CompetenceRank } from "@/types/enum";
 
 interface Props {
   rank: CompetenceRank;

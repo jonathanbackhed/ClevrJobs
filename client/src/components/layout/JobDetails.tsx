@@ -1,7 +1,7 @@
 "use client";
 
 import { useReportJob } from "@/hooks/useJobs";
-import { JobListingDto, ReportJobRequest } from "@/types";
+import type { JobListingDto, ReportJobRequest } from "@/types";
 import {
   Bot,
   Briefcase,

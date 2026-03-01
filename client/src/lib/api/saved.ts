@@ -1,4 +1,4 @@
-import { PagedResult, SavedJobResponse } from "@/types";
+import type { PagedResult, SavedJobResponse } from "@/types";
 import { apiFetchAuth, fetchOptions } from "./fetch";
 
 export const savedApi = {

@@ -2,11 +2,11 @@
 
 import CardContainer from "@/components/ui/CardContainer";
 import CustomButton from "@/components/ui/CustomButton";
-import { useDeleteTrackedJob, useUpdateTrackedJob } from "@/hooks/useTracked";
+import { useDeleteTrackedJob } from "@/hooks/useTracked";
 import { CAME_FROM_LISTING, SCROLL_KEY } from "@/lib/constants";
 
 import { SaveType } from "@/types/enum";
-import { TrackedJobResponse } from "@/types";
+import type { TrackedJobResponse } from "@/types";
 import { Clock, MapPin, Pencil, Trash } from "lucide-react";
 import { getApplicationStatusLabel } from "@/lib/displayNameHelpers";
 import { formatDateTime } from "@/lib/utils";

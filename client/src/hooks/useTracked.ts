@@ -1,9 +1,9 @@
 import { trackedApi as api } from "@/lib/api";
 import { times } from "@/lib/constants";
-import { TrackedJobRequest } from "@/types";
+import type { TrackedJobRequest } from "@/types";
 import { useAuth } from "@clerk/nextjs";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { UUID } from "crypto";
+import type { UUID } from "node:crypto";
 import toast from "react-hot-toast";
 
 export function useTrackedJobs(page: number) {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useJobs } from "@/hooks/useJobs";
-import { JobListingMiniDto } from "@/types";
+import type { JobListingMiniDto } from "@/types";
 import JobListItem from "./JobListItem";
 import { useEffect, useState } from "react";
 import Pagination from "./Pagination";

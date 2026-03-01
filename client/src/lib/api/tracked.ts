@@ -1,6 +1,6 @@
-import { PagedResult, TrackedJobRequest, TrackedJobResponse } from "@/types";
+import type { PagedResult, TrackedJobRequest, TrackedJobResponse } from "@/types";
 import { apiFetchAuth, fetchOptions } from "./fetch";
-import { UUID } from "crypto";
+import type { UUID } from "node:crypto";
 
 export const trackedApi = {
   getAllTrackedJobs: async (page: number, token: string): Promise<PagedResult<TrackedJobResponse>> =>
