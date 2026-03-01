@@ -3,11 +3,11 @@ import { Clock, MapPin } from "lucide-react";
 import CompetenceTag from "../ui/CompetenceTag";
 import RequirementTag from "../ui/RequirementTag";
 import CustomButton from "../ui/CustomButton";
-import { isMoreThan24hAgo } from "@/lib/utils/helpers";
 import Badge from "../ui/Badge";
 import { CAME_FROM_LISTING, SCROLL_KEY } from "@/lib/constants";
 import SaveButton from "../ui/SaveButton";
 import { SignedIn } from "@clerk/nextjs";
+import { isMoreThan24hAgo } from "@/lib/utils";
 
 interface Props {
   job: JobListingMiniDto;

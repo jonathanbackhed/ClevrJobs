@@ -8,11 +8,12 @@ import TextAreaInput from "@/components/ui/form/TextAreaInput";
 import TextInput from "@/components/ui/form/TextInput";
 import Modal from "@/components/ui/Modal";
 import { useCreateTrackedJob, useUpdateTrackedJob } from "@/hooks/useTracked";
-import { cn, getApplicationStatusName, toUndefinedIfEmpty } from "@/lib/utils/helpers";
 import { ApplicationStatus } from "@/types/enum";
 import { TrackedJobRequest, TrackedJobResponse } from "@/types";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { toUndefinedIfEmpty } from "@/lib/utils";
+import { getApplicationStatusLabel } from "@/lib/displayNameHelpers";
 
 const emptyValues: TrackedJobRequest = {
   applicationStatus: ApplicationStatus.NotApplied,
@@ -190,7 +191,7 @@ export default function TrackedJobModal({ showModal, onClose, defaultValues }: P
               {Object.values(ApplicationStatus)
                 .filter((key) => typeof key === "number")
                 .map((status: number) => {
-                  const name = getApplicationStatusName(Number(status));
+                  const name = getApplicationStatusLabel(Number(status));
                   return (
                     <option key={status} value={status}>
                       {name}

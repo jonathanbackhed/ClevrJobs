@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils/helpers";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { tv } from "tailwind-variants";
 

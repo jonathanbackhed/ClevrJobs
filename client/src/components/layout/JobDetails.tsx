@@ -1,7 +1,6 @@
 "use client";
 
 import { useReportJob } from "@/hooks/useJobs";
-import { cn, formatDateTime, getReasonName, getSourceName, isMoreThan24hAgo } from "@/lib/utils/helpers";
 import { JobListingDto, ReportJobRequest } from "@/types";
 import {
   Bot,
@@ -39,6 +38,8 @@ import { useCreateTrackedJobFromExisting } from "@/hooks/useTracked";
 import SelectInput from "../ui/form/SelectInput";
 import TextAreaInput from "../ui/form/TextAreaInput";
 import SubmitInput from "../ui/form/SubmitInput";
+import { cn, formatDateTime, isMoreThan24hAgo } from "@/lib/utils";
+import { getReasonLabel, getSourceLabel } from "@/lib/displayNameHelpers";
 
 interface Props {
   job: JobListingDto;
@@ -136,7 +137,7 @@ export default function JobDetails({ job }: Props) {
               {Object.values(ReportReason)
                 .filter((key) => typeof key === "number")
                 .map((reason: number) => {
-                  const name = getReasonName(Number(reason));
+                  const name = getReasonLabel(Number(reason));
                   return (
                     <option key={`reason-${reason}`} value={reason}>
                       {name}
@@ -328,7 +329,7 @@ export default function JobDetails({ job }: Props) {
               customStyles="flex items-center justify-center gap-2 hover:-translate-y-px"
               target="_blank"
             >
-              <ExternalLink size={16} className="-translate-y-0.5" /> Öppna på {getSourceName(job.source)}
+              <ExternalLink size={16} className="-translate-y-0.5" /> Öppna på {getSourceLabel(job.source)}
             </CustomButton>
             <CustomButton
               type="button"

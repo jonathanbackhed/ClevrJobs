@@ -1,6 +1,6 @@
+import { cn } from "@/lib/utils";
 import React from "react";
 import { FieldError } from "react-hook-form";
-import { cn } from "tailwind-variants";
 
 interface Props extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   customStyles?: string;

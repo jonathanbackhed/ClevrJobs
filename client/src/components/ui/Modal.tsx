@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@/lib/utils/helpers";
+import { cn } from "@/lib/utils";
 import { X } from "lucide-react";
 import React, { useEffect } from "react";
 import CustomButton from "./CustomButton";

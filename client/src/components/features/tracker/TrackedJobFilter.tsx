@@ -1,6 +1,6 @@
 import DateInput from "@/components/ui/form/DateInput";
 import SelectInput from "@/components/ui/form/SelectInput";
-import { getApplicationStatusName } from "@/lib/utils/helpers";
+import { getApplicationStatusLabel } from "@/lib/displayNameHelpers";
 import { ApplicationStatus } from "@/types/enum";
 import { FilterOptions } from "@/types";
 import React from "react";
@@ -49,7 +49,7 @@ export default function TrackedJobFilter({ filterOptions, onFilterChange }: Prop
             {Object.values(ApplicationStatus)
               .filter((key) => typeof key === "number")
               .map((status: number) => {
-                const name = getApplicationStatusName(Number(status));
+                const name = getApplicationStatusLabel(Number(status));
                 return (
                   <option key={status} value={status}>
                     {name}
