@@ -1,6 +1,8 @@
 ﻿using Data.Enums;
 using Data.Models;
 using Data.Repositories;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Playwright;
 using Queue.Messages;
 using Queue.Services;
@@ -111,15 +113,22 @@ namespace Workers.Services
 
                             if (result.RawJob != null)
                             {
-                                await jobRepository.AddRawJob(result.RawJob);
-                                await messageQueue.PublishAsync(new JobScrapedEvent()
+                                var jobAdded = await jobRepository.AddRawJob(result.RawJob);
+                                if (!jobAdded)
                                 {
-                                    RawJobId = result.RawJob.Id
-                                });
+                                    _logger.LogWarning("Unique constraint violated for listing {Id}", currentListingId);
+                                }
+                                else
+                                {
+                                    await messageQueue.PublishAsync(new JobScrapedEvent()
+                                    {
+                                        RawJobId = result.RawJob.Id
+                                    });
 
-                                scrapeRun.ScrapedJobs++;
+                                    scrapeRun.ScrapedJobs++;
 
-                                _logger.LogInformation("Successfully scraped listing {Id}", currentListingId);
+                                    _logger.LogInformation("Successfully scraped listing {Id}", currentListingId);
+                                }
                             }
                             else
                             {
