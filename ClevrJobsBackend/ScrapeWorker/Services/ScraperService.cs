@@ -19,14 +19,14 @@ namespace Workers.Services
         private readonly ILogger<ScraperService> _logger;
 
         private string _platsbankenBaseUrl = "https://arbetsformedlingen.se";
-        private string _platsbankenRequestUrl = "https://arbetsformedlingen.se/platsbanken/annonser?q=c%23";
+        private string _platsbankenRequestUrl = "https://arbetsformedlingen.se/platsbanken/annonser?q=";
 
         public ScraperService(ILogger<ScraperService> logger)
         {
             _logger = logger;
         }
 
-        public async Task ScrapePlatsbankenAsync(IJobRepository jobRepository, IMessageQueue messageQueue, CancellationToken cancellationToken)
+        public async Task ScrapePlatsbankenAsync(IJobRepository jobRepository, IMessageQueue messageQueue, string query, CancellationToken cancellationToken)
         {
             var scrapeRun = await CreateScrapeRunAsync(jobRepository);
             if (scrapeRun is null)
@@ -35,17 +35,17 @@ namespace Workers.Services
                 return;
             }
 
-            var lastJob = await jobRepository.GetLastPublishedRawJob();
+            var lastJob = await jobRepository.GetLastAddedRawJobWithQuery(query);
             var tryParseListingId = int.TryParse(lastJob?.ListingId, out var lastJobListingId);
             if (!tryParseListingId)
             {
                 lastJobListingId = -1;
             }
 
-            _logger.LogInformation("Beginning new scrape.");
+            _logger.LogInformation("Beginning new scrape for seach {query}.", query);
 
             using var playwright = await Playwright.CreateAsync();
-            await using var browser = await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions { Headless = true });
+            await using var browser = await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions { Headless = false });
 
             IPage? page = null;
             IPage? subPage = null;
@@ -53,8 +53,8 @@ namespace Workers.Services
             try
             {
                 page = await browser.NewPageAsync();
-
-                await page.GotoAsync(_platsbankenRequestUrl, new PageGotoOptions
+                var searchUrl = _platsbankenRequestUrl + Uri.EscapeDataString(query.ToLower());
+                await page.GotoAsync(searchUrl, new PageGotoOptions
                 {
                     WaitUntil = WaitUntilState.NetworkIdle,
                     Timeout = 30000
@@ -113,6 +113,7 @@ namespace Workers.Services
 
                             if (result.RawJob != null)
                             {
+                                result.RawJob.SearchQuery = query;
                                 var jobAdded = await jobRepository.AddRawJob(result.RawJob);
                                 if (!jobAdded)
                                 {
@@ -140,6 +141,7 @@ namespace Workers.Services
                                     ErrorMessage = result.ErrorMessage ?? "Unknown error",
                                     ErrorType = result.ErrorType ?? "Unknown",
                                     Status = result.IsRetryable ? FailedStatus.ReadyForRetry : FailedStatus.Failed,
+                                    SearchQuery = query
                                 };
                                 await jobRepository.AddFailedScrape(failedScrape);
 
@@ -220,17 +222,28 @@ namespace Workers.Services
 
                     if (result.RawJob != null)
                     {
-                        await jobRepository.AddRawJob(result.RawJob);
-
-                        item.Status = FailedStatus.Resolved;
-                        item.RetriedAt = DateTime.UtcNow;
-                        await jobRepository.UpdateFailedScrape(item);
-                        await messageQueue.PublishAsync(new JobScrapedEvent
+                        result.RawJob.SearchQuery = item.SearchQuery;
+                        var jobAdded = await jobRepository.AddRawJob(result.RawJob);
+                        if (!jobAdded)
                         {
-                            RawJobId = result.RawJob.Id
-                        });
+                            item.Status = FailedStatus.Ignored;
+                            item.RetriedAt = DateTime.UtcNow;
 
-                        _logger.LogInformation("Successfully scraped and resolved {Id}", item.ListingUrl);
+                            _logger.LogWarning("Unique constraint violated for listing {Id}", item.ListingId);
+                        }
+                        else
+                        {
+                            item.Status = FailedStatus.Resolved;
+                            item.RetriedAt = DateTime.UtcNow;
+                            await messageQueue.PublishAsync(new JobScrapedEvent
+                            {
+                                RawJobId = result.RawJob.Id
+                            });
+
+                            _logger.LogInformation("Successfully scraped listing {Id}", item.ListingId);
+                        }
+
+                        await jobRepository.UpdateFailedScrape(item);
                     }
                     else
                     {
@@ -334,7 +347,8 @@ namespace Workers.Services
                     ListingUrl = listingUrl,
                     Source = Source.Platsbanken,
                     ProcessedStatus = false,
-                    ScrapeRun = scrapeRun
+                    ScrapeRun = scrapeRun,
+                    SearchQuery = ""
                 };
 
                 return ScrapeResultResponse.Success(rawJob);

@@ -47,7 +47,17 @@ namespace Data.Repositories
             }
             catch (DbUpdateException e) when (e.InnerException is SqlException sql && sql.Number == 2627) // Unique constraint violation
             {
-                _dbc.ChangeTracker.Clear();
+                _dbc.Entry(rawJob).State = EntityState.Detached;
+                return false;
+            }
+            catch (DbUpdateException e)
+            {
+                if (e.InnerException is SqlException sql)
+                    Console.WriteLine($"SQL Error Number: {sql.Number}");
+                else
+                    Console.WriteLine($"Inner exception type: {e.InnerException?.GetType().FullName}");
+
+                _dbc.Entry(rawJob).State = EntityState.Detached;
                 return false;
             }
         }
@@ -69,9 +79,10 @@ namespace Data.Repositories
             return failed;
         }
 
-        public async Task<RawJob?> GetLastPublishedRawJob()
+        public async Task<RawJob?> GetLastAddedRawJobWithQuery(string query)
         {
             var job = await _dbc.RawJobs
+                .Where(w => w.SearchQuery == query)
                 .OrderByDescending(o => o.ScrapeRunId)
                 .ThenBy(o => o.Id)
                 .FirstOrDefaultAsync();
