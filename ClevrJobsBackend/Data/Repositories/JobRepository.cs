@@ -1,5 +1,6 @@
 ﻿using Data.Enums;
 using Data.Models;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -39,9 +40,16 @@ namespace Data.Repositories
 
         public async Task<bool> AddRawJob(RawJob rawJob)
         {
-            await _dbc.RawJobs.AddAsync(rawJob);
-
-            return await _dbc.SaveChangesAsync() > 0;
+            try
+            {
+                await _dbc.RawJobs.AddAsync(rawJob);
+                return await _dbc.SaveChangesAsync() > 0;
+            }
+            catch (DbUpdateException e) when (e.InnerException is SqlException sql && sql.Number == 2601) // Unique constraint violation
+            {
+                _dbc.Entry(rawJob).State = EntityState.Detached;
+                return false;
+            }
         }
 
         public async Task<bool> AddScrapeRun(ScrapeRun scrapeRun)
@@ -61,9 +69,10 @@ namespace Data.Repositories
             return failed;
         }
 
-        public async Task<RawJob?> GetLastPublishedRawJob()
+        public async Task<RawJob?> GetLastAddedRawJobWithQuery(string query)
         {
             var job = await _dbc.RawJobs
+                .Where(w => w.SearchQuery == query)
                 .OrderByDescending(o => o.ScrapeRunId)
                 .ThenBy(o => o.Id)
                 .FirstOrDefaultAsync();

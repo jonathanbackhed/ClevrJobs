@@ -34,5 +34,9 @@ namespace Data.Models
         public DateTime? RetriedAt { get; set; }
 
         public int RetryCount { get; set; } = 0;
+
+        [Required]
+        [MaxLength(100)]
+        public required string SearchQuery { get; set; }
     }
 }

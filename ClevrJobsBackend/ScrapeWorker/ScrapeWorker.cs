@@ -3,6 +3,7 @@ using Microsoft.Playwright;
 using Queue.Messages;
 using Queue.Services;
 using Workers.Services;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Workers
 {
@@ -42,11 +43,23 @@ namespace Workers
                         await Task.Delay(delayUntilTarget, stoppingToken);
                     }
 
-                    _logger.LogInformation($"Scrape started at {DateTime.UtcNow}");
+                    var searchQueries = new[]
+                    {
+                        "C#",
+                        "React",
+                        "Fullstack",
+                        "Backend",
+                        "React Native",
+                    };
 
-                    await _scraperService.ScrapePlatsbankenAsync(jobRepository, _messageQueue, stoppingToken);
+                    foreach (var query in searchQueries)
+                    {
+                        _logger.LogInformation($"Scrape started at {DateTime.UtcNow}");
 
-                    _logger.LogInformation($"Scrape ended at {DateTime.UtcNow}");
+                        await _scraperService.ScrapePlatsbankenAsync(jobRepository, _messageQueue, query, stoppingToken);
+
+                        _logger.LogInformation($"Scrape ended at {DateTime.UtcNow}");
+                    }
 
                 }
                 catch (Exception e)
