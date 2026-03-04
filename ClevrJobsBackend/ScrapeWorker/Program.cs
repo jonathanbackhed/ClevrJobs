@@ -19,9 +19,9 @@ var builder = Host.CreateApplicationBuilder(args);
 builder.Services.AddSerilog();
 
 builder.Services.AddHostedService<ScrapeWorker>();
-//builder.Services.AddHostedService<ScrapeRetryWorker>();
+builder.Services.AddHostedService<ScrapeRetryWorker>();
 builder.Services.AddHostedService<ProcessingWorker>();
-//builder.Services.AddHostedService<ProcessRetryWorker>();
+builder.Services.AddHostedService<ProcessRetryWorker>();
 
 builder.Services.AddSingleton<IScraperService, ScraperService>();
 builder.Services.AddSingleton<IProcessService, ProcessService>();
