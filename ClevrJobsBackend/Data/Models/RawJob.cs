@@ -1,8 +1,5 @@
 ﻿using Data.Enums;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Text;
 
 namespace Data.Models
 {
@@ -65,6 +62,10 @@ namespace Data.Models
 
         public int ScrapeRunId { get; set; }
         public required ScrapeRun ScrapeRun { get; set; }
+
+        [Required]
+        [MaxLength(100)]
+        public required string SearchQuery { get; set; }
 
         public ProcessedJob? ProcessedJob { get; set; }
     }

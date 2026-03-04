@@ -8,7 +8,7 @@ namespace Data.Repositories
     public interface IJobRepository
     {
         Task<ScrapeRun?> GetLastScrapeRun();
-        Task<RawJob?> GetLastPublishedRawJob();
+        Task<RawJob?> GetLastAddedRawJobWithQuery(string query);
         Task<bool> AddRawJob(RawJob rawJob);
         Task<bool> AddMultipleRawJobs(IEnumerable<RawJob> rawJobs);
         Task<bool> AddMultipleFailedScrapes(IEnumerable<FailedScrape> failedScrapes);

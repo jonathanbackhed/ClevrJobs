@@ -8,7 +8,7 @@ namespace Workers.Services
 {
     public interface IScraperService
     {
-        Task ScrapePlatsbankenAsync(IJobRepository jobRepository, IMessageQueue messageQueue, CancellationToken cancellationToken);
+        Task ScrapePlatsbankenAsync(IJobRepository jobRepository, IMessageQueue messageQueue, string query, CancellationToken cancellationToken);
         Task RetryFailedScrapesPlatsbankenAsync(IJobRepository jobRepository, IMessageQueue messageQueue, CancellationToken cancellationToken);
     }
 }

@@ -26,5 +26,14 @@ namespace Data
             optionsBuilder.UseSqlServer(
                 b => b.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName));
         }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<RawJob>()
+                .HasIndex(i => i.ListingId)
+                .IsUnique();
+        }
     }
 }
