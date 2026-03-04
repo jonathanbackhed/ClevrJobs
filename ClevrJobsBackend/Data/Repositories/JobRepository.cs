@@ -45,18 +45,8 @@ namespace Data.Repositories
                 await _dbc.RawJobs.AddAsync(rawJob);
                 return await _dbc.SaveChangesAsync() > 0;
             }
-            catch (DbUpdateException e) when (e.InnerException is SqlException sql && sql.Number == 2627) // Unique constraint violation
+            catch (DbUpdateException e) when (e.InnerException is SqlException sql && sql.Number == 2601) // Unique constraint violation
             {
-                _dbc.Entry(rawJob).State = EntityState.Detached;
-                return false;
-            }
-            catch (DbUpdateException e)
-            {
-                if (e.InnerException is SqlException sql)
-                    Console.WriteLine($"SQL Error Number: {sql.Number}");
-                else
-                    Console.WriteLine($"Inner exception type: {e.InnerException?.GetType().FullName}");
-
                 _dbc.Entry(rawJob).State = EntityState.Detached;
                 return false;
             }
