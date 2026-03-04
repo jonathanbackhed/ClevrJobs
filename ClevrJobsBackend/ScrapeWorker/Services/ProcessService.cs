@@ -186,6 +186,16 @@ namespace Workers.Services
 
                 return ProcessResultResponse.Success(processedJob);
             }
+            catch (ServerError e) when (e.Message.Contains("model is currently experiencing high demand"))
+            {
+                _logger.LogError("The model is currently experiencing high demand");
+                return ProcessResultResponse.Failure(e, isRetryable: true);
+            }
+            catch (ClientError e) when (e.Message.Contains("exceeded your current quota"))
+            {
+                _logger.LogError("Current quota exceeded, try again later");
+                return ProcessResultResponse.Failure(e, isRetryable: true);
+            }
             catch (JsonException e)
             {
                 _logger.LogError(e, "Failed to deserialize AI response for {rawJobId}\nAiResponse: {aiResponse}", rawJob.Id, aiRes);
