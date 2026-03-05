@@ -1,18 +1,18 @@
 "use client";
 
-import TrackedJobModal from "@/components/features/tracker/TrackedJobModal";
 import TrackedJob from "@/components/features/tracker/TrackedJob";
-import Pagination from "@/components/ui/Pagination";
+import TrackedJobFilter from "@/components/features/tracker/TrackedJobFilter";
+import TrackedJobModal from "@/components/features/tracker/TrackedJobModal";
 import CustomButton from "@/components/ui/CustomButton";
+import Pagination from "@/components/ui/Pagination";
 import PulsatingText from "@/components/ui/PulsatingText";
 import Toast from "@/components/ui/Toast";
 import { useTrackedJobs } from "@/hooks/useTracked";
 import { SCROLL_KEY } from "@/lib/constants";
-import type { TrackedJobResponse, FilterOptions } from "@/types";
+import type { FilterOptions, TrackedJobResponse } from "@/types";
+import { Plus, SlidersHorizontal } from "lucide-react";
 import { notFound, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { Plus, SlidersHorizontal } from "lucide-react";
-import TrackedJobFilter from "@/components/features/tracker/TrackedJobFilter";
 
 export default function Tracked() {
   const params = useSearchParams();
@@ -26,6 +26,8 @@ export default function Tracked() {
     from: "",
     to: "",
     applicationStatus: undefined,
+    haveCalled: false,
+    spontaneousApplication: false,
   });
 
   const { data, isLoading, error } = useTrackedJobs(page);
@@ -63,7 +65,14 @@ export default function Tracked() {
           ? job.applicationStatus === Number(filterOptions.applicationStatus)
           : true;
 
-      return matchesFrom && matchesTo && matchesStatus;
+      const matchesHaveCalled = filterOptions.haveCalled === true ? job.haveCalled === filterOptions.haveCalled : true;
+
+      const matchesSpontaneousApplication =
+        filterOptions.spontaneousApplication === true
+          ? job.spontaneousApplication === filterOptions.spontaneousApplication
+          : true;
+
+      return matchesFrom && matchesTo && matchesStatus && matchesHaveCalled && matchesSpontaneousApplication;
     });
   }, [data, filterOptions]);
 
@@ -115,7 +124,7 @@ export default function Tracked() {
               <span className="text-center text-xl font-bold">Inga följda jobb hittades</span>
             )}
           </div>
-          <div className="bg-cream-light border-accent/15 sticky top-6 hidden w-52 shrink-0 self-start rounded-2xl p-4 shadow-stone-800 md:block">
+          <div className="bg-cream-light border-accent/15 sticky top-16 z-50 hidden w-52 shrink-0 self-start rounded-2xl p-4 shadow-stone-800 md:block">
             <TrackedJobFilter filterOptions={filterOptions} onFilterChange={setFilterOptions} />
           </div>
         </div>
