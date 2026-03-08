@@ -9,6 +9,7 @@ using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using Serilog.Events;
 using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.Diagnostics;
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
@@ -149,6 +150,19 @@ try
     {
         app.UseHttpsRedirection();
     }
+    
+    app.UseExceptionHandler(exceptionHandlerApp =>
+    {
+        exceptionHandlerApp.Run(async context =>
+        {
+            var exception = context.Features.Get<IExceptionHandlerFeature>()?.Error;
+
+            Log.Error(exception, "Request failed");
+
+            context.Response.StatusCode = 500;
+            await context.Response.WriteAsJsonAsync(new { error = "Server error" });
+        });
+    });
 
     app.UseCors("CorsPolicy");
 
