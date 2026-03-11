@@ -182,11 +182,7 @@ namespace Workers.Services
                 _logger.LogError(e, "Unexpected error during scraping for scrapeRun {ScrapeId}", scrapeRun.Id);
             }
 
-            var endScrapeResult = await EndScrapeRunAsync(jobRepository, scrapeRun);
-            if (!endScrapeResult)
-            {
-                _logger.LogError("Failed to end ScrapeRun. Scrape id: {scrapeRunId}", scrapeRun.Id);
-            }
+            await EndScrapeRunAsync(jobRepository, scrapeRun);
         }
 
         public async Task RetryFailedScrapesPlatsbankenAsync(IJobRepository jobRepository, IMessageQueue messageQueue, CancellationToken cancellationToken)
@@ -413,28 +409,16 @@ namespace Workers.Services
                 StartedAt = DateTime.UtcNow,
                 Status = Status.InProgress
             };
-
-            var success = await jobRepository.AddScrapeRun(scrapeRun);
-            if (!success)
-            {
-                return null;
-            }
-
+            await jobRepository.AddScrapeRun(scrapeRun);
+            
             return scrapeRun;
         }
 
-        private async Task<bool> EndScrapeRunAsync(IJobRepository jobRepository, ScrapeRun scrapeRun)
+        private async Task EndScrapeRunAsync(IJobRepository jobRepository, ScrapeRun scrapeRun)
         {
             scrapeRun.Status = Status.Completed;
             scrapeRun.FinishedAt = DateTime.UtcNow;
-
-            var success = await jobRepository.UpdateScrapeRun(scrapeRun);
-            if (!success)
-            {
-                return false;
-            }
-
-            return true;
+            await jobRepository.UpdateScrapeRun(scrapeRun);
         }
     }
 }

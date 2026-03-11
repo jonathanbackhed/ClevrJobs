@@ -70,11 +70,7 @@ namespace Workers.Services
                 await Task.Delay(TimeSpan.FromSeconds(13));
             }
 
-            var endProcessRunResult = await EndProcessRunAsync(processRepository, processRun);
-            if (!endProcessRunResult)
-            {
-                _logger.LogError("Error ending ProcessRun");
-            }
+            await EndProcessRunAsync(processRepository, processRun);
         }
 
         public async Task RetryFailedProcesses(IProcessRepository processRepository, IJobRepository jobRepository, CancellationToken cancellationToken)
@@ -221,27 +217,15 @@ namespace Workers.Services
                 Model = model,
                 Prompt = prompt
             };
-
-            var success = await processRepository.AddProcessRun(processRun);
-            if (!success)
-            {
-                return null;
-            }
+            await processRepository.AddProcessRun(processRun);
 
             return processRun;
         }
 
-        private async Task<bool> EndProcessRunAsync(IProcessRepository processRepository, ProcessRun processRun)
+        private async Task EndProcessRunAsync(IProcessRepository processRepository, ProcessRun processRun)
         {
             processRun.FinishedAt = DateTime.UtcNow;
-
-            var success = await processRepository.UpdateProcessRun(processRun);
-            if (!success)
-            {
-                return false;
-            }
-
-            return true;
+            await processRepository.UpdateProcessRun(processRun);
         }
     }
 }

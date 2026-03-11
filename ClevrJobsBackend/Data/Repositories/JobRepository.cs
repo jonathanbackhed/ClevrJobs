@@ -17,25 +17,25 @@ namespace Data.Repositories
             _dbc = dbc;
         }
 
-        public async Task<bool> AddFailedScrape(FailedScrape failedScrape)
+        public async Task AddFailedScrape(FailedScrape failedScrape)
         {
             await _dbc.FailedScrapes.AddAsync(failedScrape);
 
-            return await _dbc.SaveChangesAsync() > 0;
+            await _dbc.SaveChangesAsync();
         }
 
-        public async Task<bool> AddMultipleFailedScrapes(IEnumerable<FailedScrape> failedScrapes)
+        public async Task AddMultipleFailedScrapes(IEnumerable<FailedScrape> failedScrapes)
         {
             await _dbc.FailedScrapes.AddRangeAsync(failedScrapes);
 
-            return await _dbc.SaveChangesAsync() > 0;
+            await _dbc.SaveChangesAsync();
         }
 
-        public async Task<bool> AddMultipleRawJobs(IEnumerable<RawJob> rawJobs)
+        public async Task AddMultipleRawJobs(IEnumerable<RawJob> rawJobs)
         {
             await _dbc.RawJobs.AddRangeAsync(rawJobs);
 
-            return await _dbc.SaveChangesAsync() > 0;
+            await _dbc.SaveChangesAsync();
         }
 
         public async Task<bool> AddRawJob(RawJob rawJob)
@@ -52,11 +52,11 @@ namespace Data.Repositories
             }
         }
 
-        public async Task<bool> AddScrapeRun(ScrapeRun scrapeRun)
+        public async Task AddScrapeRun(ScrapeRun scrapeRun)
         {
             await _dbc.ScrapeRuns.AddAsync(scrapeRun);
 
-            return await _dbc.SaveChangesAsync() > 0;
+            await _dbc.SaveChangesAsync();
         }
 
         public async Task<List<FailedScrape>> GetFailedScrapesForRetryAsync()
@@ -102,18 +102,16 @@ namespace Data.Repositories
             return jobs;
         }
 
-        public async Task<bool> MarkRawJobAsProcessed(RawJob rawJob)
+        public async Task MarkRawJobAsProcessed(RawJob rawJob)
         {
-            var result = await _dbc.RawJobs
+            await _dbc.RawJobs
                 .Where(j => j.Id == rawJob.Id)
                 .ExecuteUpdateAsync(s => s.SetProperty(p => p.ProcessedStatus, true));
-
-            return result > 0;
         }
 
-        public async Task<bool> UpdateFailedScrape(FailedScrape failedScrape)
+        public async Task UpdateFailedScrape(FailedScrape failedScrape)
         {
-            var rowsAffected = await _dbc.FailedScrapes
+            await _dbc.FailedScrapes
                 .Where(x => x.Id == failedScrape.Id)
                 .ExecuteUpdateAsync(s => s
                     .SetProperty(p => p.RetryCount, p => p.RetryCount + 1)
@@ -122,22 +120,20 @@ namespace Data.Repositories
                     .SetProperty(p => p.ErrorType, failedScrape.ErrorType)
                     .SetProperty(p => p.ErrorMessage, failedScrape.ErrorMessage)
                 );
-
-            return rowsAffected > 0;
         }
 
-        public async Task<bool> UpdateRawJobs(ICollection<RawJob> rawJobs)
+        public async Task UpdateRawJobs(ICollection<RawJob> rawJobs)
         {
             _dbc.RawJobs.UpdateRange(rawJobs);
 
-            return await _dbc.SaveChangesAsync() > 0;
+            await _dbc.SaveChangesAsync();
         }
 
-        public async Task<bool> UpdateScrapeRun(ScrapeRun scrapeRun)
+        public async Task UpdateScrapeRun(ScrapeRun scrapeRun)
         {
             _dbc.ScrapeRuns.Update(scrapeRun);
 
-            return await _dbc.SaveChangesAsync() > 0;
+            await _dbc.SaveChangesAsync();
         }
     }
 }

@@ -16,25 +16,25 @@ namespace Data.Repositories
             _dbc = dbc;
         }
 
-        public async Task<bool> AddMultipleFailedProcesses(IEnumerable<FailedProcess> failedProcesses)
+        public async Task AddMultipleFailedProcesses(IEnumerable<FailedProcess> failedProcesses)
         {
             await _dbc.FailedProcesses.AddRangeAsync(failedProcesses);
 
-            return await _dbc.SaveChangesAsync() > 0;
+            await _dbc.SaveChangesAsync();
         }
 
-        public async Task<bool> AddMultipleProcessedJobs(IEnumerable<ProcessedJob> processedJobs)
+        public async Task AddMultipleProcessedJobs(IEnumerable<ProcessedJob> processedJobs)
         {
             await _dbc.ProcessedJobs.AddRangeAsync(processedJobs);
 
-            return await _dbc.SaveChangesAsync() > 0;
+            await _dbc.SaveChangesAsync();
         }
 
-        public async Task<bool> AddProcessRun(ProcessRun processRun)
+        public async Task AddProcessRun(ProcessRun processRun)
         {
             await _dbc.ProcessRuns.AddAsync(processRun);
 
-            return await _dbc.SaveChangesAsync() > 0;
+            await _dbc.SaveChangesAsync();
         }
 
         public async Task<ProcessedJob?> GetFullProcessedJobByIdAsync(int id)
@@ -84,11 +84,11 @@ namespace Data.Repositories
             return prompt;
         }
 
-        public async Task<bool> UpdateProcessRun(ProcessRun processRun)
+        public async Task UpdateProcessRun(ProcessRun processRun)
         {
             _dbc.ProcessRuns.Update(processRun);
 
-            return await _dbc.SaveChangesAsync() > 0;
+            await _dbc.SaveChangesAsync();
         }
 
         public async Task AddJobReport(JobReport jobReport)
@@ -126,9 +126,9 @@ namespace Data.Repositories
             return failed;
         }
 
-        public async Task<bool> UpdateFailedProcess(FailedProcess failedProcess)
+        public async Task UpdateFailedProcess(FailedProcess failedProcess)
         {
-            var rowsAffected = await _dbc.FailedProcesses
+            await _dbc.FailedProcesses
                 .Where(x => x.Id == failedProcess.Id)
                 .ExecuteUpdateAsync(s => s
                     .SetProperty(p => p.RetryCount, p => p.RetryCount + 1)
@@ -137,8 +137,6 @@ namespace Data.Repositories
                     .SetProperty(p => p.ErrorType, failedProcess.ErrorType)
                     .SetProperty(p => p.ErrorMessage, failedProcess.ErrorMessage)
                 );
-
-            return rowsAffected > 0;
         }
 
         public async Task<JobReport?> GetJobReportByJobAndIpOrUserId(int jobId, string? identifier)

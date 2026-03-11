@@ -9,11 +9,11 @@ namespace Data.Repositories
     {
         Task<Prompt?> GetLatestActivePromptAsync();
         Task<Prompt?> GetPromptByIdAsync(int id);
-        Task<bool> AddProcessRun(ProcessRun processRun);
-        Task<bool> UpdateProcessRun(ProcessRun processRun);
-        Task<bool> AddMultipleProcessedJobs(IEnumerable<ProcessedJob> processedJobs);
+        Task AddProcessRun(ProcessRun processRun);
+        Task UpdateProcessRun(ProcessRun processRun);
+        Task AddMultipleProcessedJobs(IEnumerable<ProcessedJob> processedJobs);
         Task AddProcessedJob(ProcessedJob processedJobs);
-        Task<bool> AddMultipleFailedProcesses(IEnumerable<FailedProcess> failedProcesses);
+        Task AddMultipleFailedProcesses(IEnumerable<FailedProcess> failedProcesses);
         Task AddFailedProcess(FailedProcess failedProcess);
         Task<(List<ProcessedJob> items, int totalCount)> GetFullProcessedJobsByLatestAsync(int page, int pageSize);
         Task<ProcessedJob?> GetFullProcessedJobByIdAsync(int id);
@@ -21,6 +21,6 @@ namespace Data.Repositories
         Task AddJobReport(JobReport jobReport);
         Task<JobReport?> GetJobReportByJobAndIpOrUserId(int jobId, string? identifier);
         Task<List<FailedProcess>> GetFailedProcessesForRetryAsync();
-        Task<bool> UpdateFailedProcess(FailedProcess failedProcess);
+        Task UpdateFailedProcess(FailedProcess failedProcess);
     }
 }
