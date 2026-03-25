@@ -4,4 +4,6 @@ export interface FilterOptions {
   from?: string;
   to?: string;
   applicationStatus?: ApplicationStatus | "";
+  haveCalled: boolean;
+  spontaneousApplication: boolean;
 }

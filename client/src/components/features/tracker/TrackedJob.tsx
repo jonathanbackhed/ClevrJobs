@@ -10,6 +10,8 @@ import type { TrackedJobResponse } from "@/types";
 import { Clock, MapPin, Pencil, Trash } from "lucide-react";
 import { getApplicationStatusLabel } from "@/lib/displayNameHelpers";
 import { formatDateTime } from "@/lib/utils";
+import Badge from "@/components/ui/Badge";
+import CompetenceTag from "@/components/ui/CompetenceTag";
 
 interface Props {
   job: TrackedJobResponse;
@@ -36,15 +38,19 @@ export default function TrackedJob({ job, index, onEdit }: Props) {
       customStyles="animate-fade-in-up transition-all duration-250 ease-out overflow-hidden sm:p-6 p-4"
       style={{ animationDelay: `${index * 50 + 100}ms` }}
     >
-      <div className="mb-1 flex items-center justify-between">
-        <h2 className="font-serif text-2xl leading-tight font-bold tracking-tight text-stone-800 dark:text-stone-300">
-          {job.title}
-        </h2>
+      <div className="mb-2 flex items-center justify-between">
+        <div className="flex gap-2">
+          {job.spontaneousApplication && <CompetenceTag rank={0} customText="SPONTANANSÖKAN" />}
+          {job.haveCalled && <CompetenceTag rank={2} customText="HAR RINGT" />}
+        </div>
         <span className="text-sm leading-tight font-medium text-nowrap text-stone-700 dark:text-stone-400">
           {getApplicationStatusLabel(job.applicationStatus)}
         </span>
       </div>
       <div className="mb-4">
+        <h2 className="font-serif text-2xl leading-tight font-bold tracking-tight text-stone-800 dark:text-stone-300">
+          {job.title}
+        </h2>
         <p className="mb-1 flex items-center gap-1 text-sm text-stone-500">
           <MapPin size={14} opacity={0.6} />
           {job.companyName} – {job.location}

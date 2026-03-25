@@ -4,6 +4,7 @@ import { getApplicationStatusLabel } from "@/lib/displayNameHelpers";
 import { ApplicationStatus } from "@/types/enum";
 import type { FilterOptions } from "@/types";
 import React from "react";
+import CheckboxInput from "@/components/ui/form/CheckboxInput";
 
 interface Props {
   filterOptions: FilterOptions;
@@ -58,8 +59,32 @@ export default function TrackedJobFilter({ filterOptions, onFilterChange }: Prop
               })}
           </SelectInput>
         </div>
+        <div className="flex items-center justify-between">
+          <label htmlFor="haveCalled">Har ringt:</label>
+          <CheckboxInput
+            name="haveCalled"
+            checked={filterOptions.haveCalled}
+            onChange={(e: any) => onFilterChange((prev) => ({ ...prev, haveCalled: e.target.checked }))}
+          />
+        </div>
+        <div className="flex items-center justify-between">
+          <label htmlFor="spontaneousApplication">Spontanansökan:</label>
+          <CheckboxInput
+            name="spontaneousApplication"
+            checked={filterOptions.spontaneousApplication}
+            onChange={(e: any) => onFilterChange((prev) => ({ ...prev, spontaneousApplication: e.target.checked }))}
+          />
+        </div>
         <button
-          onClick={() => onFilterChange({ from: "", to: "", applicationStatus: "" })}
+          onClick={() =>
+            onFilterChange({
+              from: "",
+              to: "",
+              applicationStatus: "",
+              haveCalled: false,
+              spontaneousApplication: false,
+            })
+          }
           className="mt-2 hover:cursor-pointer hover:opacity-80"
         >
           Återställ
