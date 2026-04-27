@@ -15,6 +15,18 @@ AI-driven jobbannons sida (enbart jobbannonser med `C#` som nyckelord för nu). 
 
 **Presentation** - All data visas upp i en simpel webbapp.
 
+## Bilder
+
+<p align="center">
+  <img src="assets/home.png" alt="Skärmbild av startsidan" width="45%" />
+  <img src="assets/details.png" alt="Skärmbild av detaljsidan" width="45%" />
+</p>
+
+<p align="center">
+  <img src="assets/tracker.png" alt="Skärmbild av tracker sidan" width="45%" />
+  <img src="assets/saved.png" alt="Skärmbild av sparade jobb sidan" width="45%" />
+</p>
+
 ## Tech Stack
 
 ### Backend (.NET 10)
